@@ -10,13 +10,13 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.util.MPIDController;
-import frc.robot.util.MPIDSubsystem;
+import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import static frc.robot.Constants.Swerve.*;
 
-public class SwerveModule extends MPIDSubsystem {
+public class SwerveModule extends PIDSubsystem {
   
   private TalonFX speedMotor;
   private CANSparkMax angleMotor;
@@ -29,7 +29,7 @@ public class SwerveModule extends MPIDSubsystem {
   /** Creates a new SwerveModule. */
   public SwerveModule(int moduleNumber, SwerveDrive swerveDrive) {
     // initialize a pid controller using the super constructor
-    super(new MPIDController(AnglePID.KP, AnglePID.KI, AnglePID.KD));
+    super(new PIDController(AnglePID.KP, AnglePID.KI, AnglePID.KD));
 
     this.moduleNumber = moduleNumber;
 
