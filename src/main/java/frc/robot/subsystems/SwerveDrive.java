@@ -18,7 +18,7 @@ import static frc.robot.Constants.Swerve.*;
 
 public class SwerveDrive extends SubsystemBase {
 
-  private SwerveDriveKinematics mSwerveDriveKinematics;
+  private SwerveDriveKinematics swerveDriveKinematics;
   private SwerveModule[] swerveModules;
   private SwerveModuleState[] moduleStates;
   private Pose2d pose;
@@ -32,7 +32,7 @@ public class SwerveDrive extends SubsystemBase {
   
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
-    mSwerveDriveKinematics = new SwerveDriveKinematics(
+    swerveDriveKinematics = new SwerveDriveKinematics(
       ModulePositions.FRONT_LEFT,
       ModulePositions.FRONT_RIGHT,
       ModulePositions.BACK_LEFT,
@@ -87,7 +87,7 @@ public class SwerveDrive extends SubsystemBase {
 
     // use the kinematics class to turn robot velocities into wheel speeds and angles
     // also normalize the speeds so they do not exceed the current max wheel speed
-    moduleStates = mSwerveDriveKinematics.toSwerveModuleStates(input);
+    moduleStates = swerveDriveKinematics.toSwerveModuleStates(input);
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_WHEEL_SPEED);
 
     for (int i = 0; i < NUM_MODULES; i++) {
@@ -170,9 +170,18 @@ public class SwerveDrive extends SubsystemBase {
   //  * Updates the pose of the swerve drive
   //  */
   // public void updatePose() {
-
+  //   pose = odometry.update(getGyroAngle(), moduleStates);
   // }
 
+
+
+  /**
+   * 
+   * @return the swerve drive's kinematics object
+   */
+  public SwerveDriveKinematics getmSwerveDriveKinematics() {
+      return swerveDriveKinematics;
+  }
 
 
   /**
@@ -209,5 +218,6 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     // TODO: add in pose updater
+    // updatePose();
   }
 }
