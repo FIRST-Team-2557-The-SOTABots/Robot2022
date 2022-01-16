@@ -34,18 +34,14 @@ public class Logitech extends Joystick {
         public static final int START = 8;
 
         // axis numbers and button port for left stick
-        public static class LeftStick {
-            public static final int X = 0;
-            public static final int Y = 1;
-            public static final int BUTTON = 9;
-        }
+        public static final int LEFT_STICK_X = 0;
+        public static final int LEFT_STICK_Y = 1;
+        public static final int LEFT_STICK_BUTTON = 9;
 
         // axis numbers and button port for right stick
-        public static class RightStick {
-            public static final int X = 4;
-            public static final int Y = 5;
-            public static final int BUTTON = 10;
-        }
+        public static final int RIGHT_STICK_X = 4;
+        public static final int RIGHT_STICK_Y = 5;
+        public static final int RIGHT_STICK_BUTTON = 10;
     }
     
 
@@ -65,7 +61,7 @@ public class Logitech extends Joystick {
     @Override
     public double getRawAxis(int axis) {
         double value;
-        if (axis == Ports.LeftStick.Y || axis == Ports.RightStick.Y)
+        if (axis == Ports.LEFT_STICK_Y || axis == Ports.RIGHT_STICK_Y)
             value = -super.getRawAxis(axis);
         else value = super.getRawAxis(axis);
 

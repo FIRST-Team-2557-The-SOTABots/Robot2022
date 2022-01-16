@@ -54,11 +54,11 @@ public final class Constants {
             // in encoder counts
             // the number that must be added to the setpoint of the module's rotation (one per module)
             // i.e. the value of the absolute encoder when the module is straight
-            public static final double[] OFFSETS = {0.541, 1.327, 3.082, 3.246};
+            public static final double[] OFFSETS = {4.442, 0.896, 1.965, 1.768};
 
             // in encoder counts per revolution
             // CCW from above is positive direction
-            public static final double CPR = 4.816; // TODO: re-measure
+            public static final double CPR = 4.955;
         }
 
         public static class TalonEncoder {
@@ -85,8 +85,6 @@ public final class Constants {
 
         // in radians per second
         public static final double MAX_ANGULAR_SPEED = 1; // TODO: unoffical number
-
-        public static final double JOYSTICK_DEADBAND = 0.07; // minimum input to drive method
     }
 
     public static class PCM {

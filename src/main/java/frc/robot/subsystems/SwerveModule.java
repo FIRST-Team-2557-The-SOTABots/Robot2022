@@ -34,7 +34,7 @@ public class SwerveModule extends PIDSubsystem {
     this.moduleNumber = moduleNumber;
 
     // NOTE: PIDController deals in native units
-    // NOTE: positive rotation is clockwise
+    // NOTE: positive rotation is counter-clockwise
 
     // make continuous input enabled, since the motor can rotate past the extreme encoder count values
     getController().enableContinuousInput(0, AngleEncoder.CPR);
@@ -96,7 +96,7 @@ public class SwerveModule extends PIDSubsystem {
    */
   public boolean setpointAdjustmentNecessary() {
     double currentSetpoint = getSetpoint();
-    double currentPosition = angleEncoder.getAverageVoltage();
+    double currentPosition = getMeasurement();
 
     // subtract the current position from the current setpoint to obtain the angle difference 
     // the easiest way to determine whether the angle difference exceeds 1/4 a rotation is to test 
@@ -177,15 +177,15 @@ public class SwerveModule extends PIDSubsystem {
 
   
 
-  /**
-   * 
-   * @return the calculated wheel speed of the module in meters per second
-   */
-  public double getSpeed() {
-    //   Motor Velocity  * Time Conversion * Distance Per Count = 
-    // Counts Per 100 ms * 1000 ms Per 1 s *  Meters Per Count  = Wheel Speed
-    return speedMotor.getSensorCollection().getIntegratedSensorVelocity();
-  }
+  // /**
+  //  * 
+  //  * @return the calculated wheel speed of the module in meters per second
+  //  */
+  // public double getSpeed() {
+  //   //   Motor Velocity  * Time Conversion * Distance Per Count = 
+  //   // Counts Per 100 ms * 1000 ms Per 1 s *  Meters Per Count  = Wheel Speed
+  //   return speedMotor.getSensorCollection().getIntegratedSensorVelocity();
+  // }
 
 
 
@@ -209,7 +209,9 @@ public class SwerveModule extends PIDSubsystem {
   @Override
   public double getMeasurement() {
     // Return the process variable measurement here
-    return angleEncoder.getAverageVoltage();
+    // angle encoder increases with cw movement, this conversion makes it increase with ccw movement
+    // for compatibility with the radian based setpoint from kinematics class
+    return -1 * angleEncoder.getAverageVoltage() + AngleEncoder.CPR;
   }
 
 
@@ -220,8 +222,7 @@ public class SwerveModule extends PIDSubsystem {
     // SmartDashboard.putNumber("Module " + this.moduleNumber + " setpoint", this.getSetpoint());
     // SmartDashboard.putBoolean("Module " + this.moduleNumber + " at setpoint", this.getController().atSetpoint());
 
-    SmartDashboard.putNumber("Module " + this.moduleNumber + " angle", this.angleEncoder.getAverageVoltage());
-    SmartDashboard.putNumber("Module " + this.moduleNumber + " gear", this.getCurrentGear());
-    SmartDashboard.putNumber("Module " + this.moduleNumber + " speed", this.getSpeed());
+    SmartDashboard.putNumber("Module " + this.moduleNumber + " measurement", getMeasurement());
+    SmartDashboard.putNumber("Module " + this.moduleNumber + " gear", getCurrentGear());
   }
 }
