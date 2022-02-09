@@ -12,7 +12,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.PCM;
 
 import static frc.robot.Constants.Swerve.*;
 
@@ -33,10 +32,10 @@ public class SwerveDrive extends SubsystemBase {
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     swerveDriveKinematics = new SwerveDriveKinematics(
-      ModulePositions.FRONT_LEFT,
-      ModulePositions.FRONT_RIGHT,
-      ModulePositions.BACK_LEFT,
-      ModulePositions.BACK_RIGHT
+      FRONT_LEFT_MODULE_POSITION,
+      FRONT_RIGHT_MODULE_POSITION,
+      BACK_LEFT_MODULE_POSITION,
+      BACK_RIGHT_MODULE_POSITION
     );
 
     swerveModules = new SwerveModule[NUM_MODULES];
@@ -48,7 +47,7 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     // the double solenoid is connected to all module's shifters
-    shifter = new DoubleSolenoid(PCM.PORT, PneumaticsModuleType.CTREPCM, Ports.FORWARD_CHANNEL, Ports.REVERSE_CHANNEL);
+    shifter = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
     shiftDown();
 
     // gyro = new AHRS(Ports.GYRO);
@@ -94,7 +93,7 @@ public class SwerveDrive extends SubsystemBase {
       // make the setpoint of the rotation pid the encoder amount of radians the kinematics class determined 
       // offset this amount of encoder counts by the offset corresponding to this swerve module
       // likewise set the speed equal to the value determined by the kinematics class
-      double setpoint = SwerveModule.radiansToNative(moduleStates[i].angle.getRadians()) + AngleEncoder.OFFSETS[i];
+      double setpoint = SwerveModule.radiansToNative(moduleStates[i].angle.getRadians()) + ANGLE_ENCODER_OFFSETS[i];
       double speed = moduleStates[i].speedMetersPerSecond;
 
       swerveModules[i].drive(setpoint, speed);
@@ -110,10 +109,7 @@ public class SwerveDrive extends SubsystemBase {
   public void drive(SwerveModuleState[] states) {
     moduleStates = states;
     for (int i = 0; i < NUM_MODULES; i++) {
-      double setpoint = SwerveModule.radiansToNative(moduleStates[i].angle.getRadians()) + AngleEncoder.OFFSETS[i];
-      double speed = moduleStates[i].speedMetersPerSecond;
-
-      swerveModules[i].drive(setpoint, speed);
+      swerveModules[i].drive(states[i]);
     }
   }
 
@@ -124,7 +120,7 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void shiftUp() {
     currentGear = 1;
-    shifter.set(Ports.HIGH_GEAR_VALUE);
+    shifter.set(HIGH_GEAR_VALUE);
   }
 
 
@@ -134,7 +130,7 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void shiftDown() {
     currentGear = 0;
-    shifter.set(Ports.LOW_GEAR_VALUE);
+    shifter.set(LOW_GEAR_VALUE);
   }
 
 
