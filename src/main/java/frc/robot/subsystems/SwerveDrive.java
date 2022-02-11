@@ -5,29 +5,33 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Swerve.*;
 
+import com.kauailabs.navx.frc.AHRS;
+
 public class SwerveDrive extends SubsystemBase {
 
   private SwerveDriveKinematics swerveDriveKinematics;
-  private SwerveModule[] swerveModules;
+  private SwerveModule[] swerveModules = new SwerveModule[NUM_MODULES];;
   private SwerveModuleState[] moduleStates;
-  private Pose2d pose;
-  private SwerveDriveOdometry odometry;
 
   private boolean fieldCentricActive = true;
-  private int currentGear;
 
-  // private AHRS gyro;
+  private AHRS gyro;
   private DoubleSolenoid shifter;
+  
+  private Pose2d pose;
+  private SwerveDriveOdometry odometry;
   
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
@@ -37,25 +41,21 @@ public class SwerveDrive extends SubsystemBase {
       BACK_LEFT_MODULE_POSITION,
       BACK_RIGHT_MODULE_POSITION
     );
-
-    swerveModules = new SwerveModule[NUM_MODULES];
-    
     for (int i = 0; i < NUM_MODULES; i++) {
       swerveModules[i] = new SwerveModule(i, this);
-      
-      swerveModules[i].enable();
+    }
+    for (int i = 0; i < NUM_MODULES; i++) {
+      moduleStates[i] = new SwerveModuleState(0.0, new Rotation2d(0.0));
     }
 
-    // the double solenoid is connected to all module's shifters
+    gyro = new AHRS(Port.kMXP);
+    gyro.reset();
     shifter = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
     shiftDown();
 
-    // gyro = new AHRS(Ports.GYRO);
-    // gyro.reset();
-    
     // construct swerve pose with values from constants as starting point
-    // mSwervePose = new Pose2d(INITAL_POSE.getX(), INITAL_POSE.getY(), INITAL_POSE.getRotation());
-    // mSwerveDriveOdometry = new SwerveDriveOdometry(mSwerveDriveKinematics, new Rotation2d(getGyroAngle()), mSwervePose);
+    pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
+    odometry = new SwerveDriveOdometry(swerveDriveKinematics, new Rotation2d(getGyroAngle()), pose);
   }
 
 
@@ -90,13 +90,7 @@ public class SwerveDrive extends SubsystemBase {
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_WHEEL_SPEED);
 
     for (int i = 0; i < NUM_MODULES; i++) {
-      // make the setpoint of the rotation pid the encoder amount of radians the kinematics class determined 
-      // offset this amount of encoder counts by the offset corresponding to this swerve module
-      // likewise set the speed equal to the value determined by the kinematics class
-      double setpoint = SwerveModule.radiansToNative(moduleStates[i].angle.getRadians()) + ANGLE_ENCODER_OFFSETS[i];
-      double speed = moduleStates[i].speedMetersPerSecond;
-
-      swerveModules[i].drive(setpoint, speed);
+      swerveModules[i].drive(moduleStates[i]);
     }
   }
 
@@ -119,7 +113,6 @@ public class SwerveDrive extends SubsystemBase {
    * Shifts to high gear
    */
   public void shiftUp() {
-    currentGear = 1;
     shifter.set(HIGH_GEAR_VALUE);
   }
 
@@ -129,45 +122,44 @@ public class SwerveDrive extends SubsystemBase {
    * Shifts to low gear
    */
   public void shiftDown() {
-    currentGear = 0;
     shifter.set(LOW_GEAR_VALUE);
   }
 
 
 
-  // /**
-  //  * @return gyro angle but in radians
-  //  */
-  // public double getGyroAngle() {
-  //   return -Math.toRadians(gyro.getAngle());
-  // }
+  /**
+   * @return gyro angle but in radians
+   */
+  public double getGyroAngle() {
+    return -Math.toRadians(gyro.getAngle());
+  }
 
 
 
-  // /**
-  //  * resets the gyro to 0 degrees
-  //  */
-  // public void resetGyro() {
-  //   gyro.reset();
-  // }
+  /**
+   * resets the gyro to 0 degrees
+   */
+  public void resetGyro() {
+    gyro.reset();
+  }
 
 
 
-  // /**
-  //  * @return Pose2d object representing the robot's position and rotation
-  //  */
-  // public Pose2d getSwervePose() {
-  //   return mSwervePose;
-  // }
+  /**
+   * @return Pose2d object representing the robot's position and rotation
+   */
+  public Pose2d getSwervePose() {
+    return pose;
+  }
 
 
 
-  // /**
-  //  * Updates the pose of the swerve drive
-  //  */
-  // public void updatePose() {
-  //   pose = odometry.update(getGyroAngle(), moduleStates);
-  // }
+  /**
+   * Updates the pose of the swerve drive
+   */
+  public void updatePose() {
+    pose = odometry.update(new Rotation2d(getGyroAngle()), moduleStates);
+  }
 
 
 
@@ -175,7 +167,7 @@ public class SwerveDrive extends SubsystemBase {
    * 
    * @return the swerve drive's kinematics object
    */
-  public SwerveDriveKinematics getmSwerveDriveKinematics() {
+  public SwerveDriveKinematics getKinematics() {
       return swerveDriveKinematics;
   }
 
@@ -185,7 +177,7 @@ public class SwerveDrive extends SubsystemBase {
    * @return the current gear. 0 is low, 1 is high
    */
   public int getCurrentGear() {
-      return currentGear;
+      return shifter.get() == HIGH_GEAR_VALUE ? 1 : 0;
   }
 
 
@@ -213,7 +205,6 @@ public class SwerveDrive extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // TODO: add in pose updater
-    // updatePose();
+    updatePose();
   }
 }
