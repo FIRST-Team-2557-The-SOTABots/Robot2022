@@ -169,6 +169,19 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * 
+   * @return the state of the chassis as measured by encoders, not the set state
+   */
+  public ChassisSpeeds getMeasuredChassisSpeeds() {
+    SwerveModuleState[] measuredModuleStates = new SwerveModuleState[NUM_MODULES];
+    for (int i = 0; i < NUM_MODULES; i++)
+      measuredModuleStates[i] = swerveModules[i].getMeasuredState();
+    return swerveDriveKinematics.toChassisSpeeds(measuredModuleStates);
+  }
+
+
+
+  /**
+   * 
    * @param fieldCentricActive whether to activate field centric mode
    */
   public void setFieldCentricActive(boolean fieldCentricActive) {

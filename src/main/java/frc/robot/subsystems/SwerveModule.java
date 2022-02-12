@@ -178,6 +178,24 @@ public class SwerveModule extends SubsystemBase {
 
 
   /**
+   * To accurately track the behavior of the drivetrain, knowing the actual state of the module is necessary since set state
+   * often varies from actual state.
+   * @return the measured state of the swerve module (not set state!)
+   */
+  public SwerveModuleState getMeasuredState() {
+    SwerveModuleState state = new SwerveModuleState(getSpeed(), new Rotation2d(nativeToRadians(getAngle())));
+    // TODO: uncomment if this is necessary
+    // // state should have positive wheel speed, flip direction if flipping wheel speed is necessary  
+    // if (state.speedMetersPerSecond < 0.0) {
+    //   state.speedMetersPerSecond *= -1;
+    //   state.angle = state.angle.plus(new Rotation2d(Math.PI));
+    // }
+    return state;
+  }
+
+
+
+  /**
    * 
    * @return whether the module is angled to the set angle
    */
