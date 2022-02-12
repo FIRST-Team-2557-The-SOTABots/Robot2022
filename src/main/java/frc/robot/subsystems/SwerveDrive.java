@@ -22,8 +22,8 @@ import com.kauailabs.navx.frc.AHRS;
 public class SwerveDrive extends SubsystemBase {
 
   private SwerveDriveKinematics swerveDriveKinematics;
-  private SwerveModule[] swerveModules = new SwerveModule[NUM_MODULES];;
-  private SwerveModuleState[] moduleStates;
+  private SwerveModule[] swerveModules = new SwerveModule[NUM_MODULES];
+  private SwerveModuleState[] moduleStates = new SwerveModuleState[NUM_MODULES];
 
   private boolean fieldCentricActive = true;
 
@@ -62,36 +62,20 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * This method makes the swerve drivetrain drive based on 
-   * @param forward the forward velocity of the robot
-   * @param strafe the left velocity of the robot
-   * @param rotate the counter-clockwise angular velocity of the robot
+   * @param xVelocity the forward velocity of the robot in meters per second
+   * @param yVelocity the left velocity of the robot in meters per second
+   * @param angularVelocity the counter-clockwise angular velocity of the robot in radians per second
    */
-  public void drive(double forward, double strafe, double rotate) {
-    // transform the input forward strafe and rotate for field centric drive
-    // if (fieldCentricActive) {
-    //   // convert the gyro angle from clockwise degrees to counterclockwise radians
-    //   double gyroAngle = getGyroAngle();
+  public void drive(double xVelocity, double yVelocity, double angularVelocity) {    
+    // create chassis input state, converting from field relative if needed
+    ChassisSpeeds input = fieldCentricActive ? 
+      ChassisSpeeds.fromFieldRelativeSpeeds(xVelocity, yVelocity, angularVelocity, new Rotation2d(getGyroAngle())) :
+      new ChassisSpeeds(xVelocity, yVelocity, angularVelocity);
 
-    //   double tempForward = forward * Math.cos(gyroAngle) + strafe * Math.sin(gyroAngle);
-    //   strafe = -forward * Math.sin(gyroAngle) + strafe * Math.cos(gyroAngle);
-    //   forward = tempForward;
-    // }
-    
-    // scale the max speeds by factors of the corresponding parameters
-    ChassisSpeeds input = new ChassisSpeeds(
-      forward * MAX_WHEEL_SPEED,
-      strafe * MAX_WHEEL_SPEED, 
-      rotate * MAX_ANGULAR_SPEED
-    );
-
-    // use the kinematics class to turn robot velocities into wheel speeds and angles
-    // also normalize the speeds so they do not exceed the current max wheel speed
+    // convert chassis input into wheel input, normalizing wheel speeds, then set each wheel
     moduleStates = swerveDriveKinematics.toSwerveModuleStates(input);
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_WHEEL_SPEED);
-
-    for (int i = 0; i < NUM_MODULES; i++) {
-      swerveModules[i].drive(moduleStates[i]);
-    }
+    drive(moduleStates);
   }
 
 
@@ -103,6 +87,7 @@ public class SwerveDrive extends SubsystemBase {
   public void drive(SwerveModuleState[] states) {
     moduleStates = states;
     for (int i = 0; i < NUM_MODULES; i++) {
+      // TODO: prevent modules from returning to the default position
       swerveModules[i].drive(states[i]);
     }
   }

@@ -40,7 +40,7 @@ public final class Constants {
         public static final double SPEED_PID_TOLERANCE = 0.05; // TODO: update
 
         // all motor value arrays are in the order FL, FR, BL, BR
-        public static final int[] ANGLE_MOTOR_PORTS = {4, 5, 6, 7};
+        public static final int[] ANGLE_MOTOR_PORTS = {3, 4, 9, 8};
         public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false}; // TODO: update
 
         public static final int[] SPEED_MOTOR_PORTS = {0, 1, 2, 3};
@@ -66,9 +66,9 @@ public final class Constants {
         public static final int NUM_MODULES = 4;
         
         // in meters
-        public static final double WHEEL_BASE = 23.111 * METERS_PER_INCH;
-        public static final double TRACK_WIDTH = 23.111 * METERS_PER_INCH;
-        public static final double WHEEL_DIAMETER = 4.0 * METERS_PER_INCH;
+        public static final double WHEEL_BASE = 23.111 * METERS_PER_INCH; // TODO: check 
+        public static final double TRACK_WIDTH = 23.111 * METERS_PER_INCH; // TODO: check 
+        public static final double WHEEL_DIAMETER = 4.0 * METERS_PER_INCH; // TODO: check 
         public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
         // translation 2d considers the front of the robot as the positive x direction

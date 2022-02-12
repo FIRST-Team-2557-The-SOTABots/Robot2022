@@ -66,23 +66,10 @@ public class SwerveModule extends SubsystemBase {
 
 
 
-  //  /**
-  //  * This method is called by the managing swerve drivetrain
-  //  * @param setpoint module rotation setpoint in native units
-  //  * @param speed target speed in m/s
-  //  */
-  // public void drive(double setpoint, double speed) {
-  //   setSetpoint(setpoint);
-  //   setSpeed(speed);
-
-  //   if (setpointAdjustmentNecessary()) {
-  //     flipSetpoint();
-  //     setSpeed(-speed);
-  //   }
-  // }
-
-
-
+  /**
+   * 
+   * @param state the speed and rotation the module should track
+   */
   public void drive(SwerveModuleState state) {
     // optimize state so that module never turns more than 90 degrees
     state = SwerveModuleState.optimize(state, new Rotation2d(nativeToRadians(getAngle())));
@@ -97,56 +84,10 @@ public class SwerveModule extends SubsystemBase {
     double speedPIDOutput = speedPID.calculate(speedMotor.getSelectedSensorVelocity(), speedSetpointNative);
     double speedFFOutput = speedFF.calculate(speedSetpointNative);
 
+    // TODO: speed should be 0 unless module is at its angle setpoint
     // speedMotor.setVoltage(speedFFOutput + speedPIDOutput); // TODO: enable
-    speedMotor.set(TalonFXControlMode.PercentOutput, state.speedMetersPerSecond / MAX_WHEEL_SPEED); // TODO: change
+    speedMotor.set(TalonFXControlMode.PercentOutput, state.speedMetersPerSecond / MAX_WHEEL_SPEED); // TODO: delete after testing
   }
-
-
-
-  // /**
-  //  * The maximum angle the swerve module should have to travel to get to the right orientation
-  //  * is 90 degrees, π / 2 radians, etc. If traveling to the setpoint would require exceeding this 
-  //  * amount, it would be faster to rotate to the angle opposite the setpoint. This method checks
-  //  * whether this adjustment is needed.
-  //  * @return whether this setpoint needs adjustment
-  //  */
-  // public boolean setpointAdjustmentNecessary() {
-  //   double currentSetpoint = getSetpoint();
-  //   double currentPosition = getMeasurement();
-
-  //   // subtract the current position from the current setpoint to obtain the angle difference 
-  //   // the easiest way to determine whether the angle difference exceeds 1/4 a rotation is to test 
-  //   // whether the cosine of the angle is negative after converting the angle difference to radians
-  //   // this method makes it easier to handle the continuous nature of angles
-  //   double absAngleDifference = nativeToRadians(Math.abs(currentSetpoint - currentPosition));
-
-  //   if (Math.cos(absAngleDifference) < 0) {
-  //     return true;
-  //   }
-    
-  //   // if the angle difference was under a quarter turn, the setpoint doesn't need to change 
-  //   return false;
-  // }
-
-
-
-  // /**
-  //  * If the setpoint needs to be adjusted so the module takes a faster route to an angle,
-  //  * this method can readjust the setpoint to be the opposite angle
-  //  */
-  // private void flipSetpoint() {
-  //   double currentSetpoint = getSetpoint();
-  //   double halfEncoderCircle = ANGLE_ENCODER_CPR / 2;
-
-  //   // we need to flip the setpoint by half a circle, but we need to keep it within the range of
-  //   // valid angle encoder values, so we make checks to determine whether to add or subtract a half
-  //   // circle
-  //   if (currentSetpoint < halfEncoderCircle) {
-  //     setSetpoint(currentSetpoint + halfEncoderCircle);
-  //   } else {
-  //     setSetpoint(currentSetpoint - halfEncoderCircle);
-  //   }
-  // }
 
 
 
@@ -232,6 +173,16 @@ public class SwerveModule extends SubsystemBase {
    */
   public double getSpeed() {
     return nativeToMetersPerSecond(speedMotor.getSelectedSensorVelocity());
+  }
+
+
+
+  /**
+   * 
+   * @return whether the module is angled to the set angle
+   */
+  public boolean atAngleSetpoint() {
+    return anglePID.atGoal();
   }
 
 

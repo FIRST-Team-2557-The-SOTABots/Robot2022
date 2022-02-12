@@ -45,9 +45,9 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           swerveDrive.drive(
-            dStick.getRawAxis(LEFT_STICK_Y),
-            dStick.getRawAxis(LEFT_STICK_X),
-            dStick.getRawAxis(RIGHT_STICK_X)
+            dStick.getRawAxis(LEFT_STICK_Y) * Constants.Swerve.MAX_WHEEL_SPEED,
+            dStick.getRawAxis(LEFT_STICK_X) * Constants.Swerve.MAX_WHEEL_SPEED,
+            dStick.getRawAxis(RIGHT_STICK_X) * Constants.Swerve.MAX_ANGULAR_SPEED
           );
         },
         swerveDrive
@@ -67,19 +67,23 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    da.whenPressed(new InstantCommand(
-      () -> {
-        swerveDrive.shiftUp();
-      },
-      swerveDrive
-    ));
+    da.whenPressed(
+      new InstantCommand(
+        () -> {
+          swerveDrive.shiftUp();
+        },
+        swerveDrive
+      )
+    );
 
-    db.whenPressed(new InstantCommand(
-      () -> {
-        swerveDrive.shiftDown();
-      },
-      swerveDrive
-    ));
+    db.whenPressed(
+      new InstantCommand(
+        () -> {
+          swerveDrive.shiftDown();
+        },
+        swerveDrive
+      )
+    );
   }
 
 
