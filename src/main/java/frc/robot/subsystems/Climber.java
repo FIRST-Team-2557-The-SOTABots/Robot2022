@@ -24,15 +24,15 @@ public class Climber extends SubsystemBase {
   public Climber() {
     leftHook = new CANSparkMax(LEFT_HOOK_MOTOR_PORT, MotorType.kBrushless);
     leftHook.restoreFactoryDefaults();
-    leftHook.getEncoder().setPosition(HOOK_START_POSITION);
+    leftHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
     leftHook.setInverted(LEFT_HOOK_INVERTED);
     rightHook = new CANSparkMax(RIGHT_HOOK_MOTOR_PORT, MotorType.kBrushless);
     rightHook.restoreFactoryDefaults();
-    rightHook.getEncoder().setPosition(HOOK_START_POSITION);
+    rightHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
     rightHook.follow(leftHook, RIGHT_HOOK_INVERTED);
     angleMotor = new WPI_TalonSRX(ANGLE_MOTOR_PORT);
     angleMotor.configFactoryDefault();
-    angleMotor.getSensorCollection().setQuadraturePosition(ANGLE_HOOK_START_POSITION, 0);
+    angleMotor.getSensorCollection().setQuadraturePosition(MIN_ANGLE_ENCODER, 0);
     angleMotor.setInverted(ANGLE_HOOK_INVERTED);
     angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL, REVERSE_CHANNEL);
     lock();
@@ -60,10 +60,10 @@ public class Climber extends SubsystemBase {
 
   public void runAngle(double spd) {
 
-    if (getAngleEncoderPosition() >= ANGLE_HIGH_LIMIT)
+    if (getAngleEncoderPosition() >= ANGLE_ENCODER_HIGH_LIMIT)
       spd = Math.min(0, spd);
 
-    if (getAngleEncoderPosition() <= ANGLE_LOW_LIMIT)
+    if (getAngleEncoderPosition() <= ANGLE_ENCODER_LOW_LIMIT)
       spd = Math.max(0, spd);
 
     angleMotor.set(spd);
@@ -87,10 +87,7 @@ public class Climber extends SubsystemBase {
    * @return angle of the angling arm in radians
    */
   public double getAngle() {
-
-    // TODO make return angle based off of angleMotors encoder count
-    return 0.0;
-
+    return (MAX_ANGLE - MIN_ANGLE) / ((double) MAX_ANGLE_ENCODER - MIN_ANGLE_ENCODER) * getAngleEncoderPosition() + MIN_ANGLE;
   }
 
   /**
@@ -100,7 +97,7 @@ public class Climber extends SubsystemBase {
   public double getLength() {
 
     // TODO make return length of the extending arms 
-    return 0.0;
+    return (getExtendEncoderPosition()/EXTEND_HIGH_LIMIT)*EXTEND_HOOK_MAX_LENGTH;
 
   }
 
@@ -110,10 +107,11 @@ public class Climber extends SubsystemBase {
    * @return returns length of the extending arms from the angle of the angling arms
    */
   public double getReqLength(double a) {
-
-    // TODO make return required length from angle(in radians)
-    return ANGLE_HOOK_LENGTH * Math.cos(a) + Math.sqrt(Math.pow(DISTANCE_BETWEEN_BARS, 2)); // TODO NOT DONE!!!!
-
+    return ANGLE_HOOK_LENGTH * Math.cos(a) + 
+      Math.sqrt(
+        Math.pow(DISTANCE_BETWEEN_BARS, 2) - 
+        Math.pow(ANGLE_HOOK_LENGTH, 2) * Math.pow(Math.sin(a), 2)
+      );
   }
 
   @Override

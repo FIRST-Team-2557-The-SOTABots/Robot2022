@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 /**
@@ -24,17 +25,29 @@ public final class Constants {
         public static final int ANGLE_MOTOR_PORT = 5;
         public static final int FORWARD_CHANNEL = 2;
         public static final int REVERSE_CHANNEL = 3;
-        public static final double HOOK_START_POSITION = 0; //TODO get correct value
-        public static final int ANGLE_HOOK_START_POSITION = 0; //TODO get correct value
+
+        public static final double MIN_EXTEND_HOOK_ENCODER = 0; //TODO get correct value
+        public static final double MAX_EXTEND_HOOK_ENCODER = 0; //TODO get correct value
+        public static final double EXTEND_HOOK_MAX_LENGTH = 25; // inches 
+
         public static final Value LOCK_VALUE = Value.kReverse;
         public static final Value UNLOCK_VALUE = Value.kForward;
+
         public static final boolean LEFT_HOOK_INVERTED = false; //TODO check 
         public static final boolean RIGHT_HOOK_INVERTED = false; //TODO check 
         public static final boolean ANGLE_HOOK_INVERTED = false; //TODO check 
+
         public static final double EXTEND_HIGH_LIMIT = -0; // TODO make better
         public static final double EXTEND_LOW_LIMIT = 0;
-        public static final double ANGLE_HIGH_LIMIT = -0; // TODO make better
-        public static final double ANGLE_LOW_LIMIT = 0;
+
+        public static final double ANGLE_ENCODER_HIGH_LIMIT = -0; // TODO make better
+        public static final double ANGLE_ENCODER_LOW_LIMIT = 0;
+
+        public static final int MAX_ANGLE_ENCODER = 1000; // encoder value at front hard stop TODO find actual 
+        public static final int MIN_ANGLE_ENCODER = 0; // encoder value at back hard stop TODO find actual 
+        public static final double MAX_ANGLE = 45 * Math.PI / 180; // angle at front hard stop, in degrees TODO fix
+        public static final double MIN_ANGLE = -10 * Math.PI / 180; // angle at back hard stop, in radians TODO find slope
+        
         public static final double ANGLE_HOOK_LENGTH = 35 * METERS_PER_INCH; // in meters // TODO get better measurements if possible
         public static final double DISTANCE_BETWEEN_BARS = 28.5024669985 * METERS_PER_INCH; // in meters
     }
