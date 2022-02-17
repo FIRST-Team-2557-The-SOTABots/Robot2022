@@ -50,7 +50,7 @@ public class SwerveDrive extends SubsystemBase {
 
     gyro = new AHRS(Port.kMXP);
     gyro.reset();
-    shifter = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
+    shifter = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
     shiftDown();
 
     // construct swerve pose with values from constants as starting point

@@ -45,8 +45,8 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           swerveDrive.drive(
-            dStick.getRawAxis(LEFT_STICK_Y) * Constants.Swerve.MAX_WHEEL_SPEED,
-            dStick.getRawAxis(LEFT_STICK_X) * Constants.Swerve.MAX_WHEEL_SPEED,
+            -dStick.getRawAxis(LEFT_STICK_Y) * Constants.Swerve.MAX_WHEEL_SPEED,
+            -dStick.getRawAxis(LEFT_STICK_X) * Constants.Swerve.MAX_WHEEL_SPEED,
             dStick.getRawAxis(RIGHT_STICK_X) * Constants.Swerve.MAX_ANGULAR_SPEED
           );
         },

@@ -21,38 +21,38 @@ public final class Constants {
 
     public static class Swerve {
 
-        public static final double ANGLE_FEEDFORWARD_KS = 0.0; // TODO: find real value
-        public static final double ANGLE_FEEDFORWARD_KV = 0.0; // TODO: find real value
+        // all motor value arrays are in the order FL, FR, BL, BR
+        public static final int[] ANGLE_MOTOR_PORTS = {3, 4, 9, 8};
+        public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false};
 
-        public static final double ANGLE_PID_KP = 0.2; // TODO: update
+        public static final int[] SPEED_MOTOR_PORTS = {0, 1, 2, 3};
+        public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false}; // TODO: update
+
+        // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
+        public static final double[] ANGLE_ENCODER_OFFSETS = {4.089, 1.085, 0.557, 4.189}; // in encoder counts
+        public static final double ANGLE_ENCODER_CPR = 4.957; // in encoder counts
+        public static final int[] ANGLE_ENCODER_PORTS = {0, 1, 2, 3};
+        public static final double ANGLE_FEEDFORWARD_KS = 0.77625; // TODO: find real value
+        public static final double ANGLE_FEEDFORWARD_KV = 0.39725; // TODO: find real value
+
+        public static final double ANGLE_PID_KP = 4; // TODO: update
         public static final double ANGLE_PID_KI = 0.0;
         public static final double ANGLE_PID_KD = 0.0;
         public static final double ANGLE_PID_TOLERANCE = 0.05; // TODO: update
-        public static final double ANGLE_PID_MAX_VELOCITY = 0.0; // TODO: update
-        public static final double ANGLE_PID_MAX_ACCELERATION = 0.0; // TODO: update
-        
+        public static final double ANGLE_PID_MAX_ACCELERATION = 70.0; // in encoder ticks per second per second
+        public static final double ANGLE_PID_MAX_VELOCITY = ANGLE_PID_MAX_ACCELERATION * Math.sqrt((ANGLE_ENCODER_CPR / 4) / ANGLE_PID_MAX_ACCELERATION); // in encoder ticks per second
+
         public static final double SPEED_FEEDFORWARD_KS = 0.0; // TODO: find real value
         public static final double SPEED_FEEDFORWARD_KV = 0.0; // TODO: find real value
+
 
         public static final double SPEED_PID_KP = 0.2; // TODO: update
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_TOLERANCE = 0.05; // TODO: update
 
-        // all motor value arrays are in the order FL, FR, BL, BR
-        public static final int[] ANGLE_MOTOR_PORTS = {3, 4, 9, 8};
-        public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false}; // TODO: update
-
-        public static final int[] SPEED_MOTOR_PORTS = {0, 1, 2, 3};
-        public static final boolean[] SPEED_MOTOR_INVERTS = {false, false, false, false}; // TODO: update
-
-        // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS = {4.442, 1.188, 0.490, 1.768}; // in encoder counts
-        public static final double ANGLE_ENCODER_CPR = 4.955; // in encoder counts
-        public static final int[] ANGLE_ENCODER_PORTS = {0, 1, 2, 3};
-
-        public static final int FORWARD_CHANNEL_PORT = 0; 
-        public static final int REVERSE_CHANNEL_PORT = 1;
+        public static final int FORWARD_CHANNEL_PORT = 6; 
+        public static final int REVERSE_CHANNEL_PORT = 7;
         public static final Value LOW_GEAR_VALUE = Value.kReverse; // FIXME
         public static final Value HIGH_GEAR_VALUE = Value.kForward; // FIXME
 

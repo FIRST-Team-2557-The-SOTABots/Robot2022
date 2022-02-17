@@ -60,11 +60,7 @@ public class Logitech extends Joystick {
      */
     @Override
     public double getRawAxis(int axis) {
-        double value;
-        if (axis == Ports.LEFT_STICK_Y || axis == Ports.RIGHT_STICK_Y)
-            value = -super.getRawAxis(axis);
-        else value = super.getRawAxis(axis);
-
+        double value = super.getRawAxis(axis);
         if (deadbandMap.containsKey(axis))
             return Math.abs(value) > deadbandMap.get(axis) ? value : 0;
         else return value;            
