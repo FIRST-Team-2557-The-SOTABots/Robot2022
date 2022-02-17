@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import static frc.robot.Constants.Control.*;
 
 import frc.robot.Constants;
+import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Sensors;
 import frc.robot.subsystems.SwerveDrive;
 import static frc.robot.util.Logitech.Ports.*;
 import frc.robot.util.Logitech;
@@ -31,6 +33,8 @@ public class RobotContainer {
 
   private SwerveDrive swerveDrive = new SwerveDrive();
   private Intake intake = new Intake();
+
+  public static Sensors sensors = new Sensors();
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
@@ -82,6 +86,10 @@ public class RobotContainer {
         },
         swerveDrive
       )
+    );
+
+    sensors.setDefaultCommand(
+      new RunDelivery()
     );
 
     // Configure the button bindings
