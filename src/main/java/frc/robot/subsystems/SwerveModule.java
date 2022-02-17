@@ -72,82 +72,29 @@ public class SwerveModule extends SubsystemBase {
    * @param state the speed and rotation the module should track
    */
   public void drive(SwerveModuleState state) {
-    // optimize state so that module never turns more than 90 degrees
-
-    // try add offset in as angle to state
+    // add angle offset as radian angle before optimizing
     state.angle = state.angle.plus(new Rotation2d(nativeToRadians(ANGLE_ENCODER_OFFSETS[moduleNumber])));
-    state = SwerveModuleState.optimize(state, new Rotation2d(nativeToRadians(getAngle())));
-    double angleSetpointNative = radiansToNative(state.angle.getRadians());
-
-    // WORKS:
-    // double angleSetpointNative = radiansToNative(state.angle.getRadians()) + ANGLE_ENCODER_OFFSETS[moduleNumber];
     
-    // double absAngleDifference = nativeToRadians(Math.abs(angleSetpointNative - getAngle()));
-    // if (Math.cos(absAngleDifference) < 0) {
-    //   double halfEncoderCircle = ANGLE_ENCODER_CPR / 2;
-    //   // we need to flip the setpoint by half a circle, but we need to keep it within the range of
-    //   // valid angle encoder values, so we make checks to determine whether to add or subtract a half
-    //   // circle
-    //   if (angleSetpointNative < halfEncoderCircle) {
-    //     angleSetpointNative = angleSetpointNative + halfEncoderCircle;
-    //   } else {
-    //     angleSetpointNative = angleSetpointNative - halfEncoderCircle;
-    //   }
+    // optimize state so that module never turns more than 90 degrees
+    state = SwerveModuleState.optimize(state, new Rotation2d(nativeToRadians(getAngle())));
 
-    //   // flip the speed if setpoint reversed
-    //   state.speedMetersPerSecond *= -1;
-    // }
-
-
+    double angleSetpointNative = radiansToNative(state.angle.getRadians());
     double anglePIDOutput = anglePID.calculate(getAngle(), angleSetpointNative);
     double angleFFOutput = angleFF.calculate(anglePID.getSetpoint().velocity);
 
-    angleMotor.setVoltage(anglePIDOutput + angleFFOutput);
+    // prevent modules from angling back to default position if no speed input
+    if (state.speedMetersPerSecond == 0.0)
+      angleMotor.setVoltage(0.0);
+    else
+      angleMotor.setVoltage(anglePIDOutput + angleFFOutput);
 
     double speedSetpointNative = metersPerSecondToNative(state.speedMetersPerSecond);
     double speedPIDOutput = speedPID.calculate(speedMotor.getSelectedSensorVelocity(), speedSetpointNative);
     double speedFFOutput = speedFF.calculate(speedSetpointNative);
 
-    // TODO: speed should be 0 unless module is at its angle setpoint
     // speedMotor.setVoltage(speedFFOutput + speedPIDOutput); // TODO: enable
     speedMotor.set(TalonFXControlMode.PercentOutput, state.speedMetersPerSecond / MAX_WHEEL_SPEED); // TODO: delete after testing
   }
-
-
-
-  // public SwerveModuleState adjustState(SwerveModuleState state) {
-  //   double currentSetpoint = state.angle.getRadians();
-  //   double currentPosition = getMeasurement();
-  //   // subtract the current position from the current setpoint to obtain the angle difference 
-  //   // the easiest way to determine whether the angle difference exceeds 1/4 a rotation is to test 
-  //   // whether the cosine of the angle is negative after converting the angle difference to radians
-  //   // this method makes it easier to handle the continuous nature of angles
-  //   double absAngleDifference = nativeToRadians(Math.abs(currentSetpoint - currentPosition));
-  //   if (Math.cos(absAngleDifference) < 0) {
-  //     return true;
-  //   }
-    
-  //   // if the angle difference was under a quarter turn, the setpoint doesn't need to change 
-  //   return false;
-  // }
-  // /**
-  //  * If the setpoint needs to be adjusted so the module takes a faster route to an angle,
-  //  * this method can readjust the setpoint to be the opposite angle
-  //  */
-  // private void flipSetpoint() {
-  //   double currentSetpoint = getSetpoint();
-  //   double halfEncoderCircle = AngleEncoder.CPR / 2;
-  //   double halfEncoderCircle = ANGLE_ENCODER_CPR / 2;
-
-  //   // we need to flip the setpoint by half a circle, but we need to keep it within the range of
-  //   // valid angle encoder values, so we make checks to determine whether to add or subtract a half
-  //   // circle
-  //   if (currentSetpoint < halfEncoderCircle) {
-  //     setSetpoint(currentSetpoint + halfEncoderCircle);
-  //   } else {
-  //     setSetpoint(currentSetpoint - halfEncoderCircle);
-  //   }
-  // }
 
 
 
@@ -267,6 +214,5 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Position " + moduleNumber, getAngle());
   }
 }

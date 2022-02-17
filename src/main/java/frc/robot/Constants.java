@@ -26,19 +26,19 @@ public final class Constants {
         public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false};
 
         public static final int[] SPEED_MOTOR_PORTS = {0, 1, 2, 3};
-        public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false}; // TODO: update
+        public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
         public static final double[] ANGLE_ENCODER_OFFSETS = {4.089, 1.085, 0.557, 4.189}; // in encoder counts
         public static final double ANGLE_ENCODER_CPR = 4.957; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {0, 1, 2, 3};
-        public static final double ANGLE_FEEDFORWARD_KS = 0.77625; // TODO: find real value
-        public static final double ANGLE_FEEDFORWARD_KV = 0.39725; // TODO: find real value
+        public static final double ANGLE_FEEDFORWARD_KS = 0.77625; // in volts
+        public static final double ANGLE_FEEDFORWARD_KV = 0.39725; // in volt seconds per encoder tick
 
-        public static final double ANGLE_PID_KP = 4; // TODO: update
+        public static final double ANGLE_PID_KP = 4;
         public static final double ANGLE_PID_KI = 0.0;
         public static final double ANGLE_PID_KD = 0.0;
-        public static final double ANGLE_PID_TOLERANCE = 0.05; // TODO: update
+        public static final double ANGLE_PID_TOLERANCE = 0.05;
         public static final double ANGLE_PID_MAX_ACCELERATION = 70.0; // in encoder ticks per second per second
         public static final double ANGLE_PID_MAX_VELOCITY = ANGLE_PID_MAX_ACCELERATION * Math.sqrt((ANGLE_ENCODER_CPR / 4) / ANGLE_PID_MAX_ACCELERATION); // in encoder ticks per second
 
@@ -53,8 +53,8 @@ public final class Constants {
 
         public static final int FORWARD_CHANNEL_PORT = 6; 
         public static final int REVERSE_CHANNEL_PORT = 7;
-        public static final Value LOW_GEAR_VALUE = Value.kReverse; // FIXME
-        public static final Value HIGH_GEAR_VALUE = Value.kForward; // FIXME
+        public static final Value LOW_GEAR_VALUE = Value.kForward;
+        public static final Value HIGH_GEAR_VALUE = Value.kReverse;
 
         // in counts per revolution
         public static final double TALON_ENCODER_CPR = 2048;
@@ -66,9 +66,9 @@ public final class Constants {
         public static final int NUM_MODULES = 4;
         
         // in meters
-        public static final double WHEEL_BASE = 23.111 * METERS_PER_INCH; // TODO: check 
-        public static final double TRACK_WIDTH = 23.111 * METERS_PER_INCH; // TODO: check 
-        public static final double WHEEL_DIAMETER = 4.0 * METERS_PER_INCH; // TODO: check 
+        public static final double WHEEL_BASE = 23.111 * METERS_PER_INCH;
+        public static final double TRACK_WIDTH = 23.111 * METERS_PER_INCH; // TODO: good?
+        public static final double WHEEL_DIAMETER = 4.0 * METERS_PER_INCH;
         public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
         // translation 2d considers the front of the robot as the positive x direction
@@ -91,7 +91,8 @@ public final class Constants {
             public static final double LEFT_X_DEADBAND = 0.1;
             public static final double LEFT_Y_DEADBAND = 0.1;
             public static final double RIGHT_X_DEADBAND = 0.1;
-            public static final double RIGHT_Y_DEADBAND = 0.1;
+            public static final double LEFT_TRIGGER_DEADBAND = 0.5;
+            public static final double RIGHT_TRIGGER_DEADBAND = 0.5;
         }
     }
 }

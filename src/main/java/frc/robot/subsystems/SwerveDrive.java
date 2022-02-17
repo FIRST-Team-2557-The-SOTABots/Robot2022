@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Swerve.*;
@@ -87,7 +88,6 @@ public class SwerveDrive extends SubsystemBase {
   public void drive(SwerveModuleState[] states) {
     moduleStates = states;
     for (int i = 0; i < NUM_MODULES; i++) {
-      // TODO: prevent modules from returning to the default position
       swerveModules[i].drive(states[i]);
     }
   }
@@ -204,5 +204,6 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     updatePose();
+    SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
   }
 }
