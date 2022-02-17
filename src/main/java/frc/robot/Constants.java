@@ -85,6 +85,16 @@ public final class Constants {
         public static final double MAX_ANGULAR_SPEED = 1; // TODO: unoffical number
     }
 
+    public static class Intake {
+        public static final int MOTOR_PORT = 1;
+        public static final boolean MOTOR_INVERTED = false;
+        public static final int SOLENOID_CHANNEL_A = 0;
+        public static final int SOLENOID_CHANNEL_B = 1;
+        public static final Value EXTEND_VALUE = Value.kReverse;
+        public static final Value RETRACT_VALUE = Value.kForward;
+        public static final double SPEED = 1.0;
+    }
+
     public static class Control {
         public static class Driver {
             public static final int PORT = 0;
@@ -93,6 +103,10 @@ public final class Constants {
             public static final double RIGHT_X_DEADBAND = 0.1;
             public static final double LEFT_TRIGGER_DEADBAND = 0.5;
             public static final double RIGHT_TRIGGER_DEADBAND = 0.5;
+        }
+
+        public static class Manipulator {
+            public static final int PORT = 1;
         }
     }
 }

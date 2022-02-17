@@ -14,7 +14,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import static frc.robot.Constants.Control.*;
 
-import frc.robot.Constants.Swerve;
+import frc.robot.Constants;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import static frc.robot.util.Logitech.Ports.*;
 import frc.robot.util.Logitech;
@@ -29,6 +30,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private SwerveDrive swerveDrive = new SwerveDrive();
+  private Intake intake = new Intake();
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
@@ -38,6 +40,14 @@ public class RobotContainer {
   private JoystickButton dy = new JoystickButton(dStick, Y);
   private JoystickButton dstart = new JoystickButton(dStick, START);
 
+  // Manipulator controller and associated buttons
+  private Logitech mStick = new Logitech(Manipulator.PORT);
+  private JoystickButton ma = new JoystickButton(mStick, A);
+  private JoystickButton mb = new JoystickButton(mStick, B);
+  private JoystickButton mx = new JoystickButton(mStick, X);
+  private JoystickButton my = new JoystickButton(mStick, Y);
+  private JoystickButton mstart = new JoystickButton(mStick, START);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -45,7 +55,6 @@ public class RobotContainer {
     dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
     dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
     dStick.setDeadband(RIGHT_STICK_X, Driver.RIGHT_X_DEADBAND);
-    
     dStick.setDeadband(LEFT_TRIGGER, Driver.LEFT_TRIGGER_DEADBAND);
     dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
 
@@ -112,6 +121,23 @@ public class RobotContainer {
           swerveDrive.resetGyro();
         },
         swerveDrive
+      )
+    );
+
+    ma.whenHeld(
+      new InstantCommand(
+        () -> {
+          intake.extend();
+          intake.run(Constants.Intake.SPEED);
+        },
+        intake
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          intake.retract();
+          intake.run(0.0);
+        }
       )
     );
   }
