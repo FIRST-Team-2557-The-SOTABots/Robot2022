@@ -15,8 +15,6 @@ import static frc.robot.util.Logitech.Ports.START;
 import static frc.robot.util.Logitech.Ports.X;
 import static frc.robot.util.Logitech.Ports.Y;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -135,7 +133,6 @@ public class RobotContainer {
         }, delivery)
         .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected())
         .andThen(() -> ballCount = 1),
-        
         // Boolean Supplier 
         () -> ballCount == 2)
         // Init method
@@ -143,14 +140,6 @@ public class RobotContainer {
           motorIsRunning = false;
           photoTurnedOn = false;
         }, delivery))
-        // Auto delivery for when flywheel is running
-        .alongWith(new RunCommand(() -> {
-          if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
-            ballCount = 0;
-            delivery.runMotor(-0.4);
-            SmartDashboard.putNumber("How many balls", ballCount);
-          }
-        }, shooter))
         // End method 
         .andThen(new InstantCommand(() -> {
           delivery.runMotor(0.0);
@@ -170,20 +159,17 @@ public class RobotContainer {
           shooter.runFlywheel(mStick.getRawAxis(RIGHT_TRIGGER));
           SmartDashboard.putNumber("flywheel speed", shooter.getSpeed());
 
-        }, shooter)
+        }, shooter)        
+        // Auto delivery for when flywheel is running
+        .alongWith(new RunCommand(() -> {
+          if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
+            ballCount = 0;
+            delivery.runMotor(-0.4);
+            SmartDashboard.putNumber("How many balls", ballCount);
+          }
+        }, delivery))
     );
 
-    // shooter.setDefaultCommand(
-    //   new RunCommand(
-    //     () -> {
-    //       if(shooter.getSpeed() != 0 && shooter.getSpeed() >= ){
-
-    //       }
-
-    //     }, shooter)
-    // );
-
-    // Configure the button bindings
     configureButtonBindings();
   }
 
@@ -240,21 +226,6 @@ public class RobotContainer {
       )
     );
     
-    // mrt.whenHeld(
-    //   new InstantCommand(
-    //     () -> {
-    //       shooter.runFlywheel(mStick.getRawAxis(RIGHT_TRIGGER));
-    //       SmartDashboard.putNumber("flywheel speed", shooter.getSpeed());
-    //     },
-    //     shooter
-    //   )
-    // ).whenReleased(
-    //   new InstantCommand(
-    //     () -> {
-    //       shooter.runFlywheel(0);
-    //     }
-    //   )
-    // );
   }
 
 
