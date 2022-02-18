@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,6 +21,9 @@ public class Climber extends SubsystemBase {
   private WPI_TalonSRX angleMotor;
   private DoubleSolenoid angleLock;
 
+  private DigitalInput leftMagSensor;
+  private DigitalInput rightMagSensor; //TODO: dont actually know if there is going to be a second mag sensor
+
   /** Creates a new Climber. */
   public Climber() {
     leftHook = new CANSparkMax(LEFT_HOOK_MOTOR_PORT, MotorType.kBrushless);
@@ -30,6 +34,8 @@ public class Climber extends SubsystemBase {
     rightHook.restoreFactoryDefaults();
     rightHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
     rightHook.follow(leftHook, RIGHT_HOOK_INVERTED);
+    leftMagSensor = new DigitalInput(RIGHT_MAG_SENSOR_PORT);
+    rightMagSensor = new DigitalInput(LEFT_MAG_SENSOR_PORT);
     angleMotor = new WPI_TalonSRX(ANGLE_MOTOR_PORT);
     angleMotor.configFactoryDefault();
     angleMotor.getSensorCollection().setQuadraturePosition(MIN_ANGLE_ENCODER, 0);
@@ -54,6 +60,9 @@ public class Climber extends SubsystemBase {
     if (getExtendEncoderPosition() <= EXTEND_LOW_LIMIT)
       spd = Math.max(0, spd);
 
+    if (!getSensor()) 
+      spd = Math.max(0, spd);//TODO: test if positive input makes it go up
+
     leftHook.set(spd);
 
   }
@@ -73,6 +82,14 @@ public class Climber extends SubsystemBase {
   public double getExtendEncoderPosition() {
 
     return leftHook.getEncoder().getPosition();
+
+  }
+
+  // little note, if it returns true then it would not be at its limit
+  // false would mean it is at its limit, reverse if you want
+  public boolean getSensor() {
+
+    return leftMagSensor.get();
 
   }
 

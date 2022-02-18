@@ -22,6 +22,8 @@ public final class Constants {
     public static final class Climber {
         public static final int LEFT_HOOK_MOTOR_PORT = 2;
         public static final int RIGHT_HOOK_MOTOR_PORT = 5;
+        public static final int LEFT_MAG_SENSOR_PORT = 0; //TODO: get correct port num
+        public static final int RIGHT_MAG_SENSOR_PORT = 0; //TODO: get correct port num
         public static final int ANGLE_MOTOR_PORT = 5;
         public static final int FORWARD_CHANNEL = 2;
         public static final int REVERSE_CHANNEL = 3;
@@ -50,5 +52,6 @@ public final class Constants {
         
         public static final double ANGLE_HOOK_LENGTH = 35 * METERS_PER_INCH; // in meters // TODO get better measurements if possible
         public static final double DISTANCE_BETWEEN_BARS = 28.5024669985 * METERS_PER_INCH; // in meters
+
     }
 }
