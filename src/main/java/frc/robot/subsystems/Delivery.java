@@ -23,7 +23,6 @@ public class Delivery extends SubsystemBase {
 
   private final ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
   private final DigitalInput photoElectricSensor = new DigitalInput(0);
-  private final DigitalInput magSensor = new DigitalInput(2);
 
   private boolean colorDetected;
   private boolean photoElectricDetected;
@@ -58,12 +57,6 @@ public class Delivery extends SubsystemBase {
     updatePhotoElectricDetection();
 
   }
-
-  public boolean getTestSensor() {
-
-    return magSensor.get();
-
-  } 
   
   public String getBallColor(){
     if(colorSensor.getRed() >= 9000){

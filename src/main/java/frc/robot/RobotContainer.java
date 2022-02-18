@@ -64,7 +64,7 @@ public class RobotContainer {
   private JoystickButton mstart = new JoystickButton(mStick, START);
   private JoystickButton mrt = new JoystickButton(mStick, RIGHT_TRIGGER);
 
-  private boolean isBall = false; // if it is false run 1 ball delivery and if true run 2 ball delivery
+  private int ballCount = 0; // 0 if it has no balls, 1 if it has a ball and 2 if it has two balls
   private boolean motorIsRunning = false;
   private boolean photoTurnedOn = false;
 
@@ -118,7 +118,8 @@ public class RobotContainer {
             }
           }
         }, delivery)
-        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected())
+        .andThen(() -> ballCount = 2),
         // 1 Ball delivery
         new RunCommand(() -> {
           if (!delivery.getBallColor().equals("no ball")) {
@@ -132,9 +133,11 @@ public class RobotContainer {
             }
           }
         }, delivery)
-        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected())
+        .andThen(() -> ballCount = 1),
+        
         // Boolean Supplier 
-        () -> isBall)
+        () -> ballCount == 2)
         // Init method
         .beforeStarting(new InstantCommand(() -> {
           motorIsRunning = false;
@@ -143,26 +146,20 @@ public class RobotContainer {
         // Auto delivery for when flywheel is running
         .alongWith(new RunCommand(() -> {
           if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
-            isBall = false;
+            ballCount = 0;
             delivery.runMotor(-0.4);
-            SmartDashboard.putBoolean("Is Ball", isBall);
+            SmartDashboard.putNumber("How many balls", ballCount);
           }
-
-          // TODO: get rid of test code please
-          SmartDashboard.putBoolean("Test Sensor", delivery.getTestSensor());
-
-        }, delivery, shooter))
+        }, shooter))
         // End method 
         .andThen(new InstantCommand(() -> {
           delivery.runMotor(0.0);
           motorIsRunning = false;
           photoTurnedOn = false;
-          if (!isBall) {
-            isBall = true;
-          }
+
           SmartDashboard.putBoolean("Motor is running", motorIsRunning);
           SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
-          SmartDashboard.putBoolean("Is Ball", isBall);
+          SmartDashboard.putNumber("How many balls", ballCount);
         }, delivery))
     );
 
