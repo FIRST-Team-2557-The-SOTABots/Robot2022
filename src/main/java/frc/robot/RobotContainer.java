@@ -62,7 +62,7 @@ public class RobotContainer {
   private JoystickButton mstart = new JoystickButton(mStick, START);
   private JoystickButton mrt = new JoystickButton(mStick, RIGHT_TRIGGER);
 
-  private int ballCount = 0; // 0 if it has no balls, 1 if it has a ball and 2 if it has two balls
+  private boolean isBall = false; // false makes it run 1 ball auto, true makes it run two ball auto
   private boolean motorIsRunning = false;
   private boolean photoTurnedOn = false;
 
@@ -106,49 +106,77 @@ public class RobotContainer {
         // 2 Ball delivery
         new RunCommand(() -> {
           if (photoTurnedOn) {
+
             SmartDashboard.putBoolean("motor is running", motorIsRunning);
             delivery.runMotor(-0.4);
 
             if(delivery.photoDetected()) {
+
               photoTurnedOn = true;
+
             } else {
+
               photoTurnedOn = false;
+
             }
           }
+
         }, delivery)
-        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected())
-        .andThen(() -> ballCount = 2),
+        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+
         // 1 Ball delivery
         new RunCommand(() -> {
           if (!delivery.getBallColor().equals("no ball")) {
+
             SmartDashboard.putBoolean("motor is running", motorIsRunning);
             delivery.runMotor(-0.4);
           
             if(delivery.photoDetected()){
+
               photoTurnedOn = true;
+
             } else {
+
               photoTurnedOn = false;
+
             }
+
           }
         }, delivery)
-        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected())
-        .andThen(() -> ballCount = 1),
+        .andThen(() -> isBall = true)
+        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+
         // Boolean Supplier 
-        () -> ballCount == 2)
+        () -> isBall)
+
         // Init method
         .beforeStarting(new InstantCommand(() -> {
+
           motorIsRunning = false;
           photoTurnedOn = false;
+
         }, delivery))
+        
+        // Auto delivery for when flywheel is running
+        .alongWith(new RunCommand(() -> {
+          if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
+            isBall = false;
+            delivery.runMotor(-0.4);
+            SmartDashboard.putBoolean("isBall", isBall);
+          }
+        }, shooter))
+
         // End method 
         .andThen(new InstantCommand(() -> {
+
           delivery.runMotor(0.0);
           motorIsRunning = false;
           photoTurnedOn = false;
 
           SmartDashboard.putBoolean("Motor is running", motorIsRunning);
           SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
-          SmartDashboard.putNumber("How many balls", ballCount);
+          SmartDashboard.putBoolean("isBall", isBall);
+
         }, delivery))
     );
 
@@ -160,14 +188,7 @@ public class RobotContainer {
           SmartDashboard.putNumber("flywheel speed", shooter.getSpeed());
 
         }, shooter)        
-        // Auto delivery for when flywheel is running
-        .alongWith(new RunCommand(() -> {
-          if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
-            ballCount = 0;
-            delivery.runMotor(-0.4);
-            SmartDashboard.putNumber("How many balls", ballCount);
-          }
-        }, delivery))
+
     );
 
     configureButtonBindings();
