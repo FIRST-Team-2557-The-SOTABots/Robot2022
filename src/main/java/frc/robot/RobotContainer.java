@@ -40,10 +40,10 @@ import frc.robot.util.Logitech;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  public static SwerveDrive swerveDrive = new SwerveDrive();
-  public static Intake intake = new Intake();
-  public static Shooter shooter = new Shooter();
-  public static Delivery delivery = new Delivery();
+  private SwerveDrive swerveDrive = new SwerveDrive();
+  private Intake intake = new Intake();
+  private Shooter shooter = new Shooter();
+  private Delivery delivery = new Delivery();
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
