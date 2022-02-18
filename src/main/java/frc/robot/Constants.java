@@ -93,6 +93,19 @@ public final class Constants {
         public static final Value EXTEND_VALUE = Value.kReverse;
         public static final Value RETRACT_VALUE = Value.kForward;
         public static final double SPEED = 1.0;
+        public static final int SENSOR_THRESHOLD = 9000;
+    }
+
+    public static final class Shooter {
+        public static final int FORWARD_CHANNEL_PORT = 4;
+        public static final int REVERSE_CHANNEL_PORT = 5;
+        public static final Value RAISED_VALUE = Value.kForward;
+        public static final Value LOWERED_VALUE = Value.kReverse; // TODO: find correct directions
+        public static final int MOTOR_1_PORT = 6; 
+        public static final int MOTOR_2_PORT = 7;
+        public static final double RAMP_RATE = 3.0;
+        public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
+        public static final double SHOOTING_SPEED = -415.0; //TODO: get better number
     }
 
     public static class Control {

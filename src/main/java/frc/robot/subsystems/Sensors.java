@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.*;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
@@ -38,6 +39,7 @@ public class Sensors extends SubsystemBase {
     //matcher.addColorMatch(cargoRed);
     //matcher.addColorMatch(air);
     motor = new WPI_TalonSRX(4);
+    motor.setNeutralMode(NeutralMode.Brake);
   }
 
   @Override
@@ -62,9 +64,9 @@ public class Sensors extends SubsystemBase {
   }
   
   public String getBallColor(){
-    if(colorSensor.getRed() >= 2 * colorSensor.getBlue()){
+    if(colorSensor.getRed() >= 9000){
       return "red";
-    } else if(colorSensor.getBlue() >= 1.5 * colorSensor.getRed()){
+    } else if(colorSensor.getBlue() >= 9000){
       return "blue";
     } else {
       return "no ball";

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -18,6 +19,7 @@ import frc.robot.Constants;
 import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Sensors;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
 import static frc.robot.util.Logitech.Ports.*;
 import frc.robot.util.Logitech;
@@ -31,9 +33,9 @@ import frc.robot.util.Logitech;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  private SwerveDrive swerveDrive = new SwerveDrive();
-  private Intake intake = new Intake();
-
+  public static SwerveDrive swerveDrive = new SwerveDrive();
+  public static Intake intake = new Intake();
+  public static Shooter shooter = new Shooter();
   public static Sensors sensors = new Sensors();
 
   // Driver controller and associated buttons
@@ -51,6 +53,9 @@ public class RobotContainer {
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
   private JoystickButton mstart = new JoystickButton(mStick, START);
+  private JoystickButton mrt = new JoystickButton(mStick, RIGHT_TRIGGER);
+
+  public static boolean isBall = false;
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -89,8 +94,29 @@ public class RobotContainer {
     );
 
     sensors.setDefaultCommand(
-      new RunDelivery()
+      new ConditionalCommand(onTrue, new RunDelivery(), isBall)
+      
     );
+
+    shooter.setDefaultCommand(
+      new RunCommand(
+        () -> {
+
+          shooter.runFlywheel(mStick.getRawAxis(RIGHT_TRIGGER));
+          SmartDashboard.putNumber("flywheel speed", shooter.getSpeed());
+
+        }, shooter)
+    );
+
+    // shooter.setDefaultCommand(
+    //   new RunCommand(
+    //     () -> {
+    //       if(shooter.getSpeed() != 0 && shooter.getSpeed() >= ){
+
+    //       }
+
+    //     }, shooter)
+    // );
 
     // Configure the button bindings
     configureButtonBindings();
@@ -143,11 +169,27 @@ public class RobotContainer {
     ).whenReleased(
       new InstantCommand(
         () -> {
-          intake.retract();
           intake.run(0.0);
+          intake.retract();
         }
       )
     );
+    
+    // mrt.whenHeld(
+    //   new InstantCommand(
+    //     () -> {
+    //       shooter.runFlywheel(mStick.getRawAxis(RIGHT_TRIGGER));
+    //       SmartDashboard.putNumber("flywheel speed", shooter.getSpeed());
+    //     },
+    //     shooter
+    //   )
+    // ).whenReleased(
+    //   new InstantCommand(
+    //     () -> {
+    //       shooter.runFlywheel(0);
+    //     }
+    //   )
+    // );
   }
 
 

@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
@@ -33,13 +34,19 @@ public class RunDelivery extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!RobotContainer.sensors.getBallColor().equals("no ball") || motorIsRunning) {
-      motorIsRunning = true;
+    if (!RobotContainer.sensors.getBallColor().equals("no ball")) {
+      SmartDashboard.putBoolean("motor is running", motorIsRunning);
       RobotContainer.sensors.runMotor(-0.4);
+      
       if(RobotContainer.sensors.photoDetected()){
         photoTurnedOn = true;
       }
-    } 
+    } // } else if (RobotContainer.shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
+
+    //   RobotContainer.sensors.runMotor(-0.4);
+
+    // }
+    
   }
 
   // Called once the command ends or is interrupted.
@@ -50,6 +57,8 @@ public class RunDelivery extends CommandBase {
     photoTurnedOn = false;
     SmartDashboard.putBoolean("Motor is running", motorIsRunning);
     SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
+
+    RobotContainer.isBall = true;
   }
 
   // Returns true when the command should end.
