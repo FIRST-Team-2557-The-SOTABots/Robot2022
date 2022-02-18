@@ -19,7 +19,7 @@ public class RunDelivery extends CommandBase {
   public RunDelivery() {
     // Use addRequirements() here to declare subsystem dependencies.
     // this.sensors = sensors;
-    addRequirements(RobotContainer.sensors);
+    addRequirements(RobotContainer.delivery);
     motorIsRunning = false;
     photoTurnedOn = false;
   }
@@ -34,11 +34,11 @@ public class RunDelivery extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!RobotContainer.sensors.getBallColor().equals("no ball")) {
+    if (!RobotContainer.delivery.getBallColor().equals("no ball")) {
       SmartDashboard.putBoolean("motor is running", motorIsRunning);
-      RobotContainer.sensors.runMotor(-0.4);
+      RobotContainer.delivery.runMotor(-0.4);
       
-      if(RobotContainer.sensors.photoDetected()){
+      if(RobotContainer.delivery.photoDetected()){
         photoTurnedOn = true;
       }
     } // } else if (RobotContainer.shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
@@ -53,18 +53,19 @@ public class RunDelivery extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     motorIsRunning = false;
-    RobotContainer.sensors.runMotor(0.0);
+    RobotContainer.delivery.runMotor(0.0);
     photoTurnedOn = false;
     SmartDashboard.putBoolean("Motor is running", motorIsRunning);
     SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
 
-    RobotContainer.isBall = true;
+    // TODO: get rid of this class since im not using it
+    // RobotContainer.isBall = true;
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(photoTurnedOn && !RobotContainer.sensors.photoDetected()){
+    if(photoTurnedOn && !RobotContainer.delivery.photoDetected()){
       return true;
     }
     return false;

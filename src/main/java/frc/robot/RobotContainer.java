@@ -4,6 +4,19 @@
 
 package frc.robot;
 
+import static frc.robot.util.Logitech.Ports.A;
+import static frc.robot.util.Logitech.Ports.B;
+import static frc.robot.util.Logitech.Ports.LEFT_STICK_X;
+import static frc.robot.util.Logitech.Ports.LEFT_STICK_Y;
+import static frc.robot.util.Logitech.Ports.LEFT_TRIGGER;
+import static frc.robot.util.Logitech.Ports.RIGHT_STICK_X;
+import static frc.robot.util.Logitech.Ports.RIGHT_TRIGGER;
+import static frc.robot.util.Logitech.Ports.START;
+import static frc.robot.util.Logitech.Ports.X;
+import static frc.robot.util.Logitech.Ports.Y;
+
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,16 +25,12 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-import static frc.robot.Constants.Control.*;
-
-import frc.robot.Constants;
-import frc.robot.commands.RunDelivery;
+import frc.robot.Constants.Control.Driver;
+import frc.robot.Constants.Control.Manipulator;
+import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Sensors;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
-import static frc.robot.util.Logitech.Ports.*;
 import frc.robot.util.Logitech;
 
 /**
@@ -36,7 +45,7 @@ public class RobotContainer {
   public static SwerveDrive swerveDrive = new SwerveDrive();
   public static Intake intake = new Intake();
   public static Shooter shooter = new Shooter();
-  public static Sensors sensors = new Sensors();
+  public static Delivery delivery = new Delivery();
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
@@ -55,8 +64,9 @@ public class RobotContainer {
   private JoystickButton mstart = new JoystickButton(mStick, START);
   private JoystickButton mrt = new JoystickButton(mStick, RIGHT_TRIGGER);
 
-  public static boolean isBall = false;
-
+  private boolean isBall = false; // if it is false run 1 ball delivery and if true run 2 ball delivery
+  private boolean motorIsRunning = false;
+  private boolean photoTurnedOn = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -93,9 +103,67 @@ public class RobotContainer {
       )
     );
 
-    sensors.setDefaultCommand(
-      new ConditionalCommand(onTrue, new RunDelivery(), isBall)
-      
+    delivery.setDefaultCommand(
+      new ConditionalCommand(
+        // 2 Ball delivery
+        new RunCommand(() -> {
+          if (photoTurnedOn) {
+            SmartDashboard.putBoolean("motor is running", motorIsRunning);
+            delivery.runMotor(-0.4);
+
+            if(delivery.photoDetected()) {
+              photoTurnedOn = true;
+            } else {
+              photoTurnedOn = false;
+            }
+          }
+        }, delivery)
+        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+        // 1 Ball delivery
+        new RunCommand(() -> {
+          if (!delivery.getBallColor().equals("no ball")) {
+            SmartDashboard.putBoolean("motor is running", motorIsRunning);
+            delivery.runMotor(-0.4);
+          
+            if(delivery.photoDetected()){
+              photoTurnedOn = true;
+            } else {
+              photoTurnedOn = false;
+            }
+          }
+        }, delivery)
+        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+        // Boolean Supplier 
+        () -> isBall)
+        // Init method
+        .beforeStarting(new InstantCommand(() -> {
+          motorIsRunning = false;
+          photoTurnedOn = false;
+        }, delivery))
+        // Auto delivery for when flywheel is running
+        .alongWith(new RunCommand(() -> {
+          if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
+            isBall = false;
+            delivery.runMotor(-0.4);
+            SmartDashboard.putBoolean("Is Ball", isBall);
+          }
+
+          // TODO: get rid of test code please
+          SmartDashboard.putBoolean("Test Sensor", delivery.getTestSensor());
+
+        }, delivery, shooter))
+        // End method 
+        .andThen(new InstantCommand(() -> {
+          delivery.runMotor(0.0);
+          motorIsRunning = false;
+          photoTurnedOn = false;
+          if (!isBall) {
+            isBall = true;
+          }
+          SmartDashboard.putBoolean("Motor is running", motorIsRunning);
+          SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
+          SmartDashboard.putBoolean("Is Ball", isBall);
+        }, delivery))
     );
 
     shooter.setDefaultCommand(

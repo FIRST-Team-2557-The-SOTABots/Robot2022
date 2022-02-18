@@ -4,21 +4,16 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.*;
-import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Sensors extends SubsystemBase {
+public class Delivery extends SubsystemBase {
   /** Creates a new Sensors. */
   // private final AnalogInput ultrasonic = new AnalogInput(5);
   // private double rawValue = ultrasonic.getValue();
@@ -28,18 +23,19 @@ public class Sensors extends SubsystemBase {
 
   private final ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
   private final DigitalInput photoElectricSensor = new DigitalInput(0);
+  private final DigitalInput magSensor = new DigitalInput(2);
 
   private boolean colorDetected;
   private boolean photoElectricDetected;
 
-  private WPI_TalonSRX motor;
+  private WPI_TalonSRX deliveryMotor;
 
-  public Sensors() {
+  public Delivery() {
     //matcher.addColorMatch(cargoBlue);
     //matcher.addColorMatch(cargoRed);
     //matcher.addColorMatch(air);
-    motor = new WPI_TalonSRX(4);
-    motor.setNeutralMode(NeutralMode.Brake);
+    deliveryMotor = new WPI_TalonSRX(4);
+    deliveryMotor.setNeutralMode(NeutralMode.Brake);
   }
 
   @Override
@@ -62,6 +58,12 @@ public class Sensors extends SubsystemBase {
     updatePhotoElectricDetection();
 
   }
+
+  public boolean getTestSensor() {
+
+    return magSensor.get();
+
+  } 
   
   public String getBallColor(){
     if(colorSensor.getRed() >= 9000){
@@ -93,7 +95,7 @@ public class Sensors extends SubsystemBase {
   }
 
   public void runMotor(double speed) {
-    motor.set(speed);
+    deliveryMotor.set(speed);
   }
 
   // public String getDetectedColor(){
@@ -108,6 +110,5 @@ public class Sensors extends SubsystemBase {
   //   } else {
   //     return "Unknown";
   //   }
-
 
 }
