@@ -101,84 +101,85 @@ public class RobotContainer {
       )
     );
 
-    delivery.setDefaultCommand(
-      new ConditionalCommand(
-        // 2 Ball delivery
-        new RunCommand(() -> {
-          if (photoTurnedOn) {
+    // delivery.setDefaultCommand(
+    //   new ConditionalCommand(
+    //     // 2 Ball delivery
+    //     new RunCommand(() -> {
+    //       if (photoTurnedOn) {
 
-            SmartDashboard.putBoolean("motor is running", motorIsRunning);
-            delivery.runMotor(-0.4);
+    //         SmartDashboard.putBoolean("motor is running", motorIsRunning);
+    //         delivery.runMotor(-0.4);
 
-            if(delivery.photoDetected()) {
+    //         if(delivery.photoDetected()) {
 
-              photoTurnedOn = true;
+    //           photoTurnedOn = true;
 
-            } else {
+    //         } else {
 
-              photoTurnedOn = false;
+    //           photoTurnedOn = false;
 
-            }
-          }
+    //         }
+    //       }
 
-        }, delivery)
-        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+    //     }, delivery)
+    //     .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
 
-        // 1 Ball delivery
-        new RunCommand(() -> {
-          if (!delivery.getBallColor().equals("no ball")) {
+    //     // 1 Ball delivery
+    //     new RunCommand(() -> {
+    //       if (!delivery.getBallColor().equals("no ball")) {
 
-            SmartDashboard.putBoolean("motor is running", motorIsRunning);
-            delivery.runMotor(-0.4);
+    //         SmartDashboard.putBoolean("motor is running", motorIsRunning);
+    //         delivery.runMotor(-0.4);
           
-            if(delivery.photoDetected()){
+    //         if(delivery.photoDetected()){
 
-              photoTurnedOn = true;
+    //           photoTurnedOn = true;
 
-            } else {
+    //         } else {
 
-              photoTurnedOn = false;
+    //           photoTurnedOn = false;
 
-            }
+    //         }
 
-          }
-        }, delivery)
-        .andThen(() -> isBall = true)
-        .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
+    //       }
+    //     }, delivery)
+    //     .andThen(() -> isBall = true)
+    //     .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
 
-        // Boolean Supplier 
-        () -> isBall)
+    //     // Boolean Supplier 
+    //     () -> isBall)
 
-        // Init method
-        .beforeStarting(new InstantCommand(() -> {
+    //     // Init method
+    //     .beforeStarting(new InstantCommand(() -> {
 
-          motorIsRunning = false;
-          photoTurnedOn = false;
+    //       motorIsRunning = false;
+    //       photoTurnedOn = false;
 
-        }, delivery))
+    //     }, delivery))
         
-        // Auto delivery for when flywheel is running
-        .alongWith(new RunCommand(() -> {
-          if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
-            isBall = false;
-            delivery.runMotor(-0.4);
-            SmartDashboard.putBoolean("isBall", isBall);
-          }
-        }, shooter))
+    //     // TODO: make work
+    //     // Auto delivery for when flywheel is running
+    //     // .alongWith(new RunCommand(() -> {
+    //     //   if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
+    //     //     isBall = false;
+    //     //     delivery.runMotor(-0.4);
+    //     //     SmartDashboard.putBoolean("isBall", isBall);
+    //     //   }
+    //     // }, shooter))
 
-        // End method 
-        .andThen(new InstantCommand(() -> {
+    //     // End method 
+    //     .andThen(new InstantCommand(() -> {
 
-          delivery.runMotor(0.0);
-          motorIsRunning = false;
-          photoTurnedOn = false;
+    //       delivery.runMotor(0.0);
+    //       motorIsRunning = false;
+    //       photoTurnedOn = false;
 
-          SmartDashboard.putBoolean("Motor is running", motorIsRunning);
-          SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
-          SmartDashboard.putBoolean("isBall", isBall);
+    //       SmartDashboard.putBoolean("Motor is running", motorIsRunning);
+    //       SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
+    //       SmartDashboard.putBoolean("isBall", isBall);
 
-        }, delivery))
-    );
+    //     }, delivery))
+    // );
 
     shooter.setDefaultCommand(
       new RunCommand(
@@ -244,6 +245,22 @@ public class RobotContainer {
           intake.run(0.0);
           intake.retract();
         }
+      )
+    );
+
+    mb.whenHeld(
+      new RunCommand(
+        () -> {
+          delivery.runMotor(-0.4);
+        },
+        delivery
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          delivery.runMotor(0.0);
+        },
+        delivery
       )
     );
     
