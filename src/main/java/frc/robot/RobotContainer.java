@@ -15,16 +15,23 @@ import static frc.robot.util.Logitech.Ports.START;
 import static frc.robot.util.Logitech.Ports.X;
 import static frc.robot.util.Logitech.Ports.Y;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
+import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -59,15 +66,16 @@ public class RobotContainer {
   private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
-  private JoystickButton mstart = new JoystickButton(mStick, START);
-  private JoystickButton mrt = new JoystickButton(mStick, RIGHT_TRIGGER);
 
   private boolean isBall = false; // false makes it run 1 ball auto, true makes it run two ball auto
   private boolean motorIsRunning = false;
   private boolean photoTurnedOn = false;
 
+  private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    climbLock.set(Value.kReverse); // TODO remove
 
     dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
     dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
@@ -78,20 +86,22 @@ public class RobotContainer {
     swerveDrive.setDefaultCommand(
       new RunCommand(
         () -> {
+          // get inputs then square them, preserving sign
           double y = dStick.getRawAxis(LEFT_STICK_Y);
           double x = dStick.getRawAxis(LEFT_STICK_X);
           double w = dStick.getRawAxis(RIGHT_STICK_X);
-
           y = y < 0 ? -y * y : y * y;
           x = x < 0 ? -x * x : x * x;
           w = w < 0 ? -w * w : w * w;
 
-
+          // pass inputs into drivetrain
           swerveDrive.drive(
             -y * Constants.Swerve.MAX_WHEEL_SPEED,
             -x * Constants.Swerve.MAX_WHEEL_SPEED,
             -w * Constants.Swerve.MAX_ANGULAR_SPEED
           );
+
+          // shift 
           if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0)
             swerveDrive.shiftDown();
           else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0)
@@ -101,95 +111,13 @@ public class RobotContainer {
       )
     );
 
-    // delivery.setDefaultCommand(
-    //   new ConditionalCommand(
-    //     // 2 Ball delivery
-    //     new RunCommand(() -> {
-    //       if (photoTurnedOn) {
-
-    //         SmartDashboard.putBoolean("motor is running", motorIsRunning);
-    //         delivery.runMotor(-0.4);
-
-    //         if(delivery.photoDetected()) {
-
-    //           photoTurnedOn = true;
-
-    //         } else {
-
-    //           photoTurnedOn = false;
-
-    //         }
-    //       }
-
-    //     }, delivery)
-    //     .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
-
-    //     // 1 Ball delivery
-    //     new RunCommand(() -> {
-    //       if (!delivery.getBallColor().equals("no ball")) {
-
-    //         SmartDashboard.putBoolean("motor is running", motorIsRunning);
-    //         delivery.runMotor(-0.4);
-          
-    //         if(delivery.photoDetected()){
-
-    //           photoTurnedOn = true;
-
-    //         } else {
-
-    //           photoTurnedOn = false;
-
-    //         }
-
-    //       }
-    //     }, delivery)
-    //     .andThen(() -> isBall = true)
-    //     .withInterrupt(() -> !photoTurnedOn && !delivery.photoDetected()),
-
-    //     // Boolean Supplier 
-    //     () -> isBall)
-
-    //     // Init method
-    //     .beforeStarting(new InstantCommand(() -> {
-
-    //       motorIsRunning = false;
-    //       photoTurnedOn = false;
-
-    //     }, delivery))
-        
-    //     // TODO: make work
-    //     // Auto delivery for when flywheel is running
-    //     // .alongWith(new RunCommand(() -> {
-    //     //   if (shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
-    //     //     isBall = false;
-    //     //     delivery.runMotor(-0.4);
-    //     //     SmartDashboard.putBoolean("isBall", isBall);
-    //     //   }
-    //     // }, shooter))
-
-    //     // End method 
-    //     .andThen(new InstantCommand(() -> {
-
-    //       delivery.runMotor(0.0);
-    //       motorIsRunning = false;
-    //       photoTurnedOn = false;
-
-    //       SmartDashboard.putBoolean("Motor is running", motorIsRunning);
-    //       SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
-    //       SmartDashboard.putBoolean("isBall", isBall);
-
-    //     }, delivery))
-    // );
-
-    shooter.setDefaultCommand(
-      new RunCommand(
-        () -> {
-
-          shooter.runFlywheel(mStick.getRawAxis(RIGHT_TRIGGER));
-          SmartDashboard.putNumber("flywheel speed", shooter.getSpeed());
-
-        }, shooter)        
-
+    delivery.setDefaultCommand(
+      new SequentialCommandGroup(
+        new WaitUntilCommand(
+          () -> delivery.getSensor1()
+        ),
+        new RunDelivery(delivery)
+      )
     );
 
     configureButtonBindings();
@@ -248,22 +176,46 @@ public class RobotContainer {
       )
     );
 
-    mb.whenHeld(
+    mx.whenHeld(
       new RunCommand(
         () -> {
-          delivery.runMotor(-0.4);
+          shooter.hoodDown();
+          shooter.runFlywheel(Constants.Shooter.UPPER_HUB_SPEED_PERCENTAGE);
+          if (shooter.getMotorRPM() > Constants.Shooter.UPPER_HUB_RPM_THRESHOLD) {
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          }
         },
-        delivery
+        shooter, delivery
       )
     ).whenReleased(
       new InstantCommand(
         () -> {
+          shooter.runFlywheel(0.0);
           delivery.runMotor(0.0);
-        },
-        delivery
+        }
       )
     );
-    
+
+    my.whenHeld(
+      new RunCommand(
+        () -> {
+          shooter.hoodUp();
+          shooter.runFlywheel(Constants.Shooter.LOWER_HUB_SPEED_PERCENTAGE);
+          if (shooter.getMotorRPM() > Constants.Shooter.LOWER_HUB_RPM_THRESHOLD) {
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          }
+          SmartDashboard.putNumber("shooter rpm", shooter.getMotorRPM());
+        },
+        shooter, delivery
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.runFlywheel(0.0);
+          delivery.runMotor(0.0);
+        }
+      )
+    );
   }
 
 

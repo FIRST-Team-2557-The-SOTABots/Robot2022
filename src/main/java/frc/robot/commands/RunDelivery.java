@@ -9,68 +9,46 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Delivery;
 
 public class RunDelivery extends CommandBase {
-  // private boolean motorIsRunning;
-  // private boolean photoTurnedOn;
-  /** Creates a new RunDelivery. */
-  // private Sensors sensors = new Sensors();
+  private boolean photoTurnedOn;
+  private Delivery delivery;
 
-  public RunDelivery() {
-
-    // Commented out since im not using it but im not quite sure if i should delete it
-
-    // Use addRequirements() here to declare subsystem dependencies.
-    // this.sensors = sensors;
-    // addRequirements(RobotContainer.delivery);
-    // motorIsRunning = false;
-    // photoTurnedOn = false;
+  public RunDelivery(Delivery delivery) {
+    addRequirements(delivery);
+    photoTurnedOn = false;
+    this.delivery = delivery;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // motorIsRunning = false;
-    // photoTurnedOn = false;
+    photoTurnedOn = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // if (!RobotContainer.delivery.getBallColor().equals("no ball")) {
-    //   SmartDashboard.putBoolean("motor is running", motorIsRunning);
-    //   RobotContainer.delivery.runMotor(-0.4);
-      
-    //   if(RobotContainer.delivery.photoDetected()){
-    //     photoTurnedOn = true;
-    //   }
-    // } // } else if (RobotContainer.shooter.getSpeed() <= Constants.Shooter.SHOOTING_SPEED) {
-
-    //   RobotContainer.sensors.runMotor(-0.4);
-
-    // }
+    delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
     
+    if(delivery.getSensor2()){
+      photoTurnedOn = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // motorIsRunning = false;
-    // RobotContainer.delivery.runMotor(0.0);
-    // photoTurnedOn = false;
-    // SmartDashboard.putBoolean("Motor is running", motorIsRunning);
-    // SmartDashboard.putBoolean("Photo turned on", photoTurnedOn);
-
-    // RobotContainer.isBall = true;
+    delivery.runMotor(0.0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // if(photoTurnedOn && !RobotContainer.delivery.photoDetected()){
-    //   return true;
-    // }
-    // return false;
+    if(photoTurnedOn && !delivery.getSensor2()){
+      return true;
+    }
     return false;
   }
 }

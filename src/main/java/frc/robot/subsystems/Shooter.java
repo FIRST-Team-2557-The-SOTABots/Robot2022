@@ -25,24 +25,25 @@ public class Shooter extends SubsystemBase {
     motor1 = new CANSparkMax(MOTOR_1_PORT, MotorType.kBrushless);
     motor1.restoreFactoryDefaults();
     motor1.setIdleMode(IdleMode.kCoast);
-    motor1.setInverted(false);
+    motor1.setInverted(MOTOR_1_INVERTED);
     motor1.setOpenLoopRampRate(RAMP_RATE);
     motor2 = new CANSparkMax(MOTOR_2_PORT, MotorType.kBrushless);
     motor2.restoreFactoryDefaults();
     motor2.setIdleMode(IdleMode.kCoast);
-    motor2.setInverted(false);
+    motor2.setInverted(MOTOR_2_INVERTED);
     motor2.setOpenLoopRampRate(RAMP_RATE);
 
     hoodDown();
   }
 
   public void runFlywheel(double spd) {
-    motor1.set(-spd);
+    motor1.set(spd);
     motor2.set(spd);
   }
 
-  public double getSpeed(){
-    return motor1.getEncoder().getVelocity()/GEAR_RATIO;
+
+  public double getMotorRPM(){
+    return motor1.getEncoder().getVelocity();
   }
 
   public void hoodUp() {

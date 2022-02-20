@@ -82,7 +82,7 @@ public final class Constants {
         public static final double MAX_WHEEL_SPEED = 1; // TODO: unofficial number
 
         // in radians per second
-        public static final double MAX_ANGULAR_SPEED = 1; // TODO: unoffical number
+        public static final double MAX_ANGULAR_SPEED = 2; // TODO: unoffical number
     }
 
     public static class Intake {
@@ -93,19 +93,32 @@ public final class Constants {
         public static final Value EXTEND_VALUE = Value.kReverse;
         public static final Value RETRACT_VALUE = Value.kForward;
         public static final double SPEED = 1.0;
-        public static final int SENSOR_THRESHOLD = 9000;
     }
 
-    public static final class Shooter {
+    public static class Shooter {
         public static final int FORWARD_CHANNEL_PORT = 4;
         public static final int REVERSE_CHANNEL_PORT = 5;
-        public static final Value RAISED_VALUE = Value.kForward;
-        public static final Value LOWERED_VALUE = Value.kReverse; // TODO: find correct directions
+        public static final Value RAISED_VALUE = Value.kReverse;
+        public static final Value LOWERED_VALUE = Value.kForward; // TODO: find correct directions
         public static final int MOTOR_1_PORT = 6; 
         public static final int MOTOR_2_PORT = 7;
+        public static final boolean MOTOR_1_INVERTED = true;
+        public static final boolean MOTOR_2_INVERTED = false;
         public static final double RAMP_RATE = 3.0;
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
-        public static final double SHOOTING_SPEED = -415.0; //TODO: get better number
+        public static final double UPPER_HUB_SPEED_PERCENTAGE = 1.0;// 0.75;
+        public static final double UPPER_HUB_RPM_THRESHOLD = 4000;
+        public static final double LOWER_HUB_SPEED_PERCENTAGE = 0.4;// 0.75;
+        public static final double LOWER_HUB_RPM_THRESHOLD = 1500;
+    }
+
+    public static class Delivery {
+        public static final int SENSOR_2_PORT = 0;
+        public static final int MOTOR_PORT = 4;
+        public static final int SENSOR_1_THRESHOLD = 100; // 80 // TODO update
+        public static final double INDEXING_SPEED = 0.45;
+        public static final double SHOOTING_SPEED = 1.0;
+        public static final boolean MOTOR_INVERTED = true;
     }
 
     public static class Control {
