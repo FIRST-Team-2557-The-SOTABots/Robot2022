@@ -25,12 +25,9 @@ public final class Constants {
         public static final int LEFT_MAG_SENSOR_PORT = 0; //TODO: get correct port num
         public static final int RIGHT_MAG_SENSOR_PORT = 0; //TODO: get correct port num
         public static final int ANGLE_MOTOR_PORT = 5;
-        public static final int FORWARD_CHANNEL = 2;
-        public static final int REVERSE_CHANNEL = 3;
-
-        public static final double MIN_EXTEND_HOOK_ENCODER = 0; //TODO get correct value
-        public static final double MAX_EXTEND_HOOK_ENCODER = 0; //TODO get correct value
-        public static final double EXTEND_HOOK_MAX_LENGTH = 25; // inches 
+        public static final int ANGLE_ENCODER_PORT = 0; // TODO: get correct port num
+        public static final int SOLENOID_CHANNEL_A = 2;
+        public static final int SOLENOID_CHANNEL_B = 3;
 
         public static final Value LOCK_VALUE = Value.kReverse;
         public static final Value UNLOCK_VALUE = Value.kForward;
@@ -41,6 +38,11 @@ public final class Constants {
 
         public static final double EXTEND_HIGH_LIMIT = -0; // TODO make better
         public static final double EXTEND_LOW_LIMIT = 0;
+        
+        public static final double MIN_EXTEND_HOOK_ENCODER = 0; //TODO get correct value
+        public static final double MAX_EXTEND_HOOK_ENCODER = 0; //TODO get correct value
+        public static final double MAX_EXTEND_HOOK_LENGTH = 25 * METERS_PER_INCH; // meters // TODO update
+        public static final double MIN_EXTEND_HOOK_LENGTH = 25 * METERS_PER_INCH; // meters // TODO update
 
         public static final double ANGLE_ENCODER_HIGH_LIMIT = -0; // TODO make better
         public static final double ANGLE_ENCODER_LOW_LIMIT = 0;

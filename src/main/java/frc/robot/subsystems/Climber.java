@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -24,6 +25,8 @@ public class Climber extends SubsystemBase {
   private DigitalInput leftMagSensor;
   private DigitalInput rightMagSensor; //TODO: dont actually know if there is going to be a second mag sensor
 
+  private DutyCycleEncoder angleEncoder;
+
   /** Creates a new Climber. */
   public Climber() {
     leftHook = new CANSparkMax(LEFT_HOOK_MOTOR_PORT, MotorType.kBrushless);
@@ -34,13 +37,19 @@ public class Climber extends SubsystemBase {
     rightHook.restoreFactoryDefaults();
     rightHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
     rightHook.follow(leftHook, RIGHT_HOOK_INVERTED);
-    leftMagSensor = new DigitalInput(RIGHT_MAG_SENSOR_PORT);
-    rightMagSensor = new DigitalInput(LEFT_MAG_SENSOR_PORT);
+
     angleMotor = new WPI_TalonSRX(ANGLE_MOTOR_PORT);
     angleMotor.configFactoryDefault();
     angleMotor.getSensorCollection().setQuadraturePosition(MIN_ANGLE_ENCODER, 0);
     angleMotor.setInverted(ANGLE_HOOK_INVERTED);
-    angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL, REVERSE_CHANNEL);
+    angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
+    
+    leftMagSensor = new DigitalInput(RIGHT_MAG_SENSOR_PORT);
+    rightMagSensor = new DigitalInput(LEFT_MAG_SENSOR_PORT);
+
+    angleEncoder = new DutyCycleEncoder(ANGLE_ENCODER_PORT);
+    angleEncoder.reset();
+
     lock();
   }
 
@@ -57,11 +66,8 @@ public class Climber extends SubsystemBase {
     if (getExtendEncoderPosition() >= EXTEND_HIGH_LIMIT)
       spd = Math.min(0, spd);
 
-    if (getExtendEncoderPosition() <= EXTEND_LOW_LIMIT)
+    if (getExtendEncoderPosition() <= EXTEND_LOW_LIMIT || getMagLimit())
       spd = Math.max(0, spd);
-
-    if (!getSensor()) 
-      spd = Math.max(0, spd);//TODO: test if positive input makes it go up
 
     leftHook.set(spd);
 
@@ -86,17 +92,17 @@ public class Climber extends SubsystemBase {
   }
 
   // little note, if it returns true then it would not be at its limit
-  // false would mean it is at its limit, reverse if you want
-  public boolean getSensor() {
-
-    return leftMagSensor.get();
-
+  // false would mean it is at its limit, reverse if you want TODO check
+  /**
+   * 
+   * @return whether either low limit sensor is tripped
+   */
+  public boolean getMagLimit() {
+    return !leftMagSensor.get() || !rightMagSensor.get();
   }
 
-  public int getAngleEncoderPosition() {
-
-    return angleMotor.getSensorCollection().getQuadraturePosition();
-
+  public double getAngleEncoderPosition() {
+    return angleEncoder.get();
   }
 
   /**
@@ -104,17 +110,17 @@ public class Climber extends SubsystemBase {
    * @return angle of the angling arm in radians
    */
   public double getAngle() {
-    return (MAX_ANGLE - MIN_ANGLE) / ((double) MAX_ANGLE_ENCODER - MIN_ANGLE_ENCODER) * getAngleEncoderPosition() + MIN_ANGLE;
+    return (MAX_ANGLE - MIN_ANGLE) / (MAX_ANGLE_ENCODER - MIN_ANGLE_ENCODER) * getAngleEncoderPosition() + MIN_ANGLE;
   }
 
   /**
    * 
-   * @return length of extending arm from the pivot point to the hook
+   * @return length of extending arm from the pivot point to the hook in meters
    */
   public double getLength() {
 
     // TODO make return length of the extending arms 
-    return (getExtendEncoderPosition()/EXTEND_HIGH_LIMIT)*EXTEND_HOOK_MAX_LENGTH;
+    return (MAX_EXTEND_HOOK_LENGTH - MIN_EXTEND_HOOK_LENGTH) / (MAX_EXTEND_HOOK_ENCODER - MIN_EXTEND_HOOK_ENCODER) * getExtendEncoderPosition() + MIN_EXTEND_HOOK_LENGTH;
 
   }
 
