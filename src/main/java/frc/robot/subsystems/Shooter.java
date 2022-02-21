@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,6 +19,9 @@ public class Shooter extends SubsystemBase {
   private DoubleSolenoid hoodSolenoid;
   private CANSparkMax motor1;
   private CANSparkMax motor2;
+
+  private SimpleMotorFeedforward feedforward;
+  private PIDController speedPID;
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -33,6 +38,9 @@ public class Shooter extends SubsystemBase {
     motor2.setInverted(MOTOR_2_INVERTED);
     motor2.setOpenLoopRampRate(RAMP_RATE);
 
+    feedforward = new SimpleMotorFeedforward(FEEDFORWARD_KS, FEEDFORWARD_KV);
+    speedPID = new PIDController(SPEED_PID_KP, SPEED_PID_KI, SPEED_PID_KD);
+
     hoodDown();
   }
 
@@ -41,6 +49,11 @@ public class Shooter extends SubsystemBase {
     motor2.set(spd);
   }
 
+  public void setMotorRPM(double rpm) {
+    double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
+    motor1.setVoltage(motorInput);
+    motor2.setVoltage(motorInput);
+  }
 
   public double getMotorRPM(){
     return motor1.getEncoder().getVelocity();

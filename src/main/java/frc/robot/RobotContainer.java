@@ -20,13 +20,13 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Control.Driver;
@@ -56,20 +56,13 @@ public class RobotContainer {
   private Logitech dStick = new Logitech(Driver.PORT);
   private JoystickButton da = new JoystickButton(dStick, A);
   private JoystickButton db = new JoystickButton(dStick, B);
-  private JoystickButton dx = new JoystickButton(dStick, X);
-  private JoystickButton dy = new JoystickButton(dStick, Y);
   private JoystickButton dstart = new JoystickButton(dStick, START);
 
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
   private JoystickButton ma = new JoystickButton(mStick, A);
-  private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
-
-  private boolean isBall = false; // false makes it run 1 ball auto, true makes it run two ball auto
-  private boolean motorIsRunning = false;
-  private boolean photoTurnedOn = false;
 
   private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
 
@@ -113,11 +106,26 @@ public class RobotContainer {
 
     delivery.setDefaultCommand(
       new SequentialCommandGroup(
-        new WaitUntilCommand(
-          () -> delivery.getSensor1()
+        new WaitUntilCommand(() -> delivery.getSensor1()),
+        new ParallelCommandGroup(
+          new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+          new ProxyScheduleCommand(
+            new RunCommand(() -> intake.retract(), intake).withTimeout(Constants.Delivery.RETRACTED_DURATION))
         ),
-        new RunDelivery(delivery)
+        new WaitCommand(Constants.Delivery.COOLDOWN)
       )
+      // new SequentialCommandGroup(
+      //   new WaitUntilCommand(
+      //     () -> delivery.getSensor1()
+      //   ),
+      //   new InstantCommand(() -> intake.retract(), intake),
+      //   new WaitCommand(Constants.Delivery.RETRACTED_DURATION),
+      //   new InstantCommand(() -> intake.extend(), intake),
+      //   new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+      //   new InstantCommand(() -> {if(!ma.get()) intake.retract();}, intake),
+      //   new WaitCommand(Constants.Delivery.COOLDOWN),
+      //   new InstantCommand(() -> {if(!ma.get()) intake.retract();}, intake)
+      // )
     );
 
     configureButtonBindings();
@@ -204,7 +212,6 @@ public class RobotContainer {
           if (shooter.getMotorRPM() > Constants.Shooter.LOWER_HUB_RPM_THRESHOLD) {
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           }
-          SmartDashboard.putNumber("shooter rpm", shooter.getMotorRPM());
         },
         shooter, delivery
       )

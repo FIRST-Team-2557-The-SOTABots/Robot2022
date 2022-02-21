@@ -92,7 +92,7 @@ public final class Constants {
         public static final int SOLENOID_CHANNEL_B = 1;
         public static final Value EXTEND_VALUE = Value.kReverse;
         public static final Value RETRACT_VALUE = Value.kForward;
-        public static final double SPEED = 1.0;
+        public static final double SPEED = 0.8;
     }
 
     public static class Shooter {
@@ -110,15 +110,24 @@ public final class Constants {
         public static final double UPPER_HUB_RPM_THRESHOLD = 4000;
         public static final double LOWER_HUB_SPEED_PERCENTAGE = 0.4;// 0.75;
         public static final double LOWER_HUB_RPM_THRESHOLD = 1500;
+        public static final double FEEDFORWARD_KS = 0.03269; // in volts
+        public static final double FEEDFORWARD_KV = 0.002114; // in volts
+        public static final double SPEED_PID_KP = 0.0;
+        public static final double SPEED_PID_KI = 0.0;
+        public static final double SPEED_PID_KD = 0.0;
+        public static final double SHOOT_COOLDOWN = 1.0; // in seconds
     }
 
     public static class Delivery {
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
-        public static final int SENSOR_1_THRESHOLD = 100; // 80 // TODO update
+        public static final int SENSOR_1_THRESHOLD = 104; // 80 // TODO update
         public static final double INDEXING_SPEED = 0.45;
         public static final double SHOOTING_SPEED = 1.0;
         public static final boolean MOTOR_INVERTED = true;
+        public static final double COOLDOWN = 1.0; // in seconds
+        public static final double MAX_DELIVERY_DURATION = 0.2; // in seconds
+        public static final double RETRACTED_DURATION = 0.4; // in seconds
     }
 
     public static class Control {
