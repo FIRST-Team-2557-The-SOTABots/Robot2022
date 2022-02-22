@@ -62,6 +62,35 @@ public class SwerveDrive extends SubsystemBase {
 
 
   /**
+   * Shifts the drivetrain automatically based on configured parameters, returning whether a shift occured.
+   * @param xThrottle the input for the robot's forward velocity
+   * @param yThrottle the input for the robot's left velocity
+   * @return whether a shift occured
+   */
+  public boolean autoShift(double xThrottle, double yThrottle) {
+    ChassisSpeeds chassisSpeeds = getMeasuredChassisSpeeds();
+    double drivetrainSpeed = Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+    double inputMagnitude = Math.hypot(xThrottle, yThrottle);
+    double accelerationMagnitude = Math.hypot((double) gyro.getWorldLinearAccelX(), (double) gyro.getWorldLinearAccelY());
+
+    if (drivetrainSpeed < COAST_DOWN_MAX_SPEED && inputMagnitude < COAST_DOWN_MAX_INPUT) {
+      shiftDown();
+      return true;
+    }
+    if (drivetrainSpeed < KICK_DOWN_MAX_SPEED && inputMagnitude > KICK_DOWN_MIN_INPUT) {
+      shiftDown();
+      return true;
+    }
+    if (drivetrainSpeed > SHIFT_UP_MIN_SPEED && inputMagnitude > SHIFT_UP_MIN_INPUT) {
+      shiftUp();
+      return true;
+    }
+    return false;
+  }
+
+
+
+  /**
    * This method makes the swerve drivetrain drive based on 
    * @param xVelocity the forward velocity of the robot in meters per second
    * @param yVelocity the left velocity of the robot in meters per second
