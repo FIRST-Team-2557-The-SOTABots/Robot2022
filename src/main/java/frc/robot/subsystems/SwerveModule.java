@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
@@ -17,7 +18,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Swerve.*;
@@ -45,6 +45,7 @@ public class SwerveModule extends SubsystemBase {
     speedMotor = new WPI_TalonFX(SPEED_MOTOR_PORTS[moduleNumber]);
     speedMotor.configFactoryDefault();
     speedMotor.setInverted(SPEED_MOTOR_INVERTS[moduleNumber]);
+    speedMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor = new CANSparkMax(ANGLE_MOTOR_PORTS[moduleNumber], MotorType.kBrushless);
     angleMotor.restoreFactoryDefaults();
     angleMotor.setIdleMode(IdleMode.kBrake);

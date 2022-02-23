@@ -4,21 +4,42 @@
 
 package frc.robot;
 
+import static frc.robot.util.Logitech.Ports.A;
+import static frc.robot.util.Logitech.Ports.B;
+import static frc.robot.util.Logitech.Ports.LEFT_STICK_X;
+import static frc.robot.util.Logitech.Ports.LEFT_STICK_Y;
+import static frc.robot.util.Logitech.Ports.LEFT_TRIGGER;
+import static frc.robot.util.Logitech.Ports.RIGHT_STICK_X;
+import static frc.robot.util.Logitech.Ports.RIGHT_TRIGGER;
+import static frc.robot.util.Logitech.Ports.START;
+import static frc.robot.util.Logitech.Ports.X;
+import static frc.robot.util.Logitech.Ports.Y;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-import static frc.robot.Constants.Control.*;
-
-import frc.robot.Constants;
+import frc.robot.Constants.Control.Driver;
+import frc.robot.Constants.Control.Manipulator;
+import frc.robot.commands.RunDelivery;
+import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
-import static frc.robot.util.Logitech.Ports.*;
 import frc.robot.util.Logitech;
+import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -31,13 +52,13 @@ public class RobotContainer {
 
   private SwerveDrive swerveDrive = new SwerveDrive();
   private Intake intake = new Intake();
+  private Shooter shooter = new Shooter();
+  private Delivery delivery = new Delivery();
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
   private JoystickButton da = new JoystickButton(dStick, A);
   private JoystickButton db = new JoystickButton(dStick, B);
-  private JoystickButton dx = new JoystickButton(dStick, X);
-  private JoystickButton dy = new JoystickButton(dStick, Y);
   private JoystickButton dstart = new JoystickButton(dStick, START);
 
   // Manipulator controller and associated buttons
@@ -46,11 +67,12 @@ public class RobotContainer {
   private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
-  private JoystickButton mstart = new JoystickButton(mStick, START);
 
+  private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    climbLock.set(Value.kReverse); // TODO remove
 
     dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
     dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
@@ -59,32 +81,63 @@ public class RobotContainer {
     dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
 
     swerveDrive.setDefaultCommand(
-      new RunCommand(
-        () -> {
-          double y = dStick.getRawAxis(LEFT_STICK_Y);
-          double x = dStick.getRawAxis(LEFT_STICK_X);
-          double w = dStick.getRawAxis(RIGHT_STICK_X);
+      // new ParallelRaceGroup(
+      //   new SequentialCommandGroup(
+      //     new WaitUntilCommand(
+      //       () -> {
+      //         if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+      //           swerveDrive.shiftDown();
+      //         } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+      //           swerveDrive.shiftUp();
+      //         }
 
-          y = y < 0 ? -y * y : y * y;
-          x = x < 0 ? -x * x : x * x;
-          w = w < 0 ? -w * w : w * w;
+      //         return swerveDrive.autoShift(dStick.getRawAxis(LEFT_STICK_Y), dStick.getRawAxis(LEFT_STICK_X));
+      //       }
+      //     ),
+      //     new WaitCommand(Constants.Swerve.SHIFT_COOLDOWN)
+      //   ),
+        new RunCommand(
+          () -> {
+            // get inputs then square them, preserving sign
+            double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+            double str = dStick.getRawAxis(LEFT_STICK_X);
+            double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
+            // pass inputs into drivetrain
+            swerveDrive.drive(
+              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+              -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
+            );
+            if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+              swerveDrive.shiftDown();
+            } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+              swerveDrive.shiftUp();
+            }
+          },
+          swerveDrive
+        )
+      // )
+    );
 
-          swerveDrive.drive(
-            -y * Constants.Swerve.MAX_WHEEL_SPEED,
-            -x * Constants.Swerve.MAX_WHEEL_SPEED,
-            -w * Constants.Swerve.MAX_ANGULAR_SPEED
-          );
-          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0)
-            swerveDrive.shiftDown();
-          else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0)
-            swerveDrive.shiftUp();
-        },
-        swerveDrive
+    delivery.setDefaultCommand(
+      new SequentialCommandGroup(
+        new WaitUntilCommand(() -> delivery.getSensor1()),
+        new ParallelCommandGroup(
+          new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+          new UninterruptibleProxyScheduleCommand(
+            new RunCommand(
+              () -> {
+                intake.retract();
+                intake.run(0.0);
+              }, 
+              intake
+            ).withTimeout(Constants.Delivery.RETRACTED_DURATION))
+        ),
+        new WaitCommand(Constants.Delivery.COOLDOWN)
       )
     );
 
-    // Configure the button bindings
     configureButtonBindings();
   }
 
@@ -124,7 +177,7 @@ public class RobotContainer {
       )
     );
 
-    ma.whenHeld(
+    ma.whileHeld(
       new InstantCommand(
         () -> {
           intake.extend();
@@ -135,8 +188,48 @@ public class RobotContainer {
     ).whenReleased(
       new InstantCommand(
         () -> {
-          intake.retract();
           intake.run(0.0);
+          intake.retract();
+        }
+      )
+    );
+
+    mx.whenHeld(
+      new RunCommand(
+        () -> {
+          shooter.hoodDown();
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+          if (shooter.getMotorRPM() > Constants.Shooter.UPPER_HUB_RPM_THRESHOLD) {
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          }
+        },
+        shooter, delivery
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.runFlywheel(0.0);
+          delivery.runMotor(0.0);
+        }
+      )
+    );
+
+    my.whenHeld(
+      new RunCommand(
+        () -> {
+          shooter.hoodUp();
+          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+          if (shooter.getMotorRPM() > Constants.Shooter.LOWER_HUB_RPM_THRESHOLD) {
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          }
+        },
+        shooter, delivery
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.runFlywheel(0.0);
+          delivery.runMotor(0.0);
         }
       )
     );

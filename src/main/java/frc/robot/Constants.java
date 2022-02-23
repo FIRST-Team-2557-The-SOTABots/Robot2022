@@ -22,16 +22,17 @@ public final class Constants {
     public static class Swerve {
 
         // all motor value arrays are in the order FL, FR, BL, BR
-        public static final int[] ANGLE_MOTOR_PORTS = {3, 4, 9, 8};
+        public static final int[] ANGLE_MOTOR_PORTS = {8, 9, 4, 3};
         public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false};
 
-        public static final int[] SPEED_MOTOR_PORTS = {0, 1, 2, 3};
+        public static final int[] SPEED_MOTOR_PORTS = {3, 2, 1, 0};
         public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS = {4.089, 1.085, 0.557, 4.189}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS = {4.189, 0.557, 1.085, 4.089}; // in encoder counts
         public static final double ANGLE_ENCODER_CPR = 4.957; // in encoder counts
-        public static final int[] ANGLE_ENCODER_PORTS = {0, 1, 2, 3};
+        public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
+
         public static final double ANGLE_FEEDFORWARD_KS = 0.77625; // in volts
         public static final double ANGLE_FEEDFORWARD_KV = 0.39725; // in volt seconds per encoder tick
 
@@ -44,7 +45,6 @@ public final class Constants {
 
         public static final double SPEED_FEEDFORWARD_KS = 0.0; // TODO: find real value
         public static final double SPEED_FEEDFORWARD_KV = 0.0; // TODO: find real value
-
 
         public static final double SPEED_PID_KP = 0.2; // TODO: update
         public static final double SPEED_PID_KI = 0.0;
@@ -82,17 +82,60 @@ public final class Constants {
         public static final double MAX_WHEEL_SPEED = 1; // TODO: unofficial number
 
         // in radians per second
-        public static final double MAX_ANGULAR_SPEED = 1; // TODO: unoffical number
+        public static final double MAX_ANGULAR_SPEED = 2; // TODO: unoffical number
+        
+        public static final double COAST_DOWN_MAX_SPEED = 0.5; // speed in m/s below which shift down with low demand occurs
+        public static final double COAST_DOWN_MAX_INPUT = 0.5; // input below which shift down with low demand occurs
+        public static final double KICK_DOWN_MAX_SPEED = 1.0; // speed in m/s below which shift down with high demand occurs
+        public static final double KICK_DOWN_MIN_INPUT = 1.0; // input above which shift down with high demand occurs
+        public static final double SHIFT_UP_MIN_SPEED = 1.0; // speed in m/s above which shift up with high demand occurs
+        public static final double SHIFT_UP_MIN_INPUT = 1.0; // input above which shift up with high demand occurs
+        public static final double SHIFT_COOLDOWN = 1.0; // in seconds
     }
 
     public static class Intake {
         public static final int MOTOR_PORT = 1;
-        public static final boolean MOTOR_INVERTED = false;
+        public static final boolean MOTOR_INVERTED = true;
         public static final int SOLENOID_CHANNEL_A = 0;
         public static final int SOLENOID_CHANNEL_B = 1;
         public static final Value EXTEND_VALUE = Value.kReverse;
         public static final Value RETRACT_VALUE = Value.kForward;
-        public static final double SPEED = 1.0;
+        public static final double SPEED = 0.8;
+    }
+
+    public static class Shooter {
+        public static final int FORWARD_CHANNEL_PORT = 4;
+        public static final int REVERSE_CHANNEL_PORT = 5;
+        public static final Value RAISED_VALUE = Value.kReverse;
+        public static final Value LOWERED_VALUE = Value.kForward; // TODO: find correct directions
+        public static final int MOTOR_1_PORT = 6; 
+        public static final int MOTOR_2_PORT = 7;
+        public static final boolean MOTOR_1_INVERTED = true;
+        public static final boolean MOTOR_2_INVERTED = false;
+        public static final double RAMP_RATE = 3.0;
+        public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
+        public static final double UPPER_HUB_RPM = 4200;
+        public static final double UPPER_HUB_RPM_THRESHOLD = 4100;
+        public static final double LOWER_HUB_RPM = 1600;
+        public static final double LOWER_HUB_RPM_THRESHOLD = 1500;
+        public static final double FEEDFORWARD_KS = 0.03269; // in volts
+        public static final double FEEDFORWARD_KV = 0.002114; // in volts
+        public static final double SPEED_PID_KP = 0.0;
+        public static final double SPEED_PID_KI = 0.0;
+        public static final double SPEED_PID_KD = 0.0;
+        public static final double SHOOT_COOLDOWN = 1.0; // in seconds
+    }
+
+    public static class Delivery {
+        public static final int SENSOR_2_PORT = 0;
+        public static final int MOTOR_PORT = 4;
+        public static final int SENSOR_1_THRESHOLD = 104; // 80 // TODO update
+        public static final double INDEXING_SPEED = 0.45;
+        public static final double SHOOTING_SPEED = 0.8;
+        public static final boolean MOTOR_INVERTED = true;
+        public static final double COOLDOWN = 1.0; // in seconds
+        public static final double MAX_DELIVERY_DURATION = 0.2; // in seconds
+        public static final double RETRACTED_DURATION = 0.4; // in seconds
     }
 
     public static class Control {
