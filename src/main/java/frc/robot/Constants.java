@@ -95,7 +95,7 @@ public final class Constants {
 
     public static class Intake {
         public static final int MOTOR_PORT = 1;
-        public static final boolean MOTOR_INVERTED = false;
+        public static final boolean MOTOR_INVERTED = true;
         public static final int SOLENOID_CHANNEL_A = 0;
         public static final int SOLENOID_CHANNEL_B = 1;
         public static final Value EXTEND_VALUE = Value.kReverse;
@@ -116,7 +116,7 @@ public final class Constants {
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 4200;
         public static final double UPPER_HUB_RPM_THRESHOLD = 4100;
-        public static final double LOWER_HUB_SPEED_PERCENTAGE = 0.4;// 0.75;
+        public static final double LOWER_HUB_RPM = 1600;
         public static final double LOWER_HUB_RPM_THRESHOLD = 1500;
         public static final double FEEDFORWARD_KS = 0.03269; // in volts
         public static final double FEEDFORWARD_KV = 0.002114; // in volts

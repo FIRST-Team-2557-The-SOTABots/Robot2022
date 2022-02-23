@@ -126,22 +126,16 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
           new UninterruptibleProxyScheduleCommand(
-            new RunCommand(() -> intake.retract(), intake).withTimeout(Constants.Delivery.RETRACTED_DURATION))
+            new RunCommand(
+              () -> {
+                intake.retract();
+                intake.run(0.0);
+              }, 
+              intake
+            ).withTimeout(Constants.Delivery.RETRACTED_DURATION))
         ),
         new WaitCommand(Constants.Delivery.COOLDOWN)
       )
-      // new SequentialCommandGroup(
-      //   new WaitUntilCommand(
-      //     () -> delivery.getSensor1()
-      //   ),
-      //   new InstantCommand(() -> intake.retract(), intake),
-      //   new WaitCommand(Constants.Delivery.RETRACTED_DURATION),
-      //   new InstantCommand(() -> intake.extend(), intake),
-      //   new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
-      //   new InstantCommand(() -> {if(!ma.get()) intake.retract();}, intake),
-      //   new WaitCommand(Constants.Delivery.COOLDOWN),
-      //   new InstantCommand(() -> {if(!ma.get()) intake.retract();}, intake)
-      // )
     );
 
     configureButtonBindings();
@@ -200,22 +194,10 @@ public class RobotContainer {
       )
     );
 
-    // mb.whileHeld(
-    //   new RunCommand(
-    //     () -> delivery.runMotor(Constants.Delivery.SHOOTING_SPEED),
-    //     delivery
-    //   )
-    // ).whenReleased(
-    //   new InstantCommand(
-    //     () -> delivery.runMotor(0.0)
-    //   )
-    // );
-
     mx.whenHeld(
       new RunCommand(
         () -> {
           shooter.hoodDown();
-          // shooter.runFlywheel(Constants.Shooter.UPPER_HUB_SPEED_PERCENTAGE);
           shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
           if (shooter.getMotorRPM() > Constants.Shooter.UPPER_HUB_RPM_THRESHOLD) {
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
@@ -236,7 +218,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodUp();
-          shooter.runFlywheel(Constants.Shooter.LOWER_HUB_SPEED_PERCENTAGE);
+          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
           if (shooter.getMotorRPM() > Constants.Shooter.LOWER_HUB_RPM_THRESHOLD) {
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           }

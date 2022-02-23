@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.ColorSensorV3;
 
@@ -26,6 +27,7 @@ public class Delivery extends SubsystemBase {
     deliveryMotor = new WPI_TalonSRX(MOTOR_PORT);
     deliveryMotor.configFactoryDefault();
     deliveryMotor.setInverted(MOTOR_INVERTED);
+    deliveryMotor.setNeutralMode(NeutralMode.Brake);
   }
   
   public void runMotor(double speed) {
