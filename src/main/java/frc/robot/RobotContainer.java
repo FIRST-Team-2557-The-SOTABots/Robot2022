@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -49,7 +50,6 @@ import frc.robot.util.UninterruptibleProxyScheduleCommand;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-
   private SwerveDrive swerveDrive = new SwerveDrive();
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
@@ -64,9 +64,10 @@ public class RobotContainer {
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
   private JoystickButton ma = new JoystickButton(mStick, A);
-  private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
+
+  private SendableChooser<Command> autoChooser;
 
   private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
 
@@ -74,12 +75,16 @@ public class RobotContainer {
   public RobotContainer() {
     climbLock.set(Value.kReverse); // TODO remove
 
-    dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
-    dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
-    dStick.setDeadband(RIGHT_STICK_X, Driver.RIGHT_X_DEADBAND);
-    dStick.setDeadband(LEFT_TRIGGER, Driver.LEFT_TRIGGER_DEADBAND);
-    dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
+    configureDefaultCommands();
 
+    configureButtonBindings();
+
+    configureAutonomousCommands();
+  }
+
+
+
+  private void configureDefaultCommands() {
     swerveDrive.setDefaultCommand(
       // new ParallelRaceGroup(
       //   new SequentialCommandGroup(
@@ -137,8 +142,6 @@ public class RobotContainer {
         new WaitCommand(Constants.Delivery.COOLDOWN)
       )
     );
-
-    configureButtonBindings();
   }
 
 
@@ -150,6 +153,13 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+
+    dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
+    dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
+    dStick.setDeadband(RIGHT_STICK_X, Driver.RIGHT_X_DEADBAND);
+    dStick.setDeadband(LEFT_TRIGGER, Driver.LEFT_TRIGGER_DEADBAND);
+    dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
+
     da.whenPressed(
       new InstantCommand(
         () -> {
@@ -231,6 +241,24 @@ public class RobotContainer {
           shooter.runFlywheel(0.0);
           delivery.runMotor(0.0);
         }
+      )
+    );
+  }
+
+
+
+  public void configureAutonomousCommands() {
+    autoChooser = new SendableChooser<>();
+
+    autoChooser.setDefaultOption("None", null);
+
+    autoChooser.addOption("2 ball general",
+      new SequentialCommandGroup(
+        new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
+        new RunCommand(() -> swerveDrive.drive(0, 0, 0.0), swerveDrive).withTimeout(0.0),
+        new RunCommand(() -> swerveDrive.drive(-0.0, 0, 0), swerveDrive).withTimeout(0.0),
+        new RunCommand(() -> swerveDrive.drive(0.0, 0, 0), swerveDrive).withTimeout(0.0),
+        
       )
     );
   }

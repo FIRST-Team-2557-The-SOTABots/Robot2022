@@ -138,6 +138,10 @@ public final class Constants {
         public static final double RETRACTED_DURATION = 0.4; // in seconds
     }
 
+    public static class Auto {
+        // public static final double 
+    }
+
     public static class Control {
         public static class Driver {
             public static final int PORT = 0;
