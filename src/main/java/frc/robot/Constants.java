@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
@@ -44,8 +43,8 @@ public final class Constants {
         public static final double ANGLE_PID_MAX_ACCELERATION = 70.0; // in encoder ticks per second per second
         public static final double ANGLE_PID_MAX_VELOCITY = ANGLE_PID_MAX_ACCELERATION * Math.sqrt((ANGLE_ENCODER_CPR / 4) / ANGLE_PID_MAX_ACCELERATION); // in encoder ticks per second
 
-        public static final double SPEED_FEEDFORWARD_KS = 0.6284; // in volts
-        public static final double SPEED_FEEDFORWARD_KV = 0.0005339; // in volt seconds per encoder tick
+        public static final double[] SPEED_FEEDFORWARD_KS = {0.6284, 0.6284, 0.6284, 0.6284}; // in volts
+        public static final double[] SPEED_FEEDFORWARD_KV = {0.0005339, 0.0005339, 0.0005339, 0.0005339}; // in volt seconds per encoder tick
 
         public static final double SPEED_PID_KP = 0.001; // TODO: update
         public static final double SPEED_PID_KI = 0.0;

@@ -4,16 +4,8 @@
 
 package frc.robot;
 
-import static frc.robot.util.Logitech.Ports.A;
-import static frc.robot.util.Logitech.Ports.B;
-import static frc.robot.util.Logitech.Ports.LEFT_STICK_X;
-import static frc.robot.util.Logitech.Ports.LEFT_STICK_Y;
-import static frc.robot.util.Logitech.Ports.LEFT_TRIGGER;
-import static frc.robot.util.Logitech.Ports.RIGHT_STICK_X;
-import static frc.robot.util.Logitech.Ports.RIGHT_TRIGGER;
-import static frc.robot.util.Logitech.Ports.START;
-import static frc.robot.util.Logitech.Ports.X;
-import static frc.robot.util.Logitech.Ports.Y;
+import static frc.robot.util.Logitech.Ports.*;
+import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
 import java.util.List;
 
@@ -36,8 +28,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -66,7 +56,6 @@ public class RobotContainer {
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
   private Delivery delivery = new Delivery();
-  private Command deliveryCommand;
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
@@ -138,8 +127,9 @@ public class RobotContainer {
       // )
     );
 
-    deliveryCommand = new SequentialCommandGroup(
-      new WaitUntilCommand(() -> delivery.getSensor1()),
+    delivery.setDefaultCommand(
+      new SequentialCommandGroup(
+        new WaitUntilCommand(() -> delivery.getSensor1()),
         new ParallelCommandGroup(
           new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
           new UninterruptibleProxyScheduleCommand(
@@ -153,9 +143,8 @@ public class RobotContainer {
           )
         ),
         new WaitCommand(Constants.Delivery.COOLDOWN)
-      );
-
-    delivery.setDefaultCommand(deliveryCommand);
+      )
+    );
   }
 
 
@@ -267,16 +256,18 @@ public class RobotContainer {
     autoChooser.setDefaultOption("None", null);
 
     autoChooser.addOption("2 ball general",
-      new SequentialCommandGroup(
-        new RunCommand(() -> swerveDrive.drive(-1, 1, 0.0), swerveDrive).withTimeout(0.0),
+      sequence (
         new ParallelDeadlineGroup(
-          deliveryCommand, 
-          new InstantCommand(
-            () -> {
-              intake.extend();
-              intake.run(Constants.Intake.SPEED);
-            },
-            intake
+          new RunCommand(() -> swerveDrive.drive(-1, 1, 0.0), swerveDrive).withTimeout(0.0),
+          sequence(
+            new WaitCommand(0.0),
+            new InstantCommand(
+              () -> {
+                intake.extend();
+                intake.run(Constants.Intake.SPEED);
+              },
+              intake
+            )
           )
         ),
         new RunCommand(() -> swerveDrive.drive(1, -1, -0.1), swerveDrive).withTimeout(0.0).andThen(
