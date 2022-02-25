@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Swerve.*;
@@ -93,8 +94,10 @@ public class SwerveModule extends SubsystemBase {
     double speedPIDOutput = speedPID.calculate(speedMotor.getSelectedSensorVelocity(), speedSetpointNative);
     double speedFFOutput = speedFF.calculate(speedSetpointNative);
 
-    // speedMotor.setVoltage(speedFFOutput + speedPIDOutput); // TODO: enable
-    speedMotor.set(TalonFXControlMode.PercentOutput, state.speedMetersPerSecond / MAX_WHEEL_SPEED); // TODO: delete after testing
+    SmartDashboard.putNumber(moduleNumber + " error", speedPID.getPositionError());
+    SmartDashboard.putNumber(moduleNumber + " setpoint", speedSetpointNative);
+    speedMotor.setVoltage(speedFFOutput + speedPIDOutput); // TODO: enable
+    // speedMotor.set(TalonFXControlMode.PercentOutput, state.speedMetersPerSecond / MAX_WHEEL_SPEED); // TODO: delete after testing
   }
 
 
@@ -215,5 +218,6 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber(moduleNumber + "speed", speedMotor.getSelectedSensorVelocity());
   }
 }

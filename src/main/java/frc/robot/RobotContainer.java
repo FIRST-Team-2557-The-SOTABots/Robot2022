@@ -15,6 +15,17 @@ import static frc.robot.util.Logitech.Ports.START;
 import static frc.robot.util.Logitech.Ports.X;
 import static frc.robot.util.Logitech.Ports.Y;
 
+import java.util.List;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -29,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -54,6 +66,7 @@ public class RobotContainer {
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
   private Delivery delivery = new Delivery();
+  private Command deliveryCommand;
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
@@ -73,7 +86,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    climbLock.set(Value.kReverse); // TODO remove
+    climbLock.set(Value.kForward); // TODO remove
 
     configureDefaultCommands();
 
@@ -125,9 +138,8 @@ public class RobotContainer {
       // )
     );
 
-    delivery.setDefaultCommand(
-      new SequentialCommandGroup(
-        new WaitUntilCommand(() -> delivery.getSensor1()),
+    deliveryCommand = new SequentialCommandGroup(
+      new WaitUntilCommand(() -> delivery.getSensor1()),
         new ParallelCommandGroup(
           new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
           new UninterruptibleProxyScheduleCommand(
@@ -137,11 +149,13 @@ public class RobotContainer {
                 intake.run(0.0);
               }, 
               intake
-            ).withTimeout(Constants.Delivery.RETRACTED_DURATION))
+            ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
+          )
         ),
         new WaitCommand(Constants.Delivery.COOLDOWN)
-      )
-    );
+      );
+
+    delivery.setDefaultCommand(deliveryCommand);
   }
 
 
@@ -254,11 +268,47 @@ public class RobotContainer {
 
     autoChooser.addOption("2 ball general",
       new SequentialCommandGroup(
-        new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
-        new RunCommand(() -> swerveDrive.drive(0, 0, 0.0), swerveDrive).withTimeout(0.0),
-        new RunCommand(() -> swerveDrive.drive(-0.0, 0, 0), swerveDrive).withTimeout(0.0),
-        new RunCommand(() -> swerveDrive.drive(0.0, 0, 0), swerveDrive).withTimeout(0.0),
-        
+        new RunCommand(() -> swerveDrive.drive(-1, 1, 0.0), swerveDrive).withTimeout(0.0),
+        new ParallelDeadlineGroup(
+          deliveryCommand, 
+          new InstantCommand(
+            () -> {
+              intake.extend();
+              intake.run(Constants.Intake.SPEED);
+            },
+            intake
+          )
+        ),
+        new RunCommand(() -> swerveDrive.drive(1, -1, -0.1), swerveDrive).withTimeout(0.0).andThen(
+          new InstantCommand(() -> swerveDrive.drive(0.0, 0.0, 0.0), swerveDrive)),
+        new RunCommand(() -> swerveDrive.drive(0.0, 0, 0), swerveDrive).withTimeout(0.0)
+      )
+    );
+
+    autoChooser.addOption("3 ball",
+      new SwerveControllerCommand(
+        TrajectoryGenerator.generateTrajectory(
+          new Pose2d(0, 0, new Rotation2d(0.0)),
+          List.of(
+            new Translation2d(1, 0),
+            new Translation2d(2, 0)
+          ),
+          new Pose2d(3, 0, new Rotation2d(0.0)),
+          new TrajectoryConfig(
+            Constants.Auto.MAX_WHEEL_SPEED, 
+            Constants.Auto.MAX_WHEEL_ACCELERATION
+          ).setKinematics(swerveDrive.getKinematics())
+        ), 
+        () -> swerveDrive.getSwervePose(), 
+        swerveDrive.getKinematics(), 
+        new PIDController(Constants.Auto.X_PID_KP, 0.0, 0.0), 
+        new PIDController(Constants.Auto.Y_PID_KP, 0.0, 0.0), 
+        new ProfiledPIDController(
+          Constants.Auto.ANGLE_PID_KP, 0.0, 0.0, 
+          new TrapezoidProfile.Constraints(Constants.Auto.MAX_ANGULAR_SPEED, Constants.Auto.MAX_ANGULAR_ACCELERATION)
+        ),
+        (SwerveModuleState[] states) -> swerveDrive.drive(states), 
+        swerveDrive
       )
     );
   }
