@@ -4,22 +4,15 @@
 
 package frc.robot;
 
-import static frc.robot.util.Logitech.Ports.A;
-import static frc.robot.util.Logitech.Ports.B;
-import static frc.robot.util.Logitech.Ports.LEFT_STICK_X;
-import static frc.robot.util.Logitech.Ports.LEFT_STICK_Y;
-import static frc.robot.util.Logitech.Ports.LEFT_TRIGGER;
-import static frc.robot.util.Logitech.Ports.RIGHT_STICK_X;
-import static frc.robot.util.Logitech.Ports.RIGHT_TRIGGER;
-import static frc.robot.util.Logitech.Ports.START;
-import static frc.robot.util.Logitech.Ports.X;
-import static frc.robot.util.Logitech.Ports.Y;
+import static frc.robot.util.Logitech.Ports.*;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -67,8 +60,14 @@ public class RobotContainer {
   private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
+  private JoystickButton mLB = new JoystickButton(mStick, LEFT_BUMPER);
+  private JoystickButton mRB = new JoystickButton(mStick, RIGHT_BUMPER);
+  // private JoystickButton mLSB = new JoystickButton(mStick, LEFT_STICK_BUTTON);
+  // private JoystickButton mRSB = new JoystickButton(mStick, RIGHT_STICK_BUTTON);
 
   private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
+
+  static double flywheelSpeed = 1000;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -98,6 +97,7 @@ public class RobotContainer {
       //   ),
         new RunCommand(
           () -> {
+            SmartDashboard.putNumber("flywheel Speed", flywheelSpeed);
             // get inputs then square them, preserving sign
             double fwd = dStick.getRawAxis(LEFT_STICK_Y);
             double str = dStick.getRawAxis(LEFT_STICK_X);
@@ -198,8 +198,10 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodDown();
-          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM); // TODO reeenable
+          // shooter.setMotorRPM(flywheelSpeed);
           if (shooter.getMotorRPM() > Constants.Shooter.UPPER_HUB_RPM_THRESHOLD) {
+          // if (shooter.getMotorRPM() > flywheelSpeed - 100) {
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           }
         },
@@ -218,8 +220,10 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodUp();
-          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);  // TODO reenable
+          // shooter.setMotorRPM(flywheelSpeed);
           if (shooter.getMotorRPM() > Constants.Shooter.LOWER_HUB_RPM_THRESHOLD) {
+          // if (shooter.getMotorRPM() > flywheelSpeed - 100) {
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           }
         },
@@ -233,6 +237,9 @@ public class RobotContainer {
         }
       )
     );
+
+    mLB.whenPressed(new InstantCommand(() -> flywheelSpeed -= 100));
+    mRB.whenPressed(new InstantCommand(() -> flywheelSpeed += 100));
   }
 
 
