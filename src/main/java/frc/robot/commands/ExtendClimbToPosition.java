@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 import static frc.robot.Constants.Climber.*;
@@ -16,18 +17,18 @@ public class ExtendClimbToPosition extends CommandBase {
   private Climber climber;
 
   /** Creates a new ExtendClimbToPosition. */
-  public ExtendClimbToPosition(double goal, Climber climber) {
+  public ExtendClimbToPosition(double leftGoal, double rightGoal, Climber climber) {
     
     leftController = new ProfiledPIDController(
       EXTEND_PID_KP, EXTEND_PID_KI, EXTEND_PID_KD, 
-      new TrapezoidProfile.Constraints(EXTEND_MAX_VELOCITY, EXTEND_MAX_ACCELERATION)
+      new TrapezoidProfile.Constraints(EXTEND_MAX_VELOCITY_LEFT, EXTEND_MAX_ACCELERATION_LEFT)
     );
-    leftController.setGoal(goal);
+    leftController.setGoal(leftGoal);
     rightController = new ProfiledPIDController(
       EXTEND_PID_KP, EXTEND_PID_KI, EXTEND_PID_KD, 
-      new TrapezoidProfile.Constraints(EXTEND_MAX_VELOCITY, EXTEND_MAX_ACCELERATION)
+      new TrapezoidProfile.Constraints(EXTEND_MAX_VELOCITY_RIGHT, EXTEND_MAX_ACCELERATION_RIGHT)
     );
-    rightController.setGoal(goal);
+    rightController.setGoal(rightGoal);
     this.climber = climber;
 
     addRequirements(climber);
@@ -40,6 +41,9 @@ public class ExtendClimbToPosition extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
+    // SmartDashboard.putNumber("left output", leftController.calculate(climber.getLeftEncoderPosition()));
+    
     climber.extendLeftHook(
       leftController.calculate(
         climber.getLeftEncoderPosition()

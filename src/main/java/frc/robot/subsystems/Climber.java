@@ -35,16 +35,19 @@ public class Climber extends SubsystemBase {
   private DutyCycleEncoder rightEncoder;
   private DutyCycleEncoder angleEncoder;
 
+  private double prevLeftPos = 0.0;
+  private double prevRightPos = 0.0;
+
   /** Creates a new Climber. */
   public Climber() {
     leftHook = new CANSparkMax(LEFT_HOOK_MOTOR_PORT, MotorType.kBrushless);
     leftHook.restoreFactoryDefaults();
-    leftHook.getEncoder().setPosition(MIN_EXTEND_ENCODER);
+    // leftHook.getEncoder().setPosition(MIN_EXTEND_ENCODER);
     leftHook.setInverted(LEFT_HOOK_INVERTED);
     leftHook.setIdleMode(IdleMode.kBrake);
     rightHook = new CANSparkMax(RIGHT_HOOK_MOTOR_PORT, MotorType.kBrushless);
     rightHook.restoreFactoryDefaults();
-    rightHook.getEncoder().setPosition(MIN_EXTEND_ENCODER);
+    // rightHook.getEncoder().setPosition(MIN_EXTEND_ENCODER);
     rightHook.setInverted(RIGHT_HOOK_INVERTED);
     rightHook.setIdleMode(IdleMode.kBrake);
     angleMotor = new WPI_TalonSRX(ANGLE_MOTOR_PORT);
@@ -77,23 +80,35 @@ public class Climber extends SubsystemBase {
   }
 
   public void extendLeftHook(double spd) {
-    if (getLeftEncoderPosition() >= EXTEND_HIGH_LIMIT)
+    if (getLeftEncoderPosition() >= EXTEND_HIGH_LIMIT_LEFT)
       spd = Math.min(0, spd);
 
-    if (getLeftEncoderPosition() <= EXTEND_LOW_LIMIT || getLeftMagLimit())
+    if (getLeftEncoderPosition() <= EXTEND_LOW_LIMIT_LEFT || getLeftMagLimit())
       spd = Math.max(0, spd);
 
     leftHook.set(spd);
   }
 
   public void extendRightHook(double spd) {
-    if (getRightEncoderPosition() >= EXTEND_HIGH_LIMIT)
+    if (getRightEncoderPosition() >= EXTEND_HIGH_LIMIT_RIGHT)
       spd = Math.min(0, spd);
 
-    if (getRightEncoderPosition() <= EXTEND_LOW_LIMIT || getRightMagLimit())
+    if (getRightEncoderPosition() <= EXTEND_LOW_LIMIT_RIGHT || getRightMagLimit())
       spd = Math.max(0, spd);
     
     rightHook.set(spd);
+  }
+
+  public void retractHooksNoEncoderLimit() {
+    if (!getLeftMagLimit())
+      leftHook.set(SLOW_RETRACT_SPEED);
+    else
+      leftHook.set(0);
+
+    if (!getRightMagLimit())
+      rightHook.set(SLOW_RETRACT_SPEED);
+    else
+      rightHook.set(0);
   }
 
   public void runAngle(double spd) {
@@ -111,7 +126,7 @@ public class Climber extends SubsystemBase {
   }
 
   public double getRightEncoderPosition() {
-    return rightEncoder.get();
+    return -rightEncoder.get();
   }
 
   public boolean getLeftMagLimit() {
@@ -183,11 +198,20 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (getLeftMagLimit())
+      leftEncoder.reset();
+    
+    if (getRightMagLimit())
+      rightEncoder.reset();
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("left mag", leftMagSensor.get());
-    SmartDashboard.putBoolean("right mag", rightMagSensor.get());
+    SmartDashboard.putBoolean("left mag", getLeftMagLimit());
+    SmartDashboard.putBoolean("right mag", getRightMagLimit());
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
     SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
+    SmartDashboard.putNumber("right velocity", (getRightEncoderPosition() - prevRightPos) / 0.02);
+    SmartDashboard.putNumber("left velocity", (getLeftEncoderPosition() - prevLeftPos) / 0.02);
+    prevLeftPos = getLeftEncoderPosition();
+    prevRightPos = getRightEncoderPosition();
   }
 }

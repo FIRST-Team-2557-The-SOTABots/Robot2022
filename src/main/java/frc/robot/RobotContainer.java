@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -31,21 +32,22 @@ public class RobotContainer {
   private Logitech mStick = new Logitech(1);
   private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
   private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
+  private JoystickButton mBack = new JoystickButton(mStick, BACK);
+  private JoystickButton mStart = new JoystickButton(mStick, START);
 
-  private Climber climber;
+  private Climber climber = new Climber();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    climber = new Climber();
 
     climber.setDefaultCommand(
       new RunCommand(
         () -> {
           climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
-          climber.extendRightHook(-mStick.getRawAxis(LEFT_STICK_Y));
-          climber.runAngle(-mStick.getRawAxis(RIGHT_STICK_Y));
+          climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
+          // climber.runAngle(-mStick.getRawAxis(RIGHT_STICK_Y));
         }, 
         climber
       )
@@ -53,27 +55,27 @@ public class RobotContainer {
 
     mlb.whenPressed(
       sequence(
-        new ExtendClimbToPosition(Constants.Climber.MAX_EXTEND_ENCODER, climber),
-        new WaitUntilCommand(mrb::get),
-        new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
-        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
-        new WaitUntilCommand(mrb::get),
-        climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER),
-        new ExtendClimbToPosition(Constants.Climber.MAX_EXTEND_ENCODER, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
-        new WaitUntilCommand(mrb::get),
-        parallel(
-          new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
-          climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER)
-        ),
-        new WaitUntilCommand(mrb::get),
-        climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
-        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.MIN_ANGLE_ENCODER),
-        new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
-        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber)
+        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER_LEFT, Constants.Climber.MID_EXTEND_ENCODER_RIGHT, climber)
+        // new WaitUntilCommand(mrb::get),
+        // new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
+        // climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
+        // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
+        // new WaitUntilCommand(mrb::get),
+        // climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER),
+        // new ExtendClimbToPosition(Constants.Climber.MAX_EXTEND_ENCODER, climber),
+        // climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
+        // new WaitUntilCommand(mrb::get),
+        // parallel(
+        //   new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
+        //   climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER)
+        // ),
+        // new WaitUntilCommand(mrb::get),
+        // climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
+        // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
+        // climber.generateAnglePIDCommand(Constants.Climber.MIN_ANGLE_ENCODER),
+        // new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
+        // climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
+        // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber)
       )
     );
   }
@@ -92,7 +94,22 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    mStart.whenPressed(
+      new RunCommand(
+        () -> climber.retractHooksNoEncoderLimit(),
+        climber
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          climber.extendLeftHook(0.0);
+          climber.extendRightHook(0.0);
+        }, 
+        climber  
+      )
+    );
+  }
 
 
 

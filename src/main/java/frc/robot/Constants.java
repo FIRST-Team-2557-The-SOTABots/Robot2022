@@ -37,12 +37,17 @@ public final class Constants {
         public static final boolean RIGHT_HOOK_INVERTED = true; //TODO check 
         public static final boolean ANGLE_HOOK_INVERTED = false; //TODO check 
 
-        public static final double EXTEND_HIGH_LIMIT = 1000; // TODO make better
-        public static final double EXTEND_LOW_LIMIT = 0;
+        public static final double EXTEND_HIGH_LIMIT_LEFT = 9.1; // TODO make better
+        public static final double EXTEND_LOW_LIMIT_LEFT = 0;
+        public static final double MIN_EXTEND_ENCODER_LEFT = 0.0; //TODO get correct value
+        public static final double MID_EXTEND_ENCODER_LEFT = 4.0;
+        public static final double MAX_EXTEND_ENCODER_LEFT = 9.18; //TODO get correct value
+        public static final double EXTEND_HIGH_LIMIT_RIGHT = 7.2; // TODO make better
+        public static final double EXTEND_LOW_LIMIT_RIGHT = 0;
+        public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; //TODO get correct value
+        public static final double MID_EXTEND_ENCODER_RIGHT = 4.0;
+        public static final double MAX_EXTEND_ENCODER_RIGHT = 7.3; //TODO get correct value
         
-        public static final double MIN_EXTEND_ENCODER = 0.0; //TODO get correct value
-        public static final double MID_EXTEND_ENCODER = 100;
-        public static final double MAX_EXTEND_ENCODER = 1000.0; //TODO get correct value
         public static final double MAX_EXTEND_HOOK_LENGTH = 25 * METERS_PER_INCH; // meters // TODO update
         public static final double MIN_EXTEND_HOOK_LENGTH = 25 * METERS_PER_INCH; // meters // TODO update
 
@@ -59,16 +64,19 @@ public final class Constants {
         public static final double ANGLE_HOOK_LENGTH = 35 * METERS_PER_INCH; // in meters // TODO get better measurements if possible
         public static final double DISTANCE_BETWEEN_BARS = 28.5024669985 * METERS_PER_INCH; // in meters
 
-        public static final double EXTEND_PID_KP = 0.0;
+        public static final double EXTEND_PID_KP = 0.05;
         public static final double EXTEND_PID_KI = 0.0;
         public static final double EXTEND_PID_KD = 0.0;
-        public static final double EXTEND_MAX_VELOCITY = 0.0;
-        public static final double EXTEND_MAX_ACCELERATION = 0.0;
+        public static final double EXTEND_MAX_VELOCITY_LEFT = 4.5;
+        public static final double EXTEND_MAX_ACCELERATION_LEFT = 4.5;
+        public static final double EXTEND_MAX_VELOCITY_RIGHT = 4.5;
+        public static final double EXTEND_MAX_ACCELERATION_RIGHT = 4.5;
         
         public static final double ANGLE_PID_KP = 0.0;
         public static final double ANGLE_PID_KI = 0.0;
         public static final double ANGLE_PID_KD = 0.0;
         public static final double ANGLE_PID_TOLERANCE = 0.0;
 
+        public static final double SLOW_RETRACT_SPEED = -0.2;
     }
 }
