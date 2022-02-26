@@ -41,6 +41,7 @@ public class Shooter extends SubsystemBase {
 
     feedforward = new SimpleMotorFeedforward(FEEDFORWARD_KS, FEEDFORWARD_KV);
     speedPID = new PIDController(SPEED_PID_KP, SPEED_PID_KI, SPEED_PID_KD);
+    speedPID.setTolerance(RPM_TOLERANCE);
 
     hoodDown();
   }
@@ -54,6 +55,10 @@ public class Shooter extends SubsystemBase {
     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
+  }
+
+  public boolean atSetRPM() {
+    return speedPID.atSetpoint();
   }
 
   public double getMotorRPM(){
