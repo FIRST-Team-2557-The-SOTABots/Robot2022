@@ -4,14 +4,21 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.ExtendClimbToPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import static frc.robot.util.Logitech.Ports.*;
+import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -22,9 +29,10 @@ import static frc.robot.util.Logitech.Ports.*;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private Logitech mStick = new Logitech(1);
+  private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
+  private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
 
   private Climber climber;
-
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -35,10 +43,37 @@ public class RobotContainer {
     climber.setDefaultCommand(
       new RunCommand(
         () -> {
-          climber.runExtend(-mStick.getRawAxis(LEFT_STICK_Y));
-          climber.runAngle(-0.5 * mStick.getRawAxis(RIGHT_STICK_X));
+          climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
+          climber.extendRightHook(-mStick.getRawAxis(LEFT_STICK_Y));
+          climber.runAngle(-mStick.getRawAxis(RIGHT_STICK_Y));
         }, 
         climber
+      )
+    );
+
+    mlb.whenPressed(
+      sequence(
+        new ExtendClimbToPosition(Constants.Climber.MAX_EXTEND_ENCODER, climber),
+        new WaitUntilCommand(mrb::get),
+        new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
+        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
+        new WaitUntilCommand(mrb::get),
+        climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER),
+        new ExtendClimbToPosition(Constants.Climber.MAX_EXTEND_ENCODER, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
+        new WaitUntilCommand(mrb::get),
+        parallel(
+          new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
+          climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER)
+        ),
+        new WaitUntilCommand(mrb::get),
+        climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
+        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.MIN_ANGLE_ENCODER),
+        new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
+        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber)
       )
     );
   }
@@ -46,7 +81,7 @@ public class RobotContainer {
 
 
   public void resetRobot() {
-    
+    climber.reset();
   }
 
 
