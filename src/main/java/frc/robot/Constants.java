@@ -114,12 +114,12 @@ public final class Constants {
         public static final boolean MOTOR_2_INVERTED = false;
         public static final double RAMP_RATE = 3.0;
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
-        public static final double UPPER_HUB_RPM = 4200;
-        public static final double LOWER_HUB_RPM = 1600;
-        public static final double RPM_TOLERANCE = 80;
+        public static final double UPPER_HUB_RPM = 4200; // in motor rpm
+        public static final double LOWER_HUB_RPM = 1600; // in motor rpm
+        public static final double RPM_TOLERANCE = 80; // in motor rpm
         public static final double FEEDFORWARD_KS = 0.03269; // in volts
         public static final double FEEDFORWARD_KV = 0.002114; // in volts
-        public static final double SPEED_PID_KP = 0.0;
+        public static final double SPEED_PID_KP = 0.00003;
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SHOOT_COOLDOWN = 1.0; // in seconds
@@ -130,7 +130,7 @@ public final class Constants {
         public static final int MOTOR_PORT = 4;
         public static final int SENSOR_1_THRESHOLD = 104; // 80 // TODO update
         public static final double INDEXING_SPEED = 0.45;
-        public static final double SHOOTING_SPEED = 0.8;
+        public static final double SHOOTING_SPEED = 0.6;
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 1.0; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.2; // in seconds

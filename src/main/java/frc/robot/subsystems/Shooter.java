@@ -53,8 +53,10 @@ public class Shooter extends SubsystemBase {
 
   public void setMotorRPM(double rpm) {
     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
+    // SmartDashboard.putNumber("pid output", speedPID.calculate(getMotorRPM(), rpm));
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
+    speedPID.setSetpoint(rpm);
   }
 
   public boolean atSetRPM() {
