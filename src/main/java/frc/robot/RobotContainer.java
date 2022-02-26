@@ -6,7 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.subsystems.Climber;
+import frc.robot.util.Logitech;
+import static frc.robot.util.Logitech.Ports.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -16,13 +21,32 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
+  private Logitech mStick = new Logitech(1);
 
+  private Climber climber;
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    climber = new Climber();
+
+    climber.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          climber.runExtend(-mStick.getRawAxis(LEFT_STICK_Y));
+          climber.runAngle(-0.5 * mStick.getRawAxis(RIGHT_STICK_X));
+        }, 
+        climber
+      )
+    );
+  }
+
+
+
+  public void resetRobot() {
+    
   }
 
 

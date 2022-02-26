@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Climber.*;
@@ -25,6 +27,8 @@ public class Climber extends SubsystemBase {
   private DigitalInput leftMagSensor;
   private DigitalInput rightMagSensor; //TODO: dont actually know if there is going to be a second mag sensor
 
+  private DutyCycleEncoder leftEncoder;
+  private DutyCycleEncoder rightEncoder;
   private DutyCycleEncoder angleEncoder;
 
   /** Creates a new Climber. */
@@ -36,21 +40,26 @@ public class Climber extends SubsystemBase {
     rightHook = new CANSparkMax(RIGHT_HOOK_MOTOR_PORT, MotorType.kBrushless);
     rightHook.restoreFactoryDefaults();
     rightHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
-    rightHook.follow(leftHook, RIGHT_HOOK_INVERTED);
+    rightHook.setInverted(RIGHT_HOOK_INVERTED);
 
     angleMotor = new WPI_TalonSRX(ANGLE_MOTOR_PORT);
     angleMotor.configFactoryDefault();
-    angleMotor.getSensorCollection().setQuadraturePosition(MIN_ANGLE_ENCODER, 0);
+    angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
     angleMotor.setInverted(ANGLE_HOOK_INVERTED);
     angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
     
     leftMagSensor = new DigitalInput(RIGHT_MAG_SENSOR_PORT);
     rightMagSensor = new DigitalInput(LEFT_MAG_SENSOR_PORT);
 
-    angleEncoder = new DutyCycleEncoder(ANGLE_ENCODER_PORT);
-    angleEncoder.reset();
+    // leftEncoder = new DutyCycleEncoder(LEFT_HOOK_ENCODER_PORT);
+    // leftEncoder.reset();
+    // rightEncoder = new DutyCycleEncoder(RIGHT_HOOK_ENCODER_PORT);
+    // rightEncoder.reset();
 
-    lock();
+    // angleEncoder = new DutyCycleEncoder(ANGLE_ENCODER_PORT);
+    // angleEncoder.reset();
+
+    unlock(); // TODO: switch back
   }
 
   public void lock(){
@@ -62,15 +71,23 @@ public class Climber extends SubsystemBase {
   }
 
   public void runExtend(double spd) {
+    double leftSpd = spd;
+    double rightSpd = spd;
 
-    if (getExtendEncoderPosition() >= EXTEND_HIGH_LIMIT)
-      spd = Math.min(0, spd);
+    if (getLeftEncoderPosition() >= EXTEND_HIGH_LIMIT)
+      leftSpd = Math.min(0, leftSpd);
 
-    if (getExtendEncoderPosition() <= EXTEND_LOW_LIMIT || getMagLimit())
-      spd = Math.max(0, spd);
+    if (getLeftEncoderPosition() <= EXTEND_LOW_LIMIT || getLeftMagLimit())
+      leftSpd = Math.max(0, leftSpd);
 
-    leftHook.set(spd);
+    if (getRightEncoderPosition() >= EXTEND_HIGH_LIMIT)
+      rightSpd = Math.min(0, rightSpd);
 
+    if (getRightEncoderPosition() <= EXTEND_LOW_LIMIT || getRightMagLimit())
+      rightSpd = Math.max(0, rightSpd);
+
+    leftHook.set(leftSpd);
+    rightHook.set(rightSpd);
   }
 
   public void runAngle(double spd) {
@@ -85,60 +102,72 @@ public class Climber extends SubsystemBase {
 
   }
 
-  public double getExtendEncoderPosition() {
-
+  public double getLeftEncoderPosition() {
     return leftHook.getEncoder().getPosition();
-
   }
 
-  // little note, if it returns true then it would not be at its limit
-  // false would mean it is at its limit, reverse if you want TODO check
-  /**
-   * 
-   * @return whether either low limit sensor is tripped
-   */
-  public boolean getMagLimit() {
-    return !leftMagSensor.get() || !rightMagSensor.get();
+  public double getRightEncoderPosition() {
+    return rightHook.getEncoder().getPosition();
+  }
+
+  public boolean getLeftMagLimit() {
+    return !leftMagSensor.get();
+  }
+
+  public boolean getRightMagLimit() {
+    return !rightMagSensor.get();
   }
 
   public double getAngleEncoderPosition() {
-    return angleEncoder.get();
+    return angleMotor.getSelectedSensorPosition();
   }
 
-  /**
-   * 
-   * @return angle of the angling arm in radians
-   */
-  public double getAngle() {
-    return (MAX_ANGLE - MIN_ANGLE) / (MAX_ANGLE_ENCODER - MIN_ANGLE_ENCODER) * getAngleEncoderPosition() + MIN_ANGLE;
-  }
+  // /**
+  //  * 
+  //  * @return angle of the angling arm in radians
+  //  */
+  // public double getAngle() {
+  //   return (MAX_ANGLE - MIN_ANGLE) / (MAX_ANGLE_ENCODER - MIN_ANGLE_ENCODER) * getAngleEncoderPosition() + MIN_ANGLE;
+  // }
 
   /**
    * 
    * @return length of extending arm from the pivot point to the hook in meters
    */
-  public double getLength() {
+  // public double getLength() {
 
-    // TODO make return length of the extending arms 
-    return (MAX_EXTEND_HOOK_LENGTH - MIN_EXTEND_HOOK_LENGTH) / (MAX_EXTEND_HOOK_ENCODER - MIN_EXTEND_HOOK_ENCODER) * getExtendEncoderPosition() + MIN_EXTEND_HOOK_LENGTH;
+  //   // TODO make return length of the extending arms 
+  //   return (MAX_EXTEND_HOOK_LENGTH - MIN_EXTEND_HOOK_LENGTH) / (MAX_EXTEND_HOOK_ENCODER - MIN_EXTEND_HOOK_ENCODER) * getExtendEncoderPosition() + MIN_EXTEND_HOOK_LENGTH;
 
-  }
+  // }
 
-  /**
-   * 
-   * @param angle in radians
-   * @return returns length of the extending arms from the angle of the angling arms
-   */
-  public double getReqLength(double a) {
-    return ANGLE_HOOK_LENGTH * Math.cos(a) + 
-      Math.sqrt(
-        Math.pow(DISTANCE_BETWEEN_BARS, 2) - 
-        Math.pow(ANGLE_HOOK_LENGTH, 2) * Math.pow(Math.sin(a), 2)
-      );
+  // /**
+  //  * 
+  //  * @param angle in radians
+  //  * @return returns length of the extending arms from the angle of the angling arms
+  //  */
+  // public double getReqLength(double a) {
+  //   return ANGLE_HOOK_LENGTH * Math.cos(a) + 
+  //     Math.sqrt(
+  //       Math.pow(DISTANCE_BETWEEN_BARS, 2) - 
+  //       Math.pow(ANGLE_HOOK_LENGTH, 2) * Math.pow(Math.sin(a), 2)
+  //     );
+  // }
+
+  public void reset() {
+    // lock();
+    leftHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
+    rightHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
+    angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("left mag", leftMagSensor.get());
+    SmartDashboard.putBoolean("right mag", rightMagSensor.get());
+    SmartDashboard.putNumber("left encoder", leftHook.getEncoder().getPosition());
+    SmartDashboard.putNumber("right encoder", rightHook.getEncoder().getPosition());
+    SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
   }
 }
