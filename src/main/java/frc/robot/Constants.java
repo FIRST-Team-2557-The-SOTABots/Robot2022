@@ -114,7 +114,7 @@ public final class Constants {
         public static final boolean MOTOR_2_INVERTED = false;
         public static final double RAMP_RATE = 3.0;
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
-        public static final double UPPER_HUB_RPM = 4200; // in motor rpm
+        public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
         public static final double RPM_TOLERANCE = 80; // in motor rpm
         public static final double FEEDFORWARD_KS = 0.03269; // in volts
@@ -123,7 +123,7 @@ public final class Constants {
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SHOOT_COOLDOWN = 1.0; // in seconds
-        public static final int SPEED_SAMPLE_SIZE_LIMIT = 10;
+        public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
     }
 
     public static class Delivery {

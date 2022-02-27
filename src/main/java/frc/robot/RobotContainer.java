@@ -96,7 +96,6 @@ public class RobotContainer {
       //   ),
         new RunCommand(
           () -> {
-            SmartDashboard.putNumber("flywheel Speed", flywheelSpeed);
             // get inputs then square them, preserving sign
             double fwd = dStick.getRawAxis(LEFT_STICK_Y);
             double str = dStick.getRawAxis(LEFT_STICK_X);
@@ -197,8 +196,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodDown();
-          // shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM); // TODO reeenable
-          shooter.setMotorRPM(flywheelSpeed);
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM); // TODO reeenable
           if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           else
@@ -219,8 +217,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodUp();
-          // shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);  // TODO reenable
-          shooter.setMotorRPM(flywheelSpeed);
+          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);  // TODO reenable
           if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           else
@@ -236,9 +233,6 @@ public class RobotContainer {
         }
       )
     );
-
-    mLB.whenPressed(new InstantCommand(() -> flywheelSpeed -= 100));
-    mRB.whenPressed(new InstantCommand(() -> flywheelSpeed += 100));
   }
 
 

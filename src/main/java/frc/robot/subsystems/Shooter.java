@@ -47,6 +47,7 @@ public class Shooter extends SubsystemBase {
     speedPID = new PIDController(SPEED_PID_KP, SPEED_PID_KI, SPEED_PID_KD);
 
     speedSample = new ArrayList<>();
+    speedSample.add(0.0);
 
     hoodDown();
   }
@@ -71,7 +72,7 @@ public class Shooter extends SubsystemBase {
     }
     averageSpeed /= speedSample.size();
 
-    return speedPID.atSetpoint() && Math.abs(averageSpeed - speedPID.getSetpoint()) < RPM_TOLERANCE;
+    return Math.abs(averageSpeed - speedPID.getSetpoint()) < RPM_TOLERANCE;
   }
 
   public double getMotorRPM(){
