@@ -4,15 +4,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExtendClimbToPosition;
@@ -32,7 +29,6 @@ public class RobotContainer {
   private Logitech mStick = new Logitech(1);
   private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
   private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
-  private JoystickButton mBack = new JoystickButton(mStick, BACK);
   private JoystickButton mStart = new JoystickButton(mStick, START);
 
   private Climber climber = new Climber();
@@ -55,8 +51,15 @@ public class RobotContainer {
 
     mlb.whenPressed(
       sequence(
-        new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER_LEFT, Constants.Climber.MID_EXTEND_ENCODER_RIGHT, climber)
-        // new WaitUntilCommand(mrb::get),
+        new ExtendClimbToPosition(Constants.Climber.MovementType.BOTTOM_TO_TOP, climber),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 1");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.MovementType.TOP_TO_BOTTOM, climber),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 2");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.MovementType.BOTTOM_TO_MID, climber)
         // new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
         // climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
         // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
