@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,25 +44,33 @@ public class RobotContainer {
         () -> {
           climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
           climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
-          // climber.runAngle(-mStick.getRawAxis(RIGHT_STICK_Y));
+          // climber.runAngle(mStick.getRawAxis(RIGHT_STICK_X));
+          SmartDashboard.putNumber("angle input", mStick.getRawAxis(RIGHT_STICK_X));
         }, 
         climber
       )
     );
 
     mlb.whenPressed(
-      sequence(
-        new ExtendClimbToPosition(Constants.Climber.MovementType.BOTTOM_TO_TOP, climber),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 1");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.MovementType.TOP_TO_BOTTOM, climber),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 2");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.MovementType.BOTTOM_TO_MID, climber)
+      new RunCommand(
+        () -> {
+          climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+          SmartDashboard.putNumber("Running", Timer.getFPGATimestamp());
+        }, 
+        climber
+      ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0))
+      // sequence(
+        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
+        // new WaitUntilCommand(() -> {
+        //   SmartDashboard.putString("waiting", "step 1");
+        //   return mrb.get();}),
+        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber),
+        // new WaitUntilCommand(() -> {
+        //   SmartDashboard.putString("waiting", "step 2");
+        //   return mrb.get();}),
+        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
         // new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
-        // climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
+        // climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MIN_TO_MID)
         // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
         // new WaitUntilCommand(mrb::get),
         // climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER),
@@ -79,7 +88,7 @@ public class RobotContainer {
         // new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
         // climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
         // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber)
-      )
+      // )
     );
   }
 

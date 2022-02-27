@@ -15,10 +15,10 @@ public class ExtendClimbToPosition extends CommandBase {
   private ProfiledPIDController leftController;
   private ProfiledPIDController rightController;
   private Climber climber;
-  private MovementType movementType;
+  private ExtendMovement movementType;
 
   /** Creates a new ExtendClimbToPosition. */
-  public ExtendClimbToPosition(MovementType movementType, Climber climber) {
+  public ExtendClimbToPosition(ExtendMovement movementType, Climber climber) {
     this.movementType = movementType;
 
     double leftGoal = movementType.leftGoal;
@@ -80,10 +80,10 @@ public class ExtendClimbToPosition extends CommandBase {
   public boolean isFinished() {
     boolean leftFinished;
     boolean rightFinished;
-    if (movementType == MovementType.MID_TO_BOTTOM || movementType == MovementType.TOP_TO_BOTTOM) {
+    if (movementType == ExtendMovement.MID_TO_BOTTOM || movementType == ExtendMovement.TOP_TO_BOTTOM) {
       leftFinished = climber.getLeftBotMagLimit();
       rightFinished = climber.getRightBotMagLimit();
-    } else if (movementType == MovementType.BOTTOM_TO_TOP || movementType == MovementType.MID_TO_TOP) {
+    } else if (movementType == ExtendMovement.BOTTOM_TO_TOP || movementType == ExtendMovement.MID_TO_TOP) {
       leftFinished = climber.getLeftTopMagLimit();
       rightFinished = climber.getRightTopMagLimit();
     } else {

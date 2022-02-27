@@ -45,12 +45,10 @@ public class Climber extends SubsystemBase {
   public Climber() {
     leftHook = new CANSparkMax(LEFT_HOOK_MOTOR_PORT, MotorType.kBrushless);
     leftHook.restoreFactoryDefaults();
-    // leftHook.getEncoder().setPosition(MIN_EXTEND_ENCODER);
     leftHook.setInverted(LEFT_HOOK_INVERTED);
     leftHook.setIdleMode(IdleMode.kBrake);
     rightHook = new CANSparkMax(RIGHT_HOOK_MOTOR_PORT, MotorType.kBrushless);
     rightHook.restoreFactoryDefaults();
-    // rightHook.getEncoder().setPosition(MIN_EXTEND_ENCODER);
     rightHook.setInverted(RIGHT_HOOK_INVERTED);
     rightHook.setIdleMode(IdleMode.kBrake);
     angleMotor = new WPI_TalonSRX(ANGLE_MOTOR_PORT);
@@ -60,18 +58,15 @@ public class Climber extends SubsystemBase {
     angleMotor.setNeutralMode(NeutralMode.Brake);
     angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
     
-    leftBotMagSensor = new DigitalInput(RIGHT_BOT_MAG_SENSOR_PORT);
-    rightBotMagSensor = new DigitalInput(LEFT_BOT_MAG_SENSOR_PORT);
-    leftTopMagSensor = new DigitalInput(RIGHT_BOT_MAG_SENSOR_PORT);
-    rightTopMagSensor = new DigitalInput(LEFT_BOT_MAG_SENSOR_PORT);
+    leftBotMagSensor = new DigitalInput(LEFT_BOT_MAG_SENSOR_PORT);
+    rightBotMagSensor = new DigitalInput(RIGHT_BOT_MAG_SENSOR_PORT);
+    leftTopMagSensor = new DigitalInput(LEFT_TOP_MAG_SENSOR_PORT);
+    rightTopMagSensor = new DigitalInput(RIGHT_TOP_MAG_SENSOR_PORT);
 
     leftEncoder = new DutyCycleEncoder(LEFT_HOOK_ENCODER_PORT);
     leftEncoder.reset();
     rightEncoder = new DutyCycleEncoder(RIGHT_HOOK_ENCODER_PORT);
     rightEncoder.reset();
-
-    // angleEncoder = new DutyCycleEncoder(ANGLE_ENCODER_PORT);
-    // angleEncoder.reset();
 
     unlock(); // TODO: switch back
   }
@@ -151,7 +146,7 @@ public class Climber extends SubsystemBase {
   }
 
   public double getAngleEncoderPosition() {
-    return angleMotor.getSelectedSensorPosition();
+    return -angleMotor.getSelectedSensorPosition();
   }
 
 
@@ -197,15 +192,15 @@ public class Climber extends SubsystemBase {
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
   }
 
-  public PIDCommand generateAnglePIDCommand(double setpoint) {
+  public PIDCommand generateAnglePIDCommand(AngleMovement angleMovement) {
     PIDCommand result = new PIDCommand(
-      new PIDController(ANGLE_PID_KP, ANGLE_PID_KI, ANGLE_PID_KD),
-      this::getAngleEncoderPosition, 
-      setpoint,
+      new PIDController(angleMovement.kp, angleMovement.ki, angleMovement.kd),
+      () -> this.getAngleEncoderPosition(), 
+      angleMovement.setpoint,
       this::runAngle, 
       this
     );
-    result.getController().setTolerance(ANGLE_PID_TOLERANCE);
+    result.getController().setTolerance(angleMovement.tolerance);
     return result;
   }
 
