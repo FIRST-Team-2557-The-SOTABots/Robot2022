@@ -199,7 +199,7 @@ public class RobotContainer {
           shooter.hoodDown();
           // shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM); // TODO reeenable
           shooter.setMotorRPM(flywheelSpeed);
-          if (shooter.atSetRPM())
+          if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           else
             delivery.runMotor(0.0);
@@ -221,7 +221,7 @@ public class RobotContainer {
           shooter.hoodUp();
           // shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);  // TODO reenable
           shooter.setMotorRPM(flywheelSpeed);
-          if (shooter.atSetRPM())
+          if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           else
             delivery.runMotor(0.0);

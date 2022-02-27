@@ -123,6 +123,7 @@ public final class Constants {
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SHOOT_COOLDOWN = 1.0; // in seconds
+        public static final int SPEED_SAMPLE_SIZE_LIMIT = 10;
     }
 
     public static class Delivery {
