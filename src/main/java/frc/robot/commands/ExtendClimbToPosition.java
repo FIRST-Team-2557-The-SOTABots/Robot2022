@@ -11,11 +11,15 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 import static frc.robot.Constants.Climber.*;
 
+import java.util.ArrayList;
+
 public class ExtendClimbToPosition extends CommandBase {
   private ProfiledPIDController leftController;
   private ProfiledPIDController rightController;
   private Climber climber;
   private ExtendMovement movementType;
+
+  private ArrayList<Double> positionSample;
 
   /** Creates a new ExtendClimbToPosition. */
   public ExtendClimbToPosition(ExtendMovement movementType, Climber climber) {
@@ -26,16 +30,14 @@ public class ExtendClimbToPosition extends CommandBase {
     
     leftController = new ProfiledPIDController(
       EXTEND_PID_KP, EXTEND_PID_KI, EXTEND_PID_KD, 
-      new TrapezoidProfile.Constraints(EXTEND_MAX_VELOCITY_LEFT, EXTEND_MAX_ACCELERATION_LEFT)
+      new TrapezoidProfile.Constraints(movementType.maxVelocity, movementType.maxAcceleration)
     );
     leftController.setGoal(leftGoal);
-    leftController.setTolerance(EXTEND_PID_TOLERANCE);
     rightController = new ProfiledPIDController(
       EXTEND_PID_KP, EXTEND_PID_KI, EXTEND_PID_KD, 
-      new TrapezoidProfile.Constraints(EXTEND_MAX_VELOCITY_RIGHT, EXTEND_MAX_ACCELERATION_RIGHT)
+      new TrapezoidProfile.Constraints(movementType.maxVelocity, movementType.maxAcceleration)
     );
     rightController.setGoal(rightGoal);
-    rightController.setTolerance(EXTEND_PID_TOLERANCE);
     this.climber = climber;
 
     addRequirements(climber);
@@ -46,6 +48,8 @@ public class ExtendClimbToPosition extends CommandBase {
   public void initialize() {
     leftController.reset(climber.getLeftEncoderPosition());
     rightController.reset(climber.getRightEncoderPosition());
+    double integral = SmartDashboard.getNumber("integral", -1);
+    integral = integral == -1 ? movementType.ki : integral;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -53,13 +57,16 @@ public class ExtendClimbToPosition extends CommandBase {
   public void execute() {
 
     SmartDashboard.putNumber("left setpoint", leftController.getSetpoint().position);
-    SmartDashboard.putNumber("left position", climber.getLeftEncoderPosition());
+    SmartDashboard.putNumber("right setpoint", rightController.getSetpoint().position);
     
     climber.extendLeftHook(
       leftController.calculate(
         climber.getLeftEncoderPosition()
       )
     );
+
+    SmartDashboard.putNumber("left output", leftController.calculate(climber.getLeftEncoderPosition()));
+    SmartDashboard.putNumber("right output", rightController.calculate(climber.getRightEncoderPosition()));
 
     climber.extendRightHook(
       rightController.calculate(
@@ -78,17 +85,19 @@ public class ExtendClimbToPosition extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    boolean leftFinished;
-    boolean rightFinished;
+    boolean leftFinished = false;
+    boolean rightFinished = false;
     if (movementType == ExtendMovement.MID_TO_BOTTOM || movementType == ExtendMovement.TOP_TO_BOTTOM) {
       leftFinished = climber.getLeftBotMagLimit();
       rightFinished = climber.getRightBotMagLimit();
+      SmartDashboard.putString("moving to", "bottom");
     } else if (movementType == ExtendMovement.BOTTOM_TO_TOP || movementType == ExtendMovement.MID_TO_TOP) {
       leftFinished = climber.getLeftTopMagLimit();
       rightFinished = climber.getRightTopMagLimit();
+      SmartDashboard.putString("moving to", "top");
     } else {
-      leftFinished = leftController.atGoal();
-      rightFinished = rightController.atGoal();
+      leftFinished = Math.abs(climber.getLeftEncoderPosition() - leftController.getGoal().position) < EXTEND_PID_TOLERANCE;
+      rightFinished = Math.abs(climber.getRightEncoderPosition() - rightController.getGoal().position) < EXTEND_PID_TOLERANCE;
     }
 
     return leftFinished && rightFinished;

@@ -80,20 +80,20 @@ public class Climber extends SubsystemBase {
   }
 
   public void extendLeftHook(double spd) {
-    if (getLeftEncoderPosition() >= EXTEND_HIGH_LIMIT_LEFT)
+    if (getLeftTopMagLimit())
       spd = Math.min(0, spd);
 
-    if (getLeftEncoderPosition() <= EXTEND_LOW_LIMIT_LEFT || getLeftBotMagLimit())
+    if (getLeftBotMagLimit())
       spd = Math.max(0, spd);
 
     leftHook.set(spd);
   }
 
   public void extendRightHook(double spd) {
-    if (getRightEncoderPosition() >= EXTEND_HIGH_LIMIT_RIGHT)
+    if (getRightTopMagLimit())
       spd = Math.min(0, spd);
 
-    if (getRightEncoderPosition() <= EXTEND_LOW_LIMIT_RIGHT || getRightBotMagLimit())
+    if (getRightBotMagLimit())
       spd = Math.max(0, spd);
     
     rightHook.set(spd);
@@ -224,7 +224,6 @@ public class Climber extends SubsystemBase {
         if (Math.abs(rightError) < RUN_TO_SLOW_RANGE)
           extendRightHook(RUN_TO_SLOW_SPEED * rSign);
         else if (rightAtSetpoint) {
-          SmartDashboard.putString("at right", "setpoint");
           extendRightHook(0.0);
         }
         else
@@ -248,8 +247,10 @@ public class Climber extends SubsystemBase {
     if (getRightBotMagLimit())
       rightEncoder.reset();
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("left mag", getLeftBotMagLimit());
-    SmartDashboard.putBoolean("right mag", getRightBotMagLimit());
+    SmartDashboard.putBoolean("left bot mag", getLeftBotMagLimit());
+    SmartDashboard.putBoolean("right bot mag", getRightBotMagLimit());
+    SmartDashboard.putBoolean("left top mag", getLeftTopMagLimit());
+    SmartDashboard.putBoolean("right top mag", getRightTopMagLimit());
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
     SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());

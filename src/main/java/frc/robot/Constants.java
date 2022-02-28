@@ -25,8 +25,8 @@ public final class Constants {
         public static final int RIGHT_HOOK_ENCODER_PORT = 3;
         public static final int LEFT_BOT_MAG_SENSOR_PORT = 1; 
         public static final int RIGHT_BOT_MAG_SENSOR_PORT = 2; 
-        public static final int LEFT_TOP_MAG_SENSOR_PORT = 10; // TODO get correct port num
-        public static final int RIGHT_TOP_MAG_SENSOR_PORT = 11; // TODO get correct port num
+        public static final int LEFT_TOP_MAG_SENSOR_PORT = 5; // TODO get correct port num
+        public static final int RIGHT_TOP_MAG_SENSOR_PORT = 6; // TODO get correct port num
         public static final int ANGLE_MOTOR_PORT = 5;
         public static final int ANGLE_ENCODER_PORT = 0; // TODO: get correct port num
         public static final int SOLENOID_CHANNEL_A = 2;
@@ -47,7 +47,7 @@ public final class Constants {
 
         public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; 
         public static final double MID_EXTEND_ENCODER_RIGHT = 2.13;
-        public static final double MAX_EXTEND_ENCODER_RIGHT = 7.5; 
+        public static final double MAX_EXTEND_ENCODER_RIGHT = 8.7; 
         public static final double EXTEND_HIGH_LIMIT_RIGHT = MAX_EXTEND_ENCODER_RIGHT; 
         public static final double EXTEND_LOW_LIMIT_RIGHT = MIN_EXTEND_ENCODER_RIGHT;
         
@@ -76,6 +76,7 @@ public final class Constants {
         public static final double EXTEND_MAX_VELOCITY_RIGHT = 5;
         public static final double EXTEND_MAX_ACCELERATION_RIGHT = 8;
         public static final double EXTEND_PID_TOLERANCE = 0.02;
+        public static final double EXTEND_PID_OVERSHOOT = 0.3;
 
         public static final double RUN_TO_NORMAL_SPEED = 0.9;
         public static final double RUN_TO_SLOW_RANGE = 3;
@@ -92,8 +93,8 @@ public final class Constants {
         public static final double TIMED_ANGLE_DURATION = 0.3; // in seconds
         
         public enum ExtendMovement {
-            BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT),
-            TOP_TO_BOTTOM(0.65, 0.0005, 0.0, 5, 8, MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT),
+            BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
+            TOP_TO_BOTTOM(0.9, 5, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
             BOTTOM_TO_MID(0.65, 0.0005, 0.0, 5, 8, MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT),
             MID_TO_TOP   (0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT),
             MID_TO_BOTTOM(0.65, 0.0005, 0.0, 5, 8, MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT);

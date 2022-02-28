@@ -45,26 +45,25 @@ public class RobotContainer {
           climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
           climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
           // climber.runAngle(mStick.getRawAxis(RIGHT_STICK_X));
-          SmartDashboard.putNumber("angle input", mStick.getRawAxis(RIGHT_STICK_X));
         }, 
         climber
       )
     );
 
     mlb.whenPressed(
-      new RunCommand(
-        () -> {
-          climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-          SmartDashboard.putNumber("Running", Timer.getFPGATimestamp());
-        }, 
-        climber
-      ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0))
-      // sequence(
-        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
-        // new WaitUntilCommand(() -> {
-        //   SmartDashboard.putString("waiting", "step 1");
-        //   return mrb.get();}),
-        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber),
+      sequence(
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 1");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber)
+        // new RunCommand(
+        //   () -> {
+        //     climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+        //     SmartDashboard.putNumber("Running", Timer.getFPGATimestamp());
+        //   }, 
+        //   climber
+        // ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0))
         // new WaitUntilCommand(() -> {
         //   SmartDashboard.putString("waiting", "step 2");
         //   return mrb.get();}),
@@ -88,7 +87,7 @@ public class RobotContainer {
         // new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
         // climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
         // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber)
-      // )
+      )
     );
   }
 
