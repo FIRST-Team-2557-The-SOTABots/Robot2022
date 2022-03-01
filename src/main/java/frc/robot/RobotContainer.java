@@ -6,18 +6,11 @@ package frc.robot;
 
 import static frc.robot.util.Logitech.Ports.*;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -56,21 +49,11 @@ public class RobotContainer {
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
   private JoystickButton ma = new JoystickButton(mStick, A);
-  private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
-  private JoystickButton mLB = new JoystickButton(mStick, LEFT_BUMPER);
-  private JoystickButton mRB = new JoystickButton(mStick, RIGHT_BUMPER);
-  // private JoystickButton mLSB = new JoystickButton(mStick, LEFT_STICK_BUTTON);
-  // private JoystickButton mRSB = new JoystickButton(mStick, RIGHT_STICK_BUTTON);
-
-  private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
-
-  static double flywheelSpeed = 1000;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    climbLock.set(Value.kReverse); // TODO remove
 
     dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
     dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
@@ -196,7 +179,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodDown();
-          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM); // TODO reeenable
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
           if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           else
@@ -217,7 +200,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodUp();
-          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);  // TODO reenable
+          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
           if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
           else

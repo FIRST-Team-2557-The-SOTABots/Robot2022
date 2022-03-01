@@ -45,7 +45,7 @@ public class SwerveModule extends SubsystemBase {
     speedMotor = new WPI_TalonFX(SPEED_MOTOR_PORTS[moduleNumber]);
     speedMotor.configFactoryDefault();
     speedMotor.setInverted(SPEED_MOTOR_INVERTS[moduleNumber]);
-    // speedMotor.setNeutralMode(NeutralMode.Brake); // TODO FIXXXX
+    speedMotor.setNeutralMode(NeutralMode.Brake);
     speedMotor.setNeutralMode(NeutralMode.Coast);
     angleMotor = new CANSparkMax(ANGLE_MOTOR_PORTS[moduleNumber], MotorType.kBrushless);
     angleMotor.restoreFactoryDefaults();
