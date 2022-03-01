@@ -29,12 +29,12 @@ public class ExtendClimbToPosition extends CommandBase {
     double rightGoal = movementType.rightGoal;
     
     leftController = new ProfiledPIDController(
-      EXTEND_PID_KP, EXTEND_PID_KI, EXTEND_PID_KD, 
+      movementType.kp, movementType.ki, movementType.kd, 
       new TrapezoidProfile.Constraints(movementType.maxVelocity, movementType.maxAcceleration)
     );
     leftController.setGoal(leftGoal);
     rightController = new ProfiledPIDController(
-      EXTEND_PID_KP, EXTEND_PID_KI, EXTEND_PID_KD, 
+      movementType.kp, movementType.ki, movementType.kd,
       new TrapezoidProfile.Constraints(movementType.maxVelocity, movementType.maxAcceleration)
     );
     rightController.setGoal(rightGoal);
@@ -48,8 +48,6 @@ public class ExtendClimbToPosition extends CommandBase {
   public void initialize() {
     leftController.reset(climber.getLeftEncoderPosition());
     rightController.reset(climber.getRightEncoderPosition());
-    double integral = SmartDashboard.getNumber("integral", -1);
-    integral = integral == -1 ? movementType.ki : integral;
   }
 
   // Called every time the scheduler runs while the command is scheduled.

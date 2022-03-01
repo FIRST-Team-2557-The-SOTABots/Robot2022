@@ -17,8 +17,6 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Climber.*;
@@ -36,7 +34,6 @@ public class Climber extends SubsystemBase {
 
   private DutyCycleEncoder leftEncoder;
   private DutyCycleEncoder rightEncoder;
-  private DutyCycleEncoder angleEncoder;
 
   private double prevLeftPos = 0.0;
   private double prevRightPos = 0.0;
@@ -185,8 +182,6 @@ public class Climber extends SubsystemBase {
 
   public void reset() {
     // lock();
-    // leftHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
-    // rightHook.getEncoder().setPosition(MIN_EXTEND_HOOK_ENCODER);
     leftEncoder.reset();
     rightEncoder.reset();
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
@@ -197,46 +192,10 @@ public class Climber extends SubsystemBase {
       new PIDController(angleMovement.kp, angleMovement.ki, angleMovement.kd),
       () -> this.getAngleEncoderPosition(), 
       angleMovement.setpoint,
-      this::runAngle, 
-      this
+      this::runAngle
     );
     result.getController().setTolerance(angleMovement.tolerance);
     return result;
-  }
-
-  public ParallelRaceGroup generateRunToPositionCommand(double lSetpoint, double rSetpoint) {
-    final double lSign = Math.signum(lSetpoint - getLeftEncoderPosition());
-    final double rSign = Math.signum(rSetpoint - getRightEncoderPosition());
-    return new RunCommand(
-      () -> {
-        double leftError = lSetpoint - getLeftEncoderPosition();
-        double rightError = rSetpoint - getRightEncoderPosition();
-        boolean leftAtSetpoint = lSign > 0 ? getLeftEncoderPosition() >= lSetpoint : getLeftEncoderPosition() <= lSetpoint;
-        boolean rightAtSetpoint = rSign > 0 ? getRightEncoderPosition() >= rSetpoint : getRightEncoderPosition() <= rSetpoint;
-
-        if (Math.abs(leftError) < RUN_TO_SLOW_RANGE)
-          extendLeftHook(RUN_TO_SLOW_SPEED * lSign);
-        else if (leftAtSetpoint)
-          extendLeftHook(0.0);
-        else
-          extendLeftHook(RUN_TO_NORMAL_SPEED * lSign);
-        
-        if (Math.abs(rightError) < RUN_TO_SLOW_RANGE)
-          extendRightHook(RUN_TO_SLOW_SPEED * rSign);
-        else if (rightAtSetpoint) {
-          extendRightHook(0.0);
-        }
-        else
-          extendRightHook(RUN_TO_NORMAL_SPEED * rSign);
-      },
-      this
-    ).withInterrupt(
-      () -> {
-        boolean leftAtSetpoint = lSign > 0 ? getLeftEncoderPosition() >= lSetpoint : getLeftEncoderPosition() <= lSetpoint;
-        boolean rightAtSetpoint = rSign > 0 ? getRightEncoderPosition() >= rSetpoint : getRightEncoderPosition() <= rSetpoint;
-        return (getLeftBotMagLimit() && getRightBotMagLimit()) || (leftAtSetpoint && rightAtSetpoint);
-      }
-    );
   }
 
   @Override

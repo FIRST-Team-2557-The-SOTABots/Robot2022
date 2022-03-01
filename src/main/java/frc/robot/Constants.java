@@ -68,19 +68,8 @@ public final class Constants {
         public static final double ANGLE_HOOK_LENGTH = 35 * METERS_PER_INCH; // in meters // TODO get better measurements if possible
         public static final double DISTANCE_BETWEEN_BARS = 28.5024669985 * METERS_PER_INCH; // in meters
 
-        public static final double EXTEND_PID_KP = 0.65;
-        public static final double EXTEND_PID_KI = 0.0005;
-        public static final double EXTEND_PID_KD = 0.0;
-        public static final double EXTEND_MAX_VELOCITY_LEFT = 5;
-        public static final double EXTEND_MAX_ACCELERATION_LEFT = 8;
-        public static final double EXTEND_MAX_VELOCITY_RIGHT = 5;
-        public static final double EXTEND_MAX_ACCELERATION_RIGHT = 8;
         public static final double EXTEND_PID_TOLERANCE = 0.02;
         public static final double EXTEND_PID_OVERSHOOT = 0.3;
-
-        public static final double RUN_TO_NORMAL_SPEED = 0.9;
-        public static final double RUN_TO_SLOW_RANGE = 3;
-        public static final double RUN_TO_SLOW_SPEED = 0.2;
         
         public static final double ANGLE_PID_KP = 0.0;
         public static final double ANGLE_PID_KI = 0.0;
@@ -94,7 +83,7 @@ public final class Constants {
         
         public enum ExtendMovement {
             BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
-            TOP_TO_BOTTOM(0.9, 5, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
+            TOP_TO_BOTTOM(0.65, 0.001, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
             BOTTOM_TO_MID(0.65, 0.0005, 0.0, 5, 8, MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT),
             MID_TO_TOP   (0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT),
             MID_TO_BOTTOM(0.65, 0.0005, 0.0, 5, 8, MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT);
