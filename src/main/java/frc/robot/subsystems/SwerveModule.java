@@ -46,6 +46,7 @@ public class SwerveModule extends SubsystemBase {
     speedMotor.configFactoryDefault();
     speedMotor.setInverted(SPEED_MOTOR_INVERTS[moduleNumber]);
     speedMotor.setNeutralMode(NeutralMode.Brake);
+    speedMotor.setNeutralMode(NeutralMode.Coast);
     angleMotor = new CANSparkMax(ANGLE_MOTOR_PORTS[moduleNumber], MotorType.kBrushless);
     angleMotor.restoreFactoryDefaults();
     angleMotor.setIdleMode(IdleMode.kBrake);

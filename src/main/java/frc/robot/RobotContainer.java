@@ -4,28 +4,13 @@
 
 package frc.robot;
 
-import static frc.robot.util.Logitech.Ports.A;
-import static frc.robot.util.Logitech.Ports.B;
-import static frc.robot.util.Logitech.Ports.LEFT_STICK_X;
-import static frc.robot.util.Logitech.Ports.LEFT_STICK_Y;
-import static frc.robot.util.Logitech.Ports.LEFT_TRIGGER;
-import static frc.robot.util.Logitech.Ports.RIGHT_STICK_X;
-import static frc.robot.util.Logitech.Ports.RIGHT_TRIGGER;
-import static frc.robot.util.Logitech.Ports.START;
-import static frc.robot.util.Logitech.Ports.X;
-import static frc.robot.util.Logitech.Ports.Y;
+import static frc.robot.util.Logitech.Ports.*;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -64,15 +49,11 @@ public class RobotContainer {
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
   private JoystickButton ma = new JoystickButton(mStick, A);
-  private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
 
-  private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    climbLock.set(Value.kReverse); // TODO remove
 
     dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
     dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
@@ -199,9 +180,10 @@ public class RobotContainer {
         () -> {
           shooter.hoodDown();
           shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-          if (shooter.getMotorRPM() > Constants.Shooter.UPPER_HUB_RPM_THRESHOLD) {
+          if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          }
+          else
+            delivery.runMotor(0.0);
         },
         shooter, delivery
       )
@@ -219,9 +201,10 @@ public class RobotContainer {
         () -> {
           shooter.hoodUp();
           shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-          if (shooter.getMotorRPM() > Constants.Shooter.LOWER_HUB_RPM_THRESHOLD) {
+          if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          }
+          else
+            delivery.runMotor(0.0);
         },
         shooter, delivery
       )
