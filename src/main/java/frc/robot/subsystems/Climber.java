@@ -16,7 +16,10 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Climber.*;
@@ -76,6 +79,10 @@ public class Climber extends SubsystemBase {
     angleLock.set(UNLOCK_VALUE);
   }
 
+  public boolean getLocked() {
+    return angleLock.get() == LOCK_VALUE;
+  }
+
   public void extendLeftHook(double spd) {
     if (getLeftTopMagLimit())
       spd = Math.min(0, spd);
@@ -115,7 +122,10 @@ public class Climber extends SubsystemBase {
     if (getAngleEncoderPosition() <= ANGLE_ENCODER_LOW_LIMIT)
       spd = Math.max(0, spd);
 
-    angleMotor.set(spd);
+    if (getLocked())
+      angleMotor.set(0.0);
+    else
+      angleMotor.set(spd);
   }
 
   public double getLeftEncoderPosition() {
@@ -187,15 +197,13 @@ public class Climber extends SubsystemBase {
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
   }
 
-  public PIDCommand generateAnglePIDCommand(AngleMovement angleMovement) {
-    PIDCommand result = new PIDCommand(
+  public ParallelRaceGroup generateAnglePIDCommand(AngleMovement angleMovement) {
+    return new PIDCommand(
       new PIDController(angleMovement.kp, angleMovement.ki, angleMovement.kd),
       () -> this.getAngleEncoderPosition(), 
       angleMovement.setpoint,
       this::runAngle
-    );
-    result.getController().setTolerance(angleMovement.tolerance);
-    return result;
+    ).withInterrupt(() -> Math.abs(angleMovement.setpoint - getAngleEncoderPosition()) < angleMovement.tolerance);
   }
 
   @Override

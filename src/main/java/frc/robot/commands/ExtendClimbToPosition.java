@@ -11,15 +11,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 import static frc.robot.Constants.Climber.*;
 
-import java.util.ArrayList;
-
 public class ExtendClimbToPosition extends CommandBase {
   private ProfiledPIDController leftController;
   private ProfiledPIDController rightController;
   private Climber climber;
   private ExtendMovement movementType;
-
-  private ArrayList<Double> positionSample;
 
   /** Creates a new ExtendClimbToPosition. */
   public ExtendClimbToPosition(ExtendMovement movementType, Climber climber) {
@@ -93,6 +89,9 @@ public class ExtendClimbToPosition extends CommandBase {
       leftFinished = climber.getLeftTopMagLimit();
       rightFinished = climber.getRightTopMagLimit();
       SmartDashboard.putString("moving to", "top");
+    } else if (movementType == ExtendMovement.HANG_BOTTOM) {
+      leftFinished = false;
+      rightFinished = false;
     } else {
       leftFinished = Math.abs(climber.getLeftEncoderPosition() - leftController.getGoal().position) < EXTEND_PID_TOLERANCE;
       rightFinished = Math.abs(climber.getRightEncoderPosition() - rightController.getGoal().position) < EXTEND_PID_TOLERANCE;

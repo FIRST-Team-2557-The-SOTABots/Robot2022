@@ -40,12 +40,14 @@ public final class Constants {
         public static final boolean ANGLE_HOOK_INVERTED = true; //TODO check 
 
         public static final double MIN_EXTEND_ENCODER_LEFT = 0.0; 
+        public static final double EVEN_EXTEND_ENCODER_LEFT = 0.356; 
         public static final double MID_EXTEND_ENCODER_LEFT = 2.35;
         public static final double MAX_EXTEND_ENCODER_LEFT = 9.3; 
         public static final double EXTEND_HIGH_LIMIT_LEFT = MAX_EXTEND_ENCODER_LEFT; 
         public static final double EXTEND_LOW_LIMIT_LEFT = MIN_EXTEND_ENCODER_LEFT;
 
         public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; 
+        public static final double EVEN_EXTEND_ENCODER_RIGHT = 0.356; 
         public static final double MID_EXTEND_ENCODER_RIGHT = 2.13;
         public static final double MAX_EXTEND_ENCODER_RIGHT = 8.7; 
         public static final double EXTEND_HIGH_LIMIT_RIGHT = MAX_EXTEND_ENCODER_RIGHT; 
@@ -56,7 +58,7 @@ public final class Constants {
 
 
         public static final int MAX_ANGLE_ENCODER = 1600; // encoder value at front hard stop 
-        public static final int HIGH_ANGLE_ENCODER = 1400; // encoder value between front hard stop and extend hooks TODO find actual 
+        public static final int HIGH_ANGLE_ENCODER = 1240; // encoder value between front hard stop and extend hooks TODO find actual 
         public static final int MID_ANGLE_ENCODER = 300; // encoder value at even with extend hooks 
         public static final int MIN_ANGLE_ENCODER = 0; // encoder value at back hard stop
         public static final double ANGLE_ENCODER_HIGH_LIMIT = MAX_ANGLE_ENCODER; // TODO make better
@@ -69,24 +71,23 @@ public final class Constants {
         public static final double DISTANCE_BETWEEN_BARS = 28.5024669985 * METERS_PER_INCH; // in meters
 
         public static final double EXTEND_PID_TOLERANCE = 0.02;
-        public static final double EXTEND_PID_OVERSHOOT = 0.3;
+        public static final double EXTEND_PID_OVERSHOOT = 0.3; // aim to extend slightly beyond max value to help reach the setpoint
         
-        public static final double ANGLE_PID_KP = 0.0;
-        public static final double ANGLE_PID_KI = 0.0;
-        public static final double ANGLE_PID_KD = 0.0;
         public static final double ANGLE_PID_TOLERANCE = 0.0;
 
         public static final double SLOW_RETRACT_SPEED = -0.2;
 
         public static final double TIMED_ANGLE_SPEED = 0.2;
-        public static final double TIMED_ANGLE_DURATION = 0.3; // in seconds
+        public static final double TIMED_ANGLE_DURATION = 0.35; // in seconds
         
         public enum ExtendMovement {
             BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
-            TOP_TO_BOTTOM(0.65, 0.001, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
-            BOTTOM_TO_MID(0.65, 0.0005, 0.0, 5, 8, MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT),
-            MID_TO_TOP   (0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT),
-            MID_TO_BOTTOM(0.65, 0.0005, 0.0, 5, 8, MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT);
+            TOP_TO_BOTTOM(0.65, 0.1, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
+            HANG_BOTTOM(0.65, 0.08, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
+            BOTTOM_TO_EVEN(0.65, 0.0005, 0.0, 1, 2, EVEN_EXTEND_ENCODER_LEFT, EVEN_EXTEND_ENCODER_RIGHT),
+            EVEN_TO_MID(0.65, 0.0005, 0.0, 5, 8, MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT),
+            MID_TO_TOP(0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
+            MID_TO_BOTTOM(0.65, 0.0005, 0.0, 5, 8, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT);
 
             public final double kp;
             public final double ki;
@@ -108,11 +109,11 @@ public final class Constants {
         }
 
         public enum AngleMovement {
-            MIN_TO_MID (0.001, 0.0005, 0,  MID_ANGLE_ENCODER, 0.0),
-            MID_TO_MAX (0, 0, 0,  MAX_ANGLE_ENCODER, 0.0),
+            MIN_TO_MID(0.001, 0.0005, 0, MID_ANGLE_ENCODER, 0.0),
+            MID_TO_MAX(0.00004, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
             MAX_TO_HIGH(0, 0, 0, HIGH_ANGLE_ENCODER, 0.0),
-            HIGH_TO_MAX(0, 0, 0,  MAX_ANGLE_ENCODER, 0.0),
-            MAX_TO_MIN (0, 0, 0,  MIN_ANGLE_ENCODER, 0.0);
+            HIGH_TO_MAX(0, 0, 0, MAX_ANGLE_ENCODER, 0.0),
+            MAX_TO_MIN(0, 0, 0, MIN_ANGLE_ENCODER, 0.0);
 
             public final double kp;
             public final double ki;
