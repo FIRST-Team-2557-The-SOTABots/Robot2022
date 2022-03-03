@@ -12,8 +12,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.Climber.AngleMovement;
+import frc.robot.commands.AngleProfiledPIDCommand;
 import frc.robot.commands.ExtendClimbToPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
@@ -53,46 +56,102 @@ public class RobotContainer {
 
     mlb.whenPressed(
       sequence(
-        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
-        // new WaitUntilCommand(() -> {
-        //   SmartDashboard.putString("waiting", "step 1");
-        //   return mrb.get();}),
-        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber),
-        // new ParallelRaceGroup(
-        //   new RunCommand(
-        //     () -> {
-        //       climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-        //       SmartDashboard.putNumber("Running", Timer.getFPGATimestamp());
-        //     }
-        //   ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
-        //   new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
-        // ),
-        // new WaitUntilCommand(() -> {
-        //   SmartDashboard.putString("waiting", "step 2");
-        //   return mrb.get();}),
-        // new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 1");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> {
+              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+            }
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
+        ),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
         new WaitUntilCommand(() -> {
           SmartDashboard.putString("waiting", "step 2");
-          return mrb.get();})
-        // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
-        // new WaitUntilCommand(mrb::get),
-        // climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER),
-        // new ExtendClimbToPosition(Constants.Climber.MAX_EXTEND_ENCODER, climber),
-        // climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
-        // new WaitUntilCommand(mrb::get),
-        // parallel(
-        //   new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
-        //   climber.generateAnglePIDCommand(Constants.Climber.MAX_ANGLE_ENCODER)
-        // ),
-        // new WaitUntilCommand(mrb::get),
-        // climber.generateAnglePIDCommand(Constants.Climber.HIGH_ANGLE_ENCODER),
-        // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber),
-        // climber.generateAnglePIDCommand(Constants.Climber.MIN_ANGLE_ENCODER),
-        // new ExtendClimbToPosition(Constants.Climber.MIN_EXTEND_ENCODER, climber),
-        // climber.generateAnglePIDCommand(Constants.Climber.MID_ANGLE_ENCODER),
-        // new ExtendClimbToPosition(Constants.Climber.MID_EXTEND_ENCODER, climber)
-      )
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber),
+        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
+        new ParallelRaceGroup(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
+          sequence(
+            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
+            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
+          )
+        ),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 3");
+          return mrb.get();}),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
+          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
+        ),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> {
+              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+            }
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
+        ),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
+        
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 2");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber),
+        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
+        new ParallelRaceGroup(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
+          sequence(
+            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
+            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
+          )
+        ),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 3");
+          return mrb.get();}),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
+          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
+        ),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> {
+              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+            }
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
+        ),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber)
+      )     
     );
   }
 

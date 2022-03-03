@@ -11,6 +11,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -202,8 +205,18 @@ public class Climber extends SubsystemBase {
       new PIDController(angleMovement.kp, angleMovement.ki, angleMovement.kd),
       () -> this.getAngleEncoderPosition(), 
       angleMovement.setpoint,
-      this::runAngle
-    ).withInterrupt(() -> Math.abs(angleMovement.setpoint - getAngleEncoderPosition()) < angleMovement.tolerance);
+      (double output) -> {
+        SmartDashboard.putNumber("Angle PID Output", output);
+        runAngle(output);
+      }
+    ).withInterrupt(
+      () -> {
+        if (angleMovement == AngleMovement.HOLD_HIGH)
+          return false;
+        else
+          return Math.abs(angleMovement.setpoint - getAngleEncoderPosition()) < angleMovement.tolerance;
+      }
+    );
   }
 
   @Override
@@ -213,16 +226,12 @@ public class Climber extends SubsystemBase {
     
     if (getRightBotMagLimit())
       rightEncoder.reset();
+
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("left bot mag", getLeftBotMagLimit());
-    SmartDashboard.putBoolean("right bot mag", getRightBotMagLimit());
-    SmartDashboard.putBoolean("left top mag", getLeftTopMagLimit());
-    SmartDashboard.putBoolean("right top mag", getRightTopMagLimit());
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
     SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
-    SmartDashboard.putNumber("right velocity", (getRightEncoderPosition() - prevRightPos) / 0.02);
-    SmartDashboard.putNumber("left velocity", (getLeftEncoderPosition() - prevLeftPos) / 0.02);
+
     prevLeftPos = getLeftEncoderPosition();
     prevRightPos = getRightEncoderPosition();
   }

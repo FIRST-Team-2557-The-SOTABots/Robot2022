@@ -50,17 +50,18 @@ public class ExtendClimbToPosition extends CommandBase {
   @Override
   public void execute() {
 
-    SmartDashboard.putNumber("left setpoint", leftController.getSetpoint().position);
-    SmartDashboard.putNumber("right setpoint", rightController.getSetpoint().position);
+    SmartDashboard.putNumber("left output", leftController.calculate(
+      climber.getLeftEncoderPosition()
+    ));
+    SmartDashboard.putNumber("right output", rightController.calculate(
+      climber.getRightEncoderPosition()
+    ));
     
     climber.extendLeftHook(
       leftController.calculate(
         climber.getLeftEncoderPosition()
       )
     );
-
-    SmartDashboard.putNumber("left output", leftController.calculate(climber.getLeftEncoderPosition()));
-    SmartDashboard.putNumber("right output", rightController.calculate(climber.getRightEncoderPosition()));
 
     climber.extendRightHook(
       rightController.calculate(
@@ -81,7 +82,7 @@ public class ExtendClimbToPosition extends CommandBase {
   public boolean isFinished() {
     boolean leftFinished = false;
     boolean rightFinished = false;
-    if (movementType == ExtendMovement.MID_TO_BOTTOM || movementType == ExtendMovement.TOP_TO_BOTTOM) {
+    if (movementType == ExtendMovement.MID_TO_BOTTOM || movementType == ExtendMovement.TOP_TO_BOTTOM || movementType == ExtendMovement.HIGH_TO_BOTTOM) {
       leftFinished = climber.getLeftBotMagLimit();
       rightFinished = climber.getRightBotMagLimit();
       SmartDashboard.putString("moving to", "bottom");
