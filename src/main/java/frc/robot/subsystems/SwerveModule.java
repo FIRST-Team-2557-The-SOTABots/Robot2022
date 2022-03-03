@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Swerve.*;
@@ -46,7 +47,6 @@ public class SwerveModule extends SubsystemBase {
     speedMotor.configFactoryDefault();
     speedMotor.setInverted(SPEED_MOTOR_INVERTS[moduleNumber]);
     speedMotor.setNeutralMode(NeutralMode.Brake);
-    speedMotor.setNeutralMode(NeutralMode.Coast);
     angleMotor = new CANSparkMax(ANGLE_MOTOR_PORTS[moduleNumber], MotorType.kBrushless);
     angleMotor.restoreFactoryDefaults();
     angleMotor.setIdleMode(IdleMode.kBrake);
@@ -216,5 +216,6 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("angle " + moduleNumber, getAngle());
   }
 }

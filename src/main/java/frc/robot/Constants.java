@@ -29,8 +29,8 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS = {4.189, 0.557, 1.085, 4.089}; // in encoder counts
-        public static final double ANGLE_ENCODER_CPR = 4.957; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS = {2.251, 2.876, 0.052, 0.254}; // in encoder counts
+        public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
 
         public static final double ANGLE_FEEDFORWARD_KS = 0.77625; // in volts
@@ -39,7 +39,7 @@ public final class Constants {
         public static final double ANGLE_PID_KP = 4;
         public static final double ANGLE_PID_KI = 0.0;
         public static final double ANGLE_PID_KD = 0.0;
-        public static final double ANGLE_PID_TOLERANCE = 0.05;
+        public static final double ANGLE_PID_TOLERANCE = 0.000;
         public static final double ANGLE_PID_MAX_ACCELERATION = 70.0; // in encoder ticks per second per second
         public static final double ANGLE_PID_MAX_VELOCITY = ANGLE_PID_MAX_ACCELERATION * Math.sqrt((ANGLE_ENCODER_CPR / 4) / ANGLE_PID_MAX_ACCELERATION); // in encoder ticks per second
 
