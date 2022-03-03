@@ -43,10 +43,10 @@ public final class Constants {
         public static final double ANGLE_PID_MAX_ACCELERATION = 70.0; // in encoder ticks per second per second
         public static final double ANGLE_PID_MAX_VELOCITY = ANGLE_PID_MAX_ACCELERATION * Math.sqrt((ANGLE_ENCODER_CPR / 4) / ANGLE_PID_MAX_ACCELERATION); // in encoder ticks per second
 
-        public static final double SPEED_FEEDFORWARD_KS = 0.0; // TODO: find real value
-        public static final double SPEED_FEEDFORWARD_KV = 0.0; // TODO: find real value
+        public static final double[] SPEED_FEEDFORWARD_KS = {0.6284, 0.6284, 0.6284, 0.4000}; // in volts
+        public static final double[] SPEED_FEEDFORWARD_KV = {0.0005339, 0.0005339, 0.0005339, 0.0005851}; // in volt seconds per encoder tick
 
-        public static final double SPEED_PID_KP = 0.2; // TODO: update
+        public static final double SPEED_PID_KP = 0.001; // TODO: update
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_TOLERANCE = 0.05; // TODO: update
@@ -136,6 +136,17 @@ public final class Constants {
         public static final double COOLDOWN = 1.0; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.2; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
+    }
+
+    public static class Auto {
+        public static final double X_PID_KP = 0.0;
+        public static final double Y_PID_KP = 0.0;
+        public static final double MAX_WHEEL_SPEED = 1.0; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = 1.0; // in meters per second per second
+
+        public static final double ANGLE_PID_KP = 0.0;
+        public static final double MAX_ANGULAR_SPEED = Math.PI * 0.5; // in radians per second 
+        public static final double MAX_ANGULAR_ACCELERATION = Math.PI * 0.5; // in radians per second per second
     }
 
     public static class Control {
