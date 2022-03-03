@@ -8,8 +8,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.Shooter.*;
+
+import java.util.ArrayList;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -22,6 +25,8 @@ public class Shooter extends SubsystemBase {
 
   private SimpleMotorFeedforward feedforward;
   private PIDController speedPID;
+
+  private ArrayList<Double> speedSample;
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -41,6 +46,9 @@ public class Shooter extends SubsystemBase {
     feedforward = new SimpleMotorFeedforward(FEEDFORWARD_KS, FEEDFORWARD_KV);
     speedPID = new PIDController(SPEED_PID_KP, SPEED_PID_KI, SPEED_PID_KD);
 
+    speedSample = new ArrayList<>();
+    speedSample.add(0.0);
+
     hoodDown();
   }
 
@@ -51,8 +59,20 @@ public class Shooter extends SubsystemBase {
 
   public void setMotorRPM(double rpm) {
     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
+    // SmartDashboard.putNumber("pid output", speedPID.calculate(getMotorRPM(), rpm));
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
+    speedPID.setSetpoint(rpm);
+  }
+
+  public boolean readyToShoot() {
+    double averageSpeed = 0.0;
+    for (int i = 0; i < speedSample.size(); i++) {
+      averageSpeed += speedSample.get(i);
+    }
+    averageSpeed /= speedSample.size();
+
+    return Math.abs(averageSpeed - speedPID.getSetpoint()) < RPM_TOLERANCE;
   }
 
   public double getMotorRPM(){
@@ -67,8 +87,17 @@ public class Shooter extends SubsystemBase {
     hoodSolenoid.set(LOWERED_VALUE);
   }
 
+  private void updateSpeedSample() {
+    speedSample.add(getMotorRPM());
+    if (speedSample.size() > SPEED_SAMPLE_SIZE_LIMIT) {
+      speedSample.remove(0);
+    }
+  }
+
   @Override
   public void periodic() {
+    updateSpeedSample();
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("flywheel speed", getMotorRPM());
   }
 }

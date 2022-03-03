@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static frc.robot.util.Logitech.Ports.*;
+
 import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
 import java.util.List;
@@ -19,9 +20,12 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -69,6 +73,7 @@ public class RobotContainer {
   private JoystickButton ma = new JoystickButton(mStick, A);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
+
 
   private SendableChooser<Command> autoChooser;
 
@@ -213,9 +218,10 @@ public class RobotContainer {
         () -> {
           shooter.hoodDown();
           shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-          if (shooter.getMotorRPM() > Constants.Shooter.UPPER_HUB_RPM_THRESHOLD) {
+          if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          }
+          else
+            delivery.runMotor(0.0);
         },
         shooter, delivery
       )
@@ -233,9 +239,10 @@ public class RobotContainer {
         () -> {
           shooter.hoodUp();
           shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-          if (shooter.getMotorRPM() > Constants.Shooter.LOWER_HUB_RPM_THRESHOLD) {
+          if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          }
+          else
+            delivery.runMotor(0.0);
         },
         shooter, delivery
       )
