@@ -42,6 +42,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.util.Logitech;
+import frc.robot.util.RotatingSwerveControllerCommand;
 import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
 /**
@@ -277,7 +278,7 @@ public class RobotContainer {
     );
 
     autoChooser.addOption("3 ball",
-      new SwerveControllerCommand(
+      new RotatingSwerveControllerCommand(
         TrajectoryGenerator.generateTrajectory(
           new Pose2d(0, 0, new Rotation2d(0.0)),
           List.of(
