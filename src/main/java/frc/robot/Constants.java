@@ -127,14 +127,17 @@ public final class Constants {
     }
 
     public static class Delivery {
+        public static final int SENSOR_1_LEFT_PORT = 0;
+        public static final int SENSOR_1_RIGHT_PORT = 1;
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
-        public static final int SENSOR_1_THRESHOLD = 104; // 80 // TODO update
+        public static final int SENSOR_1_LEFT_THRESHOLD = 130;
+        public static final int SENSOR_1_RIGHT_THRESHOLD = 100;
         public static final double INDEXING_SPEED = 0.45;
         public static final double SHOOTING_SPEED = 0.6;
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 1.0; // in seconds
-        public static final double MAX_DELIVERY_DURATION = 0.2; // in seconds
+        public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
     }
 

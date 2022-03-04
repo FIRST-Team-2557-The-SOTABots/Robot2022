@@ -10,6 +10,7 @@ import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Delivery.*;
@@ -17,8 +18,9 @@ import static frc.robot.Constants.Delivery.*;
 public class Delivery extends SubsystemBase {
   /** Creates a new Sensors. */
   
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
-  private ColorSensorV3 sensor1 = new ColorSensorV3(i2cPort);
+  private I2C multiplexer = new I2C(I2C.Port.kMXP, 0x70);
+  private ColorSensorV3 sensor1Left;
+  private ColorSensorV3 sensor1Right;
   private DigitalInput sensor2 = new DigitalInput(SENSOR_2_PORT);
 
   private WPI_TalonSRX deliveryMotor;
@@ -28,14 +30,29 @@ public class Delivery extends SubsystemBase {
     deliveryMotor.configFactoryDefault();
     deliveryMotor.setInverted(MOTOR_INVERTED);
     deliveryMotor.setNeutralMode(NeutralMode.Brake);
+
+    // multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT); 
+    sensor1Left = new ColorSensorV3(I2C.Port.kMXP);
+    // multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT); 
+    sensor1Right = new ColorSensorV3(I2C.Port.kOnboard);
   }
   
   public void runMotor(double speed) {
     deliveryMotor.set(speed);
   }
 
+  public double getSensor1Left() {
+    // multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT);
+    return sensor1Left.getIR();
+  }
+
+  public double getSensor1Right() {
+    // multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT);
+    return sensor1Right.getIR();
+  }
+
   public boolean getSensor1() {
-    return sensor1.getIR() > SENSOR_1_THRESHOLD;
+    return getSensor1Left() > SENSOR_1_LEFT_THRESHOLD || getSensor1Right() > SENSOR_1_RIGHT_THRESHOLD;
   }
   
   public boolean getSensor2() {
@@ -44,5 +61,8 @@ public class Delivery extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("sensor 1 left", getSensor1Left());
+    SmartDashboard.putNumber("sensor 1 right", getSensor1Right());
+    SmartDashboard.putBoolean("sensor 1 active", getSensor1());
   }
 }
