@@ -5,11 +5,10 @@
 package frc.robot.util;
 
 import java.util.HashMap;
-
 import edu.wpi.first.wpilibj.Joystick;
 
 /**
- * Class representing the Logitech F310 controller used by our team.
+ * Class representing the Logitech F310 controller
  * Port numbers are provided, as well as useful method changes 
  */
 public class Logitech extends Joystick {
@@ -33,12 +32,11 @@ public class Logitech extends Joystick {
         public static final int BACK = 7;
         public static final int START = 8;
 
-        // axis numbers and button port for left stick
+        // stick x axes increase to the right, y axes increase downwards
+        // axis numbers and button port for left and right stick
         public static final int LEFT_STICK_X = 0;
         public static final int LEFT_STICK_Y = 1;
         public static final int LEFT_STICK_BUTTON = 9;
-
-        // axis numbers and button port for right stick
         public static final int RIGHT_STICK_X = 4;
         public static final int RIGHT_STICK_Y = 5;
         public static final int RIGHT_STICK_BUTTON = 10;
@@ -53,8 +51,7 @@ public class Logitech extends Joystick {
     }
 
     /**
-     * modifies output of getRawAxis so that upwards on the joysticks outputs 
-     * positive values in alignment with convention
+     * modifies output of getRawAxis to consider deadband
      * @param axis the axis number
      * @return the value of the axis
      */
