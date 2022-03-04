@@ -79,7 +79,7 @@ public final class Constants {
         public static final Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2);
 
         // in meters per second
-        public static final double MAX_WHEEL_SPEED = 1; // TODO: unofficial number
+        public static final double MAX_WHEEL_SPEED = 4; // TODO: unofficial number
 
         // in radians per second
         public static final double MAX_ANGULAR_SPEED = 2; // TODO: unoffical number

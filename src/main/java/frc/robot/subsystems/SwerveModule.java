@@ -93,8 +93,6 @@ public class SwerveModule extends SubsystemBase {
     double speedPIDOutput = speedPID.calculate(speedMotor.getSelectedSensorVelocity(), speedSetpointNative);
     double speedFFOutput = speedFF.calculate(speedSetpointNative);
 
-    SmartDashboard.putNumber(moduleNumber + " error", speedPID.getPositionError());
-    SmartDashboard.putNumber(moduleNumber + " setpoint", speedSetpointNative);
     speedMotor.setVoltage(speedFFOutput + speedPIDOutput);
   }
 
