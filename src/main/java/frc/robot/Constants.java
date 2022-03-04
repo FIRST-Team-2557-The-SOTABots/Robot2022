@@ -142,8 +142,8 @@ public final class Constants {
                 this.setpoint = setpoint;
                 this.tolerance = tolerance;
             }
-    
-    public static final double METERS_PER_INCH = 0.0254;
+        }
+    }
 
     public static class Swerve {
 
