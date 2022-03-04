@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -63,7 +62,7 @@ public class SwerveModule extends SubsystemBase {
       new TrapezoidProfile.Constraints(ANGLE_PID_MAX_VELOCITY, ANGLE_PID_MAX_ACCELERATION));
     anglePID.enableContinuousInput(0, ANGLE_ENCODER_CPR);
     anglePID.setTolerance(ANGLE_PID_TOLERANCE);
-    speedFF = new SimpleMotorFeedforward(SPEED_FEEDFORWARD_KS, SPEED_FEEDFORWARD_KV);
+    speedFF = new SimpleMotorFeedforward(SPEED_FEEDFORWARD_KS[moduleNumber], SPEED_FEEDFORWARD_KV[moduleNumber]);
     speedPID = new PIDController(SPEED_PID_KP, SPEED_PID_KI, SPEED_PID_KD);
   }
 
@@ -94,8 +93,7 @@ public class SwerveModule extends SubsystemBase {
     double speedPIDOutput = speedPID.calculate(speedMotor.getSelectedSensorVelocity(), speedSetpointNative);
     double speedFFOutput = speedFF.calculate(speedSetpointNative);
 
-    // speedMotor.setVoltage(speedFFOutput + speedPIDOutput); // TODO: enable
-    speedMotor.set(TalonFXControlMode.PercentOutput, state.speedMetersPerSecond / MAX_WHEEL_SPEED); // TODO: delete after testing
+    speedMotor.setVoltage(speedFFOutput + speedPIDOutput);
   }
 
 
@@ -216,6 +214,5 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("angle " + moduleNumber, getAngle());
   }
 }

@@ -169,10 +169,10 @@ public final class Constants {
         public static final double ANGLE_PID_MAX_ACCELERATION = 70.0; // in encoder ticks per second per second
         public static final double ANGLE_PID_MAX_VELOCITY = ANGLE_PID_MAX_ACCELERATION * Math.sqrt((ANGLE_ENCODER_CPR / 4) / ANGLE_PID_MAX_ACCELERATION); // in encoder ticks per second
 
-        public static final double SPEED_FEEDFORWARD_KS = 0.0; // TODO: find real value
-        public static final double SPEED_FEEDFORWARD_KV = 0.0; // TODO: find real value
+        public static final double[] SPEED_FEEDFORWARD_KS = {0.6284, 0.6284, 0.6284, 0.4000}; // in volts
+        public static final double[] SPEED_FEEDFORWARD_KV = {0.0005339, 0.0005339, 0.0005339, 0.0005851}; // in volt seconds per encoder tick
 
-        public static final double SPEED_PID_KP = 0.2; // TODO: update
+        public static final double SPEED_PID_KP = 0.001; // TODO: update
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_TOLERANCE = 0.05; // TODO: update
@@ -205,7 +205,7 @@ public final class Constants {
         public static final Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2);
 
         // in meters per second
-        public static final double MAX_WHEEL_SPEED = 1; // TODO: unofficial number
+        public static final double MAX_WHEEL_SPEED = 4; // TODO: unofficial number
 
         // in radians per second
         public static final double MAX_ANGULAR_SPEED = 2; // TODO: unoffical number
@@ -253,15 +253,29 @@ public final class Constants {
     }
 
     public static class Delivery {
+        public static final int SENSOR_1_LEFT_PORT = 0;
+        public static final int SENSOR_1_RIGHT_PORT = 1;
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
-        public static final int SENSOR_1_THRESHOLD = 104; // 80 // TODO update
+        public static final int SENSOR_1_LEFT_THRESHOLD = 130;
+        public static final int SENSOR_1_RIGHT_THRESHOLD = 100;
         public static final double INDEXING_SPEED = 0.45;
         public static final double SHOOTING_SPEED = 0.6;
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 1.0; // in seconds
-        public static final double MAX_DELIVERY_DURATION = 0.2; // in seconds
+        public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
+    }
+
+    public static class Auto {
+        public static final double X_PID_KP = 0.0;
+        public static final double Y_PID_KP = 0.0;
+        public static final double MAX_WHEEL_SPEED = 1.0; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = 1.0; // in meters per second per second
+
+        public static final double ANGLE_PID_KP = 0.0;
+        public static final double MAX_ANGULAR_SPEED = Math.PI * 0.5; // in radians per second 
+        public static final double MAX_ANGULAR_ACCELERATION = Math.PI * 0.5; // in radians per second per second
     }
 
     public static class Control {
