@@ -71,7 +71,7 @@ public class Climber extends SubsystemBase {
     rightEncoder = new DutyCycleEncoder(RIGHT_HOOK_ENCODER_PORT);
     rightEncoder.reset();
 
-    unlock(); // TODO: switch back
+    lock();
   }
 
   public void lock(){
@@ -194,7 +194,7 @@ public class Climber extends SubsystemBase {
   // }
 
   public void reset() {
-    // lock();
+    lock();
     leftEncoder.reset();
     rightEncoder.reset();
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
@@ -231,6 +231,10 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
     SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
+    SmartDashboard.putBoolean("left bot", getLeftBotMagLimit());
+    SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
+    SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
+    SmartDashboard.putBoolean("right top", getRightTopMagLimit());
 
     prevLeftPos = getLeftEncoderPosition();
     prevRightPos = getRightEncoderPosition();

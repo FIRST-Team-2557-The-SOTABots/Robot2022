@@ -19,11 +19,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,27 +30,15 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.Climber.AngleMovement;
 import frc.robot.commands.AngleProfiledPIDCommand;
 import frc.robot.commands.ExtendClimbToPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import static frc.robot.util.Logitech.Ports.*;
-import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
 import frc.robot.commands.RunDelivery;
@@ -61,7 +46,6 @@ import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.util.Logitech;
 import frc.robot.util.RotatingSwerveControllerCommand;
 import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
@@ -73,10 +57,6 @@ import frc.robot.util.UninterruptibleProxyScheduleCommand;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private Logitech mStick = new Logitech(1);
-  private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
-  private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
-  private JoystickButton mStart = new JoystickButton(mStick, START);
 
   private Climber climber = new Climber();
   private SwerveDrive swerveDrive = new SwerveDrive();
@@ -95,15 +75,15 @@ public class RobotContainer {
   private JoystickButton ma = new JoystickButton(mStick, A);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
+  private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
+  private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
+  private JoystickButton mStart = new JoystickButton(mStick, START);
 
 
   private SendableChooser<Command> autoChooser;
 
-  private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    climbLock.set(Value.kForward); // TODO remove
 
     configureDefaultCommands();
 
@@ -189,6 +169,8 @@ public class RobotContainer {
 
     mlb.whenPressed(
       sequence(
+        new InstantCommand(() -> shooter.hoodDown()),
+        new InstantCommand(() -> climber.unlock()),
         new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
         new WaitUntilCommand(() -> {
           SmartDashboard.putString("waiting", "step 1");
@@ -408,8 +390,7 @@ public class RobotContainer {
 
   public void configureAutonomousCommands() {
     autoChooser = new SendableChooser<>();
-
-    // autoChooser.setDefaultOption("None", null);
+    autoChooser.setDefaultOption("None", null);
 
     autoChooser.addOption("2 ball general",
       sequence (
@@ -467,7 +448,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public SendableChooser getAutonomousChooser() {
+  public SendableChooser<Command> getAutonomousChooser() {
     // An ExampleCommand will run in autonomous
     return autoChooser;
   }
