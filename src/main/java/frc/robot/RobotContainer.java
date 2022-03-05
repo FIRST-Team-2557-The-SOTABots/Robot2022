@@ -21,6 +21,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -73,6 +74,7 @@ public class RobotContainer {
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
   private JoystickButton ma = new JoystickButton(mStick, A);
+  private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
   private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
@@ -135,24 +137,25 @@ public class RobotContainer {
       // )
     );
 
-    delivery.setDefaultCommand(
-      new SequentialCommandGroup(
-        new WaitUntilCommand(() -> delivery.getSensor1()),
-        new ParallelCommandGroup(
-          new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
-          new UninterruptibleProxyScheduleCommand(
-            new RunCommand(
-              () -> {
-                intake.retract();
-                intake.run(0.0);
-              }, 
-              intake
-            ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
-          )
-        ),
-        new WaitCommand(Constants.Delivery.COOLDOWN)
-      )
-    );
+    // delivery.setDefaultCommand(
+    //   new SequentialCommandGroup(
+    //     new WaitUntilCommand(() -> delivery.getSensor1()),
+    //     new ParallelCommandGroup(
+    //       new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+    //       new UninterruptibleProxyScheduleCommand(
+    //         new RunCommand(
+    //           () -> {
+    //             intake.retract();
+    //             intake.run(0.0);
+    //           }, 
+    //           intake
+    //         ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
+    //       )
+    //     ),
+    //     new WaitCommand(Constants.Delivery.COOLDOWN)
+    //   )
+    // );
+
 
     configureButtonBindings();
 
@@ -161,7 +164,6 @@ public class RobotContainer {
         () -> {
           climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
           climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
-          // climber.runAngle(mStick.getRawAxis(RIGHT_STICK_X));
         }, 
         climber
       )
@@ -221,11 +223,10 @@ public class RobotContainer {
             () -> {
               climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
             }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION_2).andThen(() -> climber.runAngle(0)),
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
         ),
         new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
-        
         new WaitUntilCommand(() -> {
           SmartDashboard.putString("waiting", "step 2");
           return mrb.get();}),
@@ -262,7 +263,7 @@ public class RobotContainer {
             () -> {
               climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
             }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION_2).andThen(() -> climber.runAngle(0)),
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
         ),
         new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber)
@@ -292,9 +293,17 @@ public class RobotContainer {
     dStick.setDeadband(LEFT_TRIGGER, Driver.LEFT_TRIGGER_DEADBAND);
     dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
 
-    mStart.whenPressed(
-      new RunCommand(
+    mStart.whileHeld(
+      new InstantCommand(
         () -> climber.retractHooksNoEncoderLimit(),
+        climber
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          climber.extendLeftHook(0);
+          climber.extendLeftHook(0);
+        },
         climber
       )
     );
@@ -340,6 +349,24 @@ public class RobotContainer {
           intake.run(0.0);
           intake.retract();
         }
+      )
+    );
+
+    mb.whileHeld(
+      new InstantCommand(
+        () -> {
+          if (mrb.get())
+            delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
+          else 
+            delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
+
+        },
+        delivery
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> delivery.runMotor(0.0),
+        delivery
       )
     );
 
@@ -391,6 +418,16 @@ public class RobotContainer {
   public void configureAutonomousCommands() {
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("None", null);
+
+    autoChooser.addOption("Back up",
+      sequence(
+        new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
+        new RunCommand(
+          () -> swerveDrive.drive(-1, 0, 0.0),
+          swerveDrive
+        ).withTimeout(Constants.Auto.BACK_UP_AUTO_DURATION)
+      )
+    );
 
     autoChooser.addOption("2 ball general",
       sequence (
