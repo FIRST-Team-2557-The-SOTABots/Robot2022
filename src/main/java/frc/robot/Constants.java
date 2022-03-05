@@ -87,11 +87,11 @@ public final class Constants {
         public static final double SLOW_RETRACT_SPEED = -0.2;
 
         public static final double TIMED_ANGLE_SPEED = 0.2;
-        public static final double TIMED_ANGLE_DURATION = 0.35; // in seconds
+        public static final double TIMED_ANGLE_DURATION = 0.4; // in seconds
         public static final double TIMED_ANGLE_DURATION_2 = 0.4; // in seconds
         
         public enum ExtendMovement {
-            BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
+            BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 6, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
             TOP_TO_BOTTOM(0.7, 0.35, 0.0, 2, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
             HANG_BOTTOM(0.65, 0.08, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
             BOTTOM_TO_EVEN(0.65, 0.1, 0.0, 1, 2, EVEN_EXTEND_ENCODER_LEFT, EVEN_EXTEND_ENCODER_RIGHT),
@@ -227,7 +227,7 @@ public final class Constants {
         public static final int SOLENOID_CHANNEL_B = 1;
         public static final Value EXTEND_VALUE = Value.kReverse;
         public static final Value RETRACT_VALUE = Value.kForward;
-        public static final double SPEED = 0.8;
+        public static final double SPEED = 1;
     }
 
     public static class Shooter {
@@ -239,7 +239,7 @@ public final class Constants {
         public static final int MOTOR_2_PORT = 7;
         public static final boolean MOTOR_1_INVERTED = true;
         public static final boolean MOTOR_2_INVERTED = false;
-        public static final double RAMP_RATE = 3.0;
+        public static final double RAMP_RATE = 1.5;
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
@@ -278,7 +278,10 @@ public final class Constants {
         public static final double MAX_ANGULAR_SPEED = Math.PI * 0.5; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = Math.PI * 0.5; // in radians per second per second
         
-        public static final double BACK_UP_AUTO_DURATION = 2.0;
+        public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
+
+        public static final double SHOOT_HIGH_BACK_SHOOT_DURATION = 5.0; // seconds
+        public static final double SHOOT_HIGH_BACK_DRIVE_DURATION = 3.5; // seconds
     }
 
     public static class Control {
@@ -293,6 +296,8 @@ public final class Constants {
 
         public static class Manipulator {
             public static final int PORT = 1;
+            public static final double LEFT_TRIGGER_DEADBAND = 0.5;
+            public static final double RIGHT_TRIGGER_DEADBAND = 0.5;
         }
     }
 }

@@ -31,10 +31,10 @@ public class Delivery extends SubsystemBase {
     deliveryMotor.setInverted(MOTOR_INVERTED);
     deliveryMotor.setNeutralMode(NeutralMode.Brake);
 
-    // multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT); 
+    multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT); 
     sensor1Left = new ColorSensorV3(I2C.Port.kMXP);
-    // multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT); 
-    sensor1Right = new ColorSensorV3(I2C.Port.kOnboard);
+    multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT); 
+    sensor1Right = new ColorSensorV3(I2C.Port.kMXP);
   }
   
   public void runMotor(double speed) {
@@ -42,12 +42,12 @@ public class Delivery extends SubsystemBase {
   }
 
   public double getSensor1Left() {
-    // multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT);
+    multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT);
     return sensor1Left.getIR();
   }
 
   public double getSensor1Right() {
-    // multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT);
+    multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT);
     return sensor1Right.getIR();
   }
 

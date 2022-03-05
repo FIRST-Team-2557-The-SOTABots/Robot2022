@@ -137,6 +137,21 @@ public class RobotContainer {
       // )
     );
 
+    delivery.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0) {
+            if (mb.get())
+              delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
+            else
+              delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
+          } else
+            delivery.runMotor(0.0);
+        }, 
+        delivery  
+      )
+    );
+
     // delivery.setDefaultCommand(
     //   new SequentialCommandGroup(
     //     new WaitUntilCommand(() -> delivery.getSensor1()),
@@ -156,16 +171,177 @@ public class RobotContainer {
     //   )
     // );
 
+    // climber.setDefaultCommand(
+    //   new RunCommand(
+    //     () -> {
+    //       climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
+    //       climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
+    //     }, 
+    //     climber
+    //   )
+    // );
 
-    configureButtonBindings();
-
-    climber.setDefaultCommand(
+    intake.setDefaultCommand(
       new RunCommand(
         () -> {
-          climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
-          climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
-        }, 
+          if (mStick.getRawAxis(LEFT_TRIGGER) > 0) {
+            intake.extend();
+            intake.run(Constants.Intake.SPEED); 
+          } else {
+            intake.retract();
+            intake.run(0.0);
+          }
+        },
+        intake 
+      )
+    );
+  }
+
+
+
+  public void resetRobot() {
+    climber.reset();
+  }
+
+
+
+  /**
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureButtonBindings() {
+
+    dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
+    dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
+    dStick.setDeadband(RIGHT_STICK_X, Driver.RIGHT_X_DEADBAND);
+    dStick.setDeadband(LEFT_TRIGGER, Driver.LEFT_TRIGGER_DEADBAND);
+    dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
+
+    mStick.setDeadband(LEFT_TRIGGER, Manipulator.LEFT_TRIGGER_DEADBAND);
+    mStick.setDeadband(RIGHT_TRIGGER, Manipulator.RIGHT_TRIGGER_DEADBAND);
+
+    mStart.whileHeld(
+      new InstantCommand(
+        () -> {
+          climber.retractHooksNoEncoderLimit();
+          SmartDashboard.putNumber("start manip held", Timer.getFPGATimestamp());
+        },
         climber
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          climber.extendLeftHook(0);
+          climber.extendRightHook(0);
+        },
+        climber
+      )
+    );
+    
+    da.whenPressed(
+      new InstantCommand(
+        () -> {
+          swerveDrive.setFieldCentricActive(true);
+        },
+        swerveDrive
+      )
+    );
+
+    db.whenPressed(
+      new InstantCommand(
+        () -> {
+          swerveDrive.setFieldCentricActive(false);
+        },
+        swerveDrive
+      )
+    );
+
+    dstart.whenPressed(
+      new InstantCommand(
+        () -> {
+          swerveDrive.resetGyro();
+        },
+        swerveDrive
+      )
+    );
+
+    // ma.whileHeld(
+    //   new InstantCommand(
+    //     () -> {
+    //       intake.extend();
+    //       intake.run(Constants.Intake.SPEED);
+    //     },
+    //     intake
+    //   )
+    // ).whenReleased(
+    //   new InstantCommand(
+    //     () -> {
+    //       intake.run(0.0);
+    //       intake.retract();
+    //     }
+    //   )
+    // );
+
+    // mb.whileHeld(
+    //   new InstantCommand(
+    //     () -> {
+    //       if (mrb.get())
+    //         delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
+    //       else 
+    //         delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
+
+    //     },
+    //     delivery
+    //   )
+    // ).whenReleased(
+    //   new InstantCommand(
+    //     () -> delivery.runMotor(0.0),
+    //     delivery
+    //   )
+    // );
+
+    mx.whenHeld(
+      new RunCommand(
+        () -> {
+          shooter.hoodDown();
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+          if (shooter.readyToShoot())
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          else
+            delivery.runMotor(0.0);
+        },
+        shooter, delivery
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.runFlywheel(0.0);
+          delivery.runMotor(0.0);
+        }
+      )
+    );
+
+    my.whenHeld(
+      new RunCommand(
+        () -> {
+          shooter.hoodUp();
+          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+          if (shooter.readyToShoot())
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          else
+            delivery.runMotor(0.0);
+        },
+        shooter, delivery
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.runFlywheel(0.0);
+          delivery.runMotor(0.0);
+        },
+        shooter, delivery
       )
     );
 
@@ -273,148 +449,6 @@ public class RobotContainer {
 
 
 
-  public void resetRobot() {
-    climber.reset();
-  }
-
-
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-
-    dStick.setDeadband(LEFT_STICK_X, Driver.LEFT_X_DEADBAND);
-    dStick.setDeadband(LEFT_STICK_Y, Driver.LEFT_Y_DEADBAND);
-    dStick.setDeadband(RIGHT_STICK_X, Driver.RIGHT_X_DEADBAND);
-    dStick.setDeadband(LEFT_TRIGGER, Driver.LEFT_TRIGGER_DEADBAND);
-    dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
-
-    mStart.whileHeld(
-      new InstantCommand(
-        () -> climber.retractHooksNoEncoderLimit(),
-        climber
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> {
-          climber.extendLeftHook(0);
-          climber.extendLeftHook(0);
-        },
-        climber
-      )
-    );
-    
-    da.whenPressed(
-      new InstantCommand(
-        () -> {
-          swerveDrive.setFieldCentricActive(true);
-        },
-        swerveDrive
-      )
-    );
-
-    db.whenPressed(
-      new InstantCommand(
-        () -> {
-          swerveDrive.setFieldCentricActive(false);
-        },
-        swerveDrive
-      )
-    );
-
-    dstart.whenPressed(
-      new InstantCommand(
-        () -> {
-          swerveDrive.resetGyro();
-        },
-        swerveDrive
-      )
-    );
-
-    ma.whileHeld(
-      new InstantCommand(
-        () -> {
-          intake.extend();
-          intake.run(Constants.Intake.SPEED);
-        },
-        intake
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> {
-          intake.run(0.0);
-          intake.retract();
-        }
-      )
-    );
-
-    mb.whileHeld(
-      new InstantCommand(
-        () -> {
-          if (mrb.get())
-            delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
-          else 
-            delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
-
-        },
-        delivery
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> delivery.runMotor(0.0),
-        delivery
-      )
-    );
-
-    mx.whenHeld(
-      new RunCommand(
-        () -> {
-          shooter.hoodDown();
-          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-          if (shooter.readyToShoot())
-            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
-            delivery.runMotor(0.0);
-        },
-        shooter, delivery
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> {
-          shooter.runFlywheel(0.0);
-          delivery.runMotor(0.0);
-        }
-      )
-    );
-
-    my.whenHeld(
-      new RunCommand(
-        () -> {
-          shooter.hoodUp();
-          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-          if (shooter.readyToShoot())
-            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
-            delivery.runMotor(0.0);
-        },
-        shooter, delivery
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> {
-          shooter.runFlywheel(0.0);
-          delivery.runMotor(0.0);
-        }
-      )
-    );
-  }
-
-
-
   public void configureAutonomousCommands() {
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("None", null);
@@ -426,6 +460,37 @@ public class RobotContainer {
           () -> swerveDrive.drive(-1, 0, 0.0),
           swerveDrive
         ).withTimeout(Constants.Auto.BACK_UP_AUTO_DURATION)
+      )
+    );
+
+    autoChooser.addOption("Shoot high Back up",
+      sequence(
+        new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
+        new RunCommand(
+          () -> {
+            shooter.hoodDown();
+            shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.SHOOT_HIGH_BACK_SHOOT_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.setMotorRPM(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ),
+        new InstantCommand(
+          () -> swerveDrive.setFieldCentricActive(false)
+        ),
+        new RunCommand(
+          () -> swerveDrive.drive(-1, 0, 0.0),
+          swerveDrive
+        ).withTimeout(Constants.Auto.SHOOT_HIGH_BACK_DRIVE_DURATION)
       )
     );
 
