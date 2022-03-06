@@ -81,7 +81,7 @@ public class ExtendClimbToPosition extends CommandBase {
     if (movementType == ExtendMovement.MID_TO_BOTTOM || movementType == ExtendMovement.TOP_TO_BOTTOM || movementType == ExtendMovement.HIGH_TO_BOTTOM) {
       leftFinished = climber.getLeftBotMagLimit();
       rightFinished = climber.getRightBotMagLimit();
-    } else if (movementType == ExtendMovement.BOTTOM_TO_TOP || movementType == ExtendMovement.MID_TO_TOP) {
+    } else if (movementType == ExtendMovement.BOTTOM_TO_TOP) {
       leftFinished = climber.getLeftTopMagLimit();
       rightFinished = climber.getRightTopMagLimit();
     } else if (movementType == ExtendMovement.HANG_BOTTOM) {

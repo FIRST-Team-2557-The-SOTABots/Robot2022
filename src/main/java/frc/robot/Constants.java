@@ -83,20 +83,19 @@ public final class Constants {
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002;
 
         public static final double ANGLE_PID_PAUSE = 1;
-
-        public static final double SLOW_RETRACT_SPEED = -0.2;
-
+        public static final double ANGLED_EXTEND_TIMEOUT = 3;
+        public static final double SLOW_RETRACT_SPEED = -0.4;
         public static final double TIMED_ANGLE_SPEED = 0.2;
         public static final double TIMED_ANGLE_DURATION = 0.4; // in seconds
         public static final double TIMED_ANGLE_DURATION_2 = 0.4; // in seconds
         
         public enum ExtendMovement {
-            BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 6, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
+            BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 6, 6, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
             TOP_TO_BOTTOM(0.7, 0.35, 0.0, 2, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
             HANG_BOTTOM(0.65, 0.08, 0.0, 1, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
             BOTTOM_TO_EVEN(0.65, 0.1, 0.0, 1, 2, EVEN_EXTEND_ENCODER_LEFT, EVEN_EXTEND_ENCODER_RIGHT),
             EVEN_TO_MID(0.7, 0.005, 0.0, 5, 8, MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT),
-            MID_TO_TOP(0.65, 0.0005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
+            MID_TO_TOP(0.65, 0.005, 0.0, 5, 8, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
             TOP_TO_HIGH(0.65, 0.005, 0.0, 2, 2, HIGH_EXTEND_ENCODER_LEFT, HIGH_EXTEND_ENCODER_RIGHT),
             HIGH_TO_BOTTOM(0.7, 0.2, 0.0, 2, 2, MIN_EXTEND_ENCODER_LEFT - EXTEND_PID_OVERSHOOT, MIN_EXTEND_ENCODER_RIGHT - EXTEND_PID_OVERSHOOT),
             BOTTOM_TO_MID(0.65, 0.1, 0.0, 1, 2, MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT),
@@ -156,7 +155,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS = {2.251, 2.876, 0.052, 0.254}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS = {2.251, 2.876, 4.121, 4.902}; // in encoder counts
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
 
@@ -209,7 +208,7 @@ public final class Constants {
         public static final double MAX_WHEEL_SPEED = 4; // TODO: unofficial number
 
         // in radians per second
-        public static final double MAX_ANGULAR_SPEED = 2; // TODO: unoffical number
+        public static final double MAX_ANGULAR_SPEED = 4; // TODO: unoffical number
         
         public static final double COAST_DOWN_MAX_SPEED = 0.5; // speed in m/s below which shift down with low demand occurs
         public static final double COAST_DOWN_MAX_INPUT = 0.5; // input below which shift down with low demand occurs
@@ -281,7 +280,7 @@ public final class Constants {
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 
         public static final double SHOOT_HIGH_BACK_SHOOT_DURATION = 5.0; // seconds
-        public static final double SHOOT_HIGH_BACK_DRIVE_DURATION = 3.5; // seconds
+        public static final double SHOOT_HIGH_BACK_DRIVE_DURATION = 3.0; // seconds
     }
 
     public static class Control {
@@ -298,6 +297,8 @@ public final class Constants {
             public static final int PORT = 1;
             public static final double LEFT_TRIGGER_DEADBAND = 0.5;
             public static final double RIGHT_TRIGGER_DEADBAND = 0.5;
+            public static final double LEFT_STICK_Y_DEADBAND = 0.5;
+            public static final double RIGHT_STICK_Y_DEADBAND = 0.5;
         }
     }
 }

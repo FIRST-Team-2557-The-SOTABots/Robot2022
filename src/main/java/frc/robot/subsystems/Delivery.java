@@ -18,9 +18,9 @@ import static frc.robot.Constants.Delivery.*;
 public class Delivery extends SubsystemBase {
   /** Creates a new Sensors. */
   
-  private I2C multiplexer = new I2C(I2C.Port.kMXP, 0x70);
-  private ColorSensorV3 sensor1Left;
-  private ColorSensorV3 sensor1Right;
+  // private I2C multiplexer = new I2C(I2C.Port.kMXP, 0x70);
+  // private ColorSensorV3 sensor1Left;
+  // private ColorSensorV3 sensor1Right;
   private DigitalInput sensor2 = new DigitalInput(SENSOR_2_PORT);
 
   private WPI_TalonSRX deliveryMotor;
@@ -31,10 +31,10 @@ public class Delivery extends SubsystemBase {
     deliveryMotor.setInverted(MOTOR_INVERTED);
     deliveryMotor.setNeutralMode(NeutralMode.Brake);
 
-    multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT); 
-    sensor1Left = new ColorSensorV3(I2C.Port.kMXP);
-    multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT); 
-    sensor1Right = new ColorSensorV3(I2C.Port.kMXP);
+    // multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT); 
+    // sensor1Left = new ColorSensorV3(I2C.Port.kMXP);
+    // multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT); 
+    // sensor1Right = new ColorSensorV3(I2C.Port.kMXP);
   }
   
   public void runMotor(double speed) {
@@ -42,17 +42,22 @@ public class Delivery extends SubsystemBase {
   }
 
   public double getSensor1Left() {
-    multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT);
-    return sensor1Left.getIR();
+    // multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT);
+    // return sensor1Left.getIR();
+
+    return 0.00;
   }
 
   public double getSensor1Right() {
-    multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT);
-    return sensor1Right.getIR();
+    // multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT);
+    // return sensor1Right.getIR();
+
+    return 0.000;
   }
 
   public boolean getSensor1() {
-    return getSensor1Left() > SENSOR_1_LEFT_THRESHOLD || getSensor1Right() > SENSOR_1_RIGHT_THRESHOLD;
+    // return getSensor1Left() > SENSOR_1_LEFT_THRESHOLD || getSensor1Right() > SENSOR_1_RIGHT_THRESHOLD;
+    return false;
   }
   
   public boolean getSensor2() {

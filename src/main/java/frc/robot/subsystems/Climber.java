@@ -41,9 +41,6 @@ public class Climber extends SubsystemBase {
   private DutyCycleEncoder leftEncoder;
   private DutyCycleEncoder rightEncoder;
 
-  private double prevLeftPos = 0.0;
-  private double prevRightPos = 0.0;
-
   /** Creates a new Climber. */
   public Climber() {
     leftHook = new CANSparkMax(LEFT_HOOK_MOTOR_PORT, MotorType.kBrushless);
@@ -206,7 +203,6 @@ public class Climber extends SubsystemBase {
       () -> this.getAngleEncoderPosition(), 
       angleMovement.setpoint,
       (double output) -> {
-        SmartDashboard.putNumber("Angle PID Output", output);
         runAngle(output);
       }
     ).withInterrupt(
@@ -228,15 +224,12 @@ public class Climber extends SubsystemBase {
       rightEncoder.reset();
 
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
-    SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
-    SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
-    SmartDashboard.putBoolean("left bot", getLeftBotMagLimit());
-    SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
-    SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
-    SmartDashboard.putBoolean("right top", getRightTopMagLimit());
-
-    prevLeftPos = getLeftEncoderPosition();
-    prevRightPos = getRightEncoderPosition();
+    // SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
+    // SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
+    // SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
+    // SmartDashboard.putBoolean("left bot", getLeftBotMagLimit());
+    // SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
+    // SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
+    // SmartDashboard.putBoolean("right top", getRightTopMagLimit());
   }
 }
