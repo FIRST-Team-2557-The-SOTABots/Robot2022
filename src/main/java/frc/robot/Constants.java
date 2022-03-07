@@ -218,7 +218,7 @@ public final class Constants {
         public static final double SHIFT_UP_MIN_INPUT = 1.0; // input above which shift up with high demand occurs
         public static final double SHIFT_COOLDOWN = 1.0; // in seconds
 
-        public static final double TARGET_SEARCH_SPEED = 1.0; // TODO: unoffical number
+        public static final double TARGET_SEARCH_SPEED = 0.5; // TODO: unoffical number
     }
 
     public static class Intake {
@@ -252,7 +252,7 @@ public final class Constants {
         public static final double SPEED_PID_KD = 0.0;
         public static final double SHOOT_COOLDOWN = 1.0; // in seconds
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
-        public static final double RPM_PER_DISTANCE = 1000; // in cm TODO: get real number
+        public static final double RPM_PER_DISTANCE = 500; // in cm TODO: get real number
     }
 
     public static final class LimeLight {

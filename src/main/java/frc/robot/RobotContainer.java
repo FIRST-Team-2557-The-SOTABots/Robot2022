@@ -22,7 +22,6 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -289,9 +287,11 @@ public class RobotContainer {
         new RunCommand(
           () -> {
 
-            // Searchs for the target 
+            // Literally spins around until it finds a target
+            // check Constants.Swerve.TARGET_SEARCH_SPEED
             double fwd = dStick.getRawAxis(LEFT_STICK_Y);
             double str = dStick.getRawAxis(LEFT_STICK_X);
+            // Rotates the direction you have to stick going
             double rot = dStick.getRawAxis(RIGHT_STICK_X) > 0 ? TARGET_SEARCH_SPEED : -TARGET_SEARCH_SPEED;
 
             // pass inputs into drivetrain
@@ -322,6 +322,7 @@ public class RobotContainer {
         ),
 
         // Runs the flywheel at a speed proportional to the distance the limelight distance
+        // check Constants.Shooter.RPM_PER_DISTANCE
         new RunCommand(
           () -> {
             shooter.runFlywheel(shooter.calculateRPM(limelight.getDistance()));
@@ -331,20 +332,21 @@ public class RobotContainer {
           shooter
           
         )
-        .andThen(
-          new InstantCommand(
-            () -> {
-              shooter.runFlywheel(0.0);
-              
-            },
-
-            shooter
-
-          )
-        ) 
 
       )
       .withInterrupt(() -> !mStick.getRawButton(A))
+      .andThen(
+        new InstantCommand(
+          () -> {
+            shooter.runFlywheel(0.0);
+
+          },
+
+          shooter
+
+        )
+
+      ) 
 
     );
 
