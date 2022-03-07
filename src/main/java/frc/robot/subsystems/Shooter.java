@@ -93,6 +93,11 @@ public class Shooter extends SubsystemBase {
     }
   }
 
+  public double calculateRPM(double distance) {
+    // distance in cm
+    return distance * RPM_PER_DISTANCE;
+  }
+
   @Override
   public void periodic() {
     updateSpeedSample();
