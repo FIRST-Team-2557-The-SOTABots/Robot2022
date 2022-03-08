@@ -19,10 +19,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,37 +31,18 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.Climber.AngleMovement;
 import frc.robot.commands.AngleProfiledPIDCommand;
 import frc.robot.commands.ExtendClimbToPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
-import static frc.robot.util.Logitech.Ports.*;
-import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
-import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.util.Logitech;
 import frc.robot.util.RotatingSwerveControllerCommand;
-import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -73,10 +52,6 @@ import frc.robot.util.UninterruptibleProxyScheduleCommand;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private Logitech mStick = new Logitech(1);
-  private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
-  private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
-  private JoystickButton mStart = new JoystickButton(mStick, START);
 
   private Climber climber = new Climber();
   private SwerveDrive swerveDrive = new SwerveDrive();
@@ -93,17 +68,18 @@ public class RobotContainer {
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
   private JoystickButton ma = new JoystickButton(mStick, A);
+  private JoystickButton mb = new JoystickButton(mStick, B);
   private JoystickButton mx = new JoystickButton(mStick, X);
   private JoystickButton my = new JoystickButton(mStick, Y);
+  private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
+  private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
+  private JoystickButton mStart = new JoystickButton(mStick, START);
 
 
   private SendableChooser<Command> autoChooser;
 
-  private DoubleSolenoid climbLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // TODO remove
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    climbLock.set(Value.kForward); // TODO remove
 
     configureDefaultCommands();
 
@@ -156,135 +132,62 @@ public class RobotContainer {
     );
 
     delivery.setDefaultCommand(
-      new SequentialCommandGroup(
-        new WaitUntilCommand(() -> delivery.getSensor1()),
-        new ParallelCommandGroup(
-          new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
-          new UninterruptibleProxyScheduleCommand(
-            new RunCommand(
-              () -> {
-                intake.retract();
-                intake.run(0.0);
-              }, 
-              intake
-            ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
-          )
-        ),
-        new WaitCommand(Constants.Delivery.COOLDOWN)
+      new RunCommand(
+        () -> {
+          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0) {
+            if (mb.get())
+              delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
+            else
+              delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
+          } else
+            delivery.runMotor(0.0);
+        }, 
+        delivery  
       )
     );
 
-    configureButtonBindings();
+    // delivery.setDefaultCommand(
+    //   new SequentialCommandGroup(
+    //     new WaitUntilCommand(() -> delivery.getSensor1()),
+    //     new ParallelCommandGroup(
+    //       new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+    //       new UninterruptibleProxyScheduleCommand(
+    //         new RunCommand(
+    //           () -> {
+    //             intake.retract();
+    //             intake.run(0.0);
+    //           }, 
+    //           intake
+    //         ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
+    //       )
+    //     ),
+    //     new WaitCommand(Constants.Delivery.COOLDOWN)
+    //   )
+    // );
 
     climber.setDefaultCommand(
       new RunCommand(
         () -> {
           climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
           climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
-          // climber.runAngle(mStick.getRawAxis(RIGHT_STICK_X));
         }, 
         climber
       )
     );
 
-    mlb.whenPressed(
-      sequence(
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 1");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> {
-              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-            }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
-        ),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 2");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber),
-        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
-        new ParallelRaceGroup(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
-          sequence(
-            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
-            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
-          )
-        ),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 3");
-          return mrb.get();}),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
-          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
-        ),
-        parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
-        ),
-        parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
-        ),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> {
-              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-            }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
-        ),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
-        
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 2");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber),
-        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
-        new ParallelRaceGroup(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
-          sequence(
-            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
-            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
-          )
-        ),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 3");
-          return mrb.get();}),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
-          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
-        ),
-        parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
-        ),
-        parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
-        ),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> {
-              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-            }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
-        ),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber)
-      )     
+    intake.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          if (mStick.getRawAxis(LEFT_TRIGGER) > 0) {
+            intake.extend();
+            intake.run(Constants.Intake.SPEED); 
+          } else {
+            intake.retract();
+            intake.run(0.0);
+          }
+        },
+        intake 
+      )
     );
   }
 
@@ -310,9 +213,24 @@ public class RobotContainer {
     dStick.setDeadband(LEFT_TRIGGER, Driver.LEFT_TRIGGER_DEADBAND);
     dStick.setDeadband(RIGHT_TRIGGER, Driver.RIGHT_TRIGGER_DEADBAND);
 
-    mStart.whenPressed(
-      new RunCommand(
-        () -> climber.retractHooksNoEncoderLimit(),
+    mStick.setDeadband(LEFT_TRIGGER, Manipulator.LEFT_TRIGGER_DEADBAND);
+    mStick.setDeadband(RIGHT_TRIGGER, Manipulator.RIGHT_TRIGGER_DEADBAND);
+    mStick.setDeadband(LEFT_STICK_Y, Manipulator.LEFT_STICK_Y_DEADBAND);
+    mStick.setDeadband(RIGHT_STICK_Y, Manipulator.RIGHT_STICK_Y_DEADBAND);
+
+    mStart.whileHeld(
+      new InstantCommand(
+        () -> {
+          climber.retractHooksNoEncoderLimit();
+        },
+        climber
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          climber.extendLeftHook(0);
+          climber.extendRightHook(0);
+        },
         climber
       )
     );
@@ -344,22 +262,40 @@ public class RobotContainer {
       )
     );
 
-    ma.whileHeld(
-      new InstantCommand(
-        () -> {
-          intake.extend();
-          intake.run(Constants.Intake.SPEED);
-        },
-        intake
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> {
-          intake.run(0.0);
-          intake.retract();
-        }
-      )
-    );
+    // ma.whileHeld(
+    //   new InstantCommand(
+    //     () -> {
+    //       intake.extend();
+    //       intake.run(Constants.Intake.SPEED);
+    //     },
+    //     intake
+    //   )
+    // ).whenReleased(
+    //   new InstantCommand(
+    //     () -> {
+    //       intake.run(0.0);
+    //       intake.retract();
+    //     }
+    //   )
+    // );
+
+    // mb.whileHeld(
+    //   new InstantCommand(
+    //     () -> {
+    //       if (mrb.get())
+    //         delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
+    //       else 
+    //         delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
+
+    //     },
+    //     delivery
+    //   )
+    // ).whenReleased(
+    //   new InstantCommand(
+    //     () -> delivery.runMotor(0.0),
+    //     delivery
+    //   )
+    // );
 
     mx.whenHeld(
       new RunCommand(
@@ -399,8 +335,110 @@ public class RobotContainer {
         () -> {
           shooter.runFlywheel(0.0);
           delivery.runMotor(0.0);
-        }
+        },
+        shooter, delivery
       )
+    );
+
+    mlb.whenPressed(
+      sequence(
+        new InstantCommand(() -> shooter.hoodDown()),
+        new InstantCommand(() -> climber.unlock()),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 1");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> {
+              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+            }
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
+        ),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 2");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber).withTimeout(Constants.Climber.ANGLED_EXTEND_TIMEOUT),
+        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
+        new ParallelRaceGroup(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
+          sequence(
+            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
+            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
+          )
+        ),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 3");
+          return mrb.get();}),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
+          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
+        ),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> {
+              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+            }
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION_2).andThen(() -> climber.runAngle(0)),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
+        ),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 2");
+          return mrb.get();}),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
+        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber).withTimeout(Constants.Climber.ANGLED_EXTEND_TIMEOUT),
+        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
+        new ParallelRaceGroup(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
+          sequence(
+            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
+            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
+          )
+        ),
+        new WaitUntilCommand(() -> {
+          SmartDashboard.putString("waiting", "step 3");
+          return mrb.get();}),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
+          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
+        ),
+        parallel(
+          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
+        ),
+        new ParallelRaceGroup(
+          new RunCommand(
+            () -> {
+              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
+            }
+          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION_2).andThen(() -> climber.runAngle(0)),
+          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
+        ),
+        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber)
+      )     
     );
   }
 
@@ -408,29 +446,75 @@ public class RobotContainer {
 
   public void configureAutonomousCommands() {
     autoChooser = new SendableChooser<>();
+    autoChooser.setDefaultOption("None", null);
 
-    // autoChooser.setDefaultOption("None", null);
-
-    autoChooser.addOption("2 ball general",
-      sequence (
-        new ParallelDeadlineGroup(
-          new RunCommand(() -> swerveDrive.drive(-1, 1, 0.0), swerveDrive).withTimeout(0.0),
-          sequence(
-            new WaitCommand(0.0),
-            new InstantCommand(
-              () -> {
-                intake.extend();
-                intake.run(Constants.Intake.SPEED);
-              },
-              intake
-            )
-          )
-        ),
-        new RunCommand(() -> swerveDrive.drive(1, -1, -0.1), swerveDrive).withTimeout(0.0).andThen(
-          new InstantCommand(() -> swerveDrive.drive(0.0, 0.0, 0.0), swerveDrive)),
-        new RunCommand(() -> swerveDrive.drive(0.0, 0, 0), swerveDrive).withTimeout(0.0)
+    autoChooser.addOption("Back up",
+      sequence(
+        new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
+        new RunCommand(
+          () -> swerveDrive.drive(-1, 0, 0.0),
+          swerveDrive
+        ).withTimeout(Constants.Auto.BACK_UP_AUTO_DURATION)
       )
     );
+
+    autoChooser.addOption("Shoot high Back up",
+      sequence(
+        new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
+        new RunCommand(
+          () -> {
+            shooter.hoodDown();
+            shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.SHOOT_HIGH_BACK_SHOOT_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.setMotorRPM(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ),
+        new InstantCommand(
+          () -> swerveDrive.setFieldCentricActive(false)
+        ),
+        new RunCommand(
+          () -> swerveDrive.drive(-1, 0, 0.0),
+          swerveDrive
+        ).withTimeout(Constants.Auto.SHOOT_HIGH_BACK_DRIVE_DURATION)
+      )
+    );
+
+    // autoChooser.addOption("2 ball general",
+    //   sequence (
+    //     new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
+    //     new ParallelDeadlineGroup(
+    //       new RunCommand(() -> swerveDrive.drive(-1, 0, 0.0), swerveDrive).withTimeout(Constants.Auto.BACK_UP_AUTO_DURATION),
+    //       sequence(
+    //         new WaitCommand(0.0),
+    //         new InstantCommand(
+    //           () -> {
+    //             intake.extend();
+    //             intake.run(Constants.Intake.SPEED);
+    //           },
+    //           intake
+    //         )
+    //       ),
+    //       new InstantCommand(
+    //         () -> {
+    //           intake.retract();
+    //           intake.run(0.0);
+    //         },
+    //         intake
+    //       )
+    //     ),
+    //     new RunCommand(() -> swerveDrive.drive(0.0, 0, 0), swerveDrive).withTimeout(0.0)
+    //   )
+    // );
 
     autoChooser.addOption("3 ball",
       new RotatingSwerveControllerCommand(
@@ -467,7 +551,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public SendableChooser getAutonomousChooser() {
+  public SendableChooser<Command> getAutonomousChooser() {
     // An ExampleCommand will run in autonomous
     return autoChooser;
   }

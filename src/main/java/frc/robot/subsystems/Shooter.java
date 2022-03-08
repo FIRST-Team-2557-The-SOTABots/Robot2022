@@ -59,7 +59,6 @@ public class Shooter extends SubsystemBase {
 
   public void setMotorRPM(double rpm) {
     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
-    // SmartDashboard.putNumber("pid output", speedPID.calculate(getMotorRPM(), rpm));
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
     speedPID.setSetpoint(rpm);
@@ -97,7 +96,7 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     updateSpeedSample();
+    
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("flywheel speed", getMotorRPM());
   }
 }

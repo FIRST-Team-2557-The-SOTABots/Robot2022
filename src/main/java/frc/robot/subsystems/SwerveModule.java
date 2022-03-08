@@ -214,5 +214,6 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // SmartDashboard.putNumber("module" + moduleNumber, getAngle());
   }
 }

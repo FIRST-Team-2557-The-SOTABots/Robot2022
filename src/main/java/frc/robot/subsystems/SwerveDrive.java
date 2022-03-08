@@ -241,6 +241,5 @@ public class SwerveDrive extends SubsystemBase {
     // This method will be called once per scheduler run
     updatePose();
     SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
-    SmartDashboard.putNumber("gyro angle", getGyroAngle());
   }
 }

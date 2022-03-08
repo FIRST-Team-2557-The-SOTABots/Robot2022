@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Climber.AngleMovement;
 import frc.robot.subsystems.Climber;
@@ -34,12 +35,14 @@ public class AngleProfiledPIDCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    SmartDashboard.putString("Angle Command", "Initialize");
     controller.reset(climber.getAngleEncoderPosition());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.putString("Angle Command", "Executing");
     if (angleMovement == AngleMovement.MAX_TO_HIGH) {
       if (Math.abs(angleMovement.setpoint - climber.getAngleEncoderPosition()) < ANGLE_PID_CHANGE_KP_RANGE) {
         controller.setP(ANGLE_PID_CHANGE_KP_VALUE);
@@ -53,6 +56,7 @@ public class AngleProfiledPIDCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    SmartDashboard.putString("Angle Command", "End");
     climber.runAngle(0.0);
   }
 

@@ -42,6 +42,7 @@ public class ExtendClimbToPosition extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    SmartDashboard.putString("Extend Command", "Initializing");
     leftController.reset(climber.getLeftEncoderPosition());
     rightController.reset(climber.getRightEncoderPosition());
   }
@@ -49,13 +50,7 @@ public class ExtendClimbToPosition extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    SmartDashboard.putNumber("left output", leftController.calculate(
-      climber.getLeftEncoderPosition()
-    ));
-    SmartDashboard.putNumber("right output", rightController.calculate(
-      climber.getRightEncoderPosition()
-    ));
+    SmartDashboard.putString("Extend Command", "Executing");
     
     climber.extendLeftHook(
       leftController.calculate(
@@ -73,6 +68,7 @@ public class ExtendClimbToPosition extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    SmartDashboard.putString("Extend Command", "End");
     climber.extendLeftHook(0.0);
     climber.extendRightHook(0.0);
   }
@@ -85,11 +81,9 @@ public class ExtendClimbToPosition extends CommandBase {
     if (movementType == ExtendMovement.MID_TO_BOTTOM || movementType == ExtendMovement.TOP_TO_BOTTOM || movementType == ExtendMovement.HIGH_TO_BOTTOM) {
       leftFinished = climber.getLeftBotMagLimit();
       rightFinished = climber.getRightBotMagLimit();
-      SmartDashboard.putString("moving to", "bottom");
-    } else if (movementType == ExtendMovement.BOTTOM_TO_TOP || movementType == ExtendMovement.MID_TO_TOP) {
+    } else if (movementType == ExtendMovement.BOTTOM_TO_TOP) {
       leftFinished = climber.getLeftTopMagLimit();
       rightFinished = climber.getRightTopMagLimit();
-      SmartDashboard.putString("moving to", "top");
     } else if (movementType == ExtendMovement.HANG_BOTTOM) {
       leftFinished = false;
       rightFinished = false;
