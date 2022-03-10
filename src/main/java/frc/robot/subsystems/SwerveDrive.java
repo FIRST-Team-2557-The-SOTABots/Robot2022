@@ -179,7 +179,11 @@ public class SwerveDrive extends SubsystemBase {
    * Updates the pose of the swerve drive
    */
   public void updatePose() {
-    pose = odometry.update(new Rotation2d(getGyroAngle()), moduleStates);
+    SwerveModuleState[] measuredModuleStates = new SwerveModuleState[NUM_MODULES];
+    for (int i = 0; i < NUM_MODULES; i++) {
+      measuredModuleStates[i] = swerveModules[i].getMeasuredState();
+    }
+    pose = odometry.update(new Rotation2d(getGyroAngle()), measuredModuleStates);
   }
 
 
@@ -240,6 +244,12 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     updatePose();
+    ChassisSpeeds speeds = getMeasuredChassisSpeeds();
     SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
+    SmartDashboard.putNumber("Chassy x Speed", speeds.vxMetersPerSecond);
+    SmartDashboard.putNumber("Chassy y Speed", speeds.vyMetersPerSecond);
+    SmartDashboard.putNumber("Chassy w Speed", speeds.omegaRadiansPerSecond);
+    SmartDashboard.putNumber("Pose x", pose.getX());
+    SmartDashboard.putNumber("Pose y", pose.getY());
   }
 }

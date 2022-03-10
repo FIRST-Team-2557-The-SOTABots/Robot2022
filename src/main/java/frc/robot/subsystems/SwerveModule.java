@@ -74,10 +74,7 @@ public class SwerveModule extends SubsystemBase {
    * 
    * @param state the speed and rotation the module should track
    */
-  public void drive(SwerveModuleState state) {
-    // add angle offset as radian angle before optimizing
-    // state.angle = state.angle.plus(new Rotation2d(nativeToRadians(ANGLE_ENCODER_OFFSETS[moduleNumber])));
-    
+  public void drive(SwerveModuleState state) {    
     // optimize state so that module never turns more than 90 degrees
     state = SwerveModuleState.optimize(state, new Rotation2d(nativeToRadians(getAngle())));
 
@@ -194,8 +191,6 @@ public class SwerveModule extends SubsystemBase {
    */
   public SwerveModuleState getMeasuredState() {
     SwerveModuleState state = new SwerveModuleState(getSpeed(), new Rotation2d(nativeToRadians(getAngle())));
-    // TODO: uncomment if this is necessary
-    // state should have positive wheel speed, flip direction if flipping wheel speed is necessary  
     if (state.speedMetersPerSecond < 0.0) {
       state.speedMetersPerSecond *= -1;
       state.angle = state.angle.plus(new Rotation2d(Math.PI));
