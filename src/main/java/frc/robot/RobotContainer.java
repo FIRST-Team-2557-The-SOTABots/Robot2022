@@ -300,7 +300,7 @@ public class RobotContainer {
             swerveDrive.drive(
                 -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
                 -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-                -output
+                output
             );
             if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
               swerveDrive.shiftDown();
