@@ -252,14 +252,16 @@ public final class Constants {
         public static final double SPEED_PID_KD = 0.0;
         public static final double SHOOT_COOLDOWN = 1.0; // in seconds
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
-        public static final double RPM_PER_DISTANCE = 500; // in cm TODO: get real number
+        public static final double RPM_PER_DISTANCE = 500.0; // in cm TODO: get real number
     }
 
     public static final class LimeLight {
-        public static final double LIMELIGHT_HEIGHT = 120;
-        public static final double LIMELIGHT_MOUNT_ANGLE = 20;
-        public static final double TARGET_HEIGHT = 150;
-        public static final double LIMELIGHT_OFFSET = 0; 
+        public static final double LIMELIGHT_HEIGHT = 120.0;
+        public static final double LIMELIGHT_MOUNT_ANGLE = 20.0;
+        public static final double TARGET_HEIGHT = 150.0;
+        public static final double LIMELIGHT_OFFSET = 0.0;
+        public static final double LIMELIGHT_CENTER = 0.0; 
+        public static final double AUTOAIM_TOLERANCE = 3.0;
     }
 
     public static class Delivery {

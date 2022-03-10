@@ -6,6 +6,7 @@ package frc.robot;
 
 import static frc.robot.util.Logitech.Ports.*;
 import static frc.robot.Constants.Swerve.*;
+import static frc.robot.Constants.LimeLight.*;
 
 import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -283,46 +285,32 @@ public class RobotContainer {
     // );
 
     ma.whileHeld(
-      new ParallelCommandGroup(
-        new RunCommand(
-          () -> {
 
-            // Literally spins around until it finds a target
-            // check Constants.Swerve.TARGET_SEARCH_SPEED
+      new ParallelCommandGroup(
+        new PIDCommand(
+          new PIDController(0.001, 0.0, 0.0), 
+          () -> limelight.getX(), 
+          LIMELIGHT_CENTER, 
+          (double output) -> {
+            // get inputs then square them, preserving sign
             double fwd = dStick.getRawAxis(LEFT_STICK_Y);
             double str = dStick.getRawAxis(LEFT_STICK_X);
-            // Rotates the direction you have to stick going
-            double rot = dStick.getRawAxis(RIGHT_STICK_X) > 0 ? TARGET_SEARCH_SPEED : -TARGET_SEARCH_SPEED;
 
             // pass inputs into drivetrain
-            // dont rotate if target is already detected
-            if (!limelight.targetDetected()) {
-              swerveDrive.drive(
+            swerveDrive.drive(
                 -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
                 -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-                -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-              );
-            } else {
-              swerveDrive.drive(
-                -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-                -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-                0
-              );
-            }
+                -output
+            );
             if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
               swerveDrive.shiftDown();
             } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
               swerveDrive.shiftUp();
             }
 
-          }, 
+          }
+        ).withInterrupt(() -> Math.abs(LIMELIGHT_CENTER - limelight.getX()) < AUTOAIM_TOLERANCE),
 
-          swerveDrive
-          
-        ),
-
-        // Runs the flywheel at a speed proportional to the distance the limelight distance
-        // check Constants.Shooter.RPM_PER_DISTANCE
         new RunCommand(
           () -> {
             shooter.runFlywheel(shooter.calculateRPM(limelight.getDistance()));
@@ -331,22 +319,20 @@ public class RobotContainer {
           
           shooter
           
+        ).withInterrupt(() -> !mStick.getRawButton(A))
+        .andThen(
+          new InstantCommand(
+            () -> {
+              shooter.runFlywheel(0.0);
+  
+            },
+  
+            shooter
+  
+          )
+  
         )
-
       )
-      .withInterrupt(() -> !mStick.getRawButton(A))
-      .andThen(
-        new InstantCommand(
-          () -> {
-            shooter.runFlywheel(0.0);
-
-          },
-
-          shooter
-
-        )
-
-      ) 
 
     );
 
