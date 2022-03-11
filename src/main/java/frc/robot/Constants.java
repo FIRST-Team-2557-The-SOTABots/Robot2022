@@ -205,10 +205,10 @@ public final class Constants {
         public static final Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2);
 
         // in meters per second
-        public static final double MAX_WHEEL_SPEED = 4; // TODO: unofficial number
+        public static final double MAX_WHEEL_SPEED = 5.2;
 
         // in radians per second
-        public static final double MAX_ANGULAR_SPEED = 4; // TODO: unoffical number
+        public static final double MAX_ANGULAR_SPEED = 6.28; // TODO: unoffical number
         
         public static final double COAST_DOWN_MAX_SPEED = 0.5; // speed in m/s below which shift down with low demand occurs
         public static final double COAST_DOWN_MAX_INPUT = 0.5; // input below which shift down with low demand occurs
@@ -268,15 +268,20 @@ public final class Constants {
     }
 
     public static class Auto {
-        public static final double X_PID_KP = 0.0;
-        public static final double Y_PID_KP = 0.0;
-        public static final double MAX_WHEEL_SPEED = 1.0; // in meters per second 
-        public static final double MAX_WHEEL_ACCELERATION = 1.0; // in meters per second per second
+        public static final double TRANSLATE_PID_KP = 1.3;
+        public static final double MAX_WHEEL_SPEED = Swerve.MAX_WHEEL_SPEED; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
-        public static final double ANGLE_PID_KP = 0.0;
-        public static final double MAX_ANGULAR_SPEED = Math.PI * 0.5; // in radians per second 
-        public static final double MAX_ANGULAR_ACCELERATION = Math.PI * 0.5; // in radians per second per second
+        public static final double ANGLE_PID_KP = 1.35;
+        public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED; // in radians per second 
+        public static final double MAX_ANGULAR_ACCELERATION = Swerve.MAX_ANGULAR_SPEED / 1.0; // in radians per second per second
         
+        public static final double INTAKE_EXTENSION_TIME = 0.6; // in seconds, time intake spends out
+
+        public static final double PATH_1_SHOOT_1_DURATION = 2;
+        public static final double PATH_1_SHOOT_2_DURATION = 4;
+        public static final double PATH_1_SHOOT_3_DURATION = 3;
+
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 
         public static final double SHOOT_HIGH_BACK_SHOOT_DURATION = 5.0; // seconds

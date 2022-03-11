@@ -515,30 +515,111 @@ public class RobotContainer {
     // );
 
     PathPlannerTrajectory path1A = PathPlanner.loadPath("Path_1_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+    PathPlannerTrajectory path1B = PathPlanner.loadPath("Path_1_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+    PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
 
-    autoChooser.addOption("test auto",
+    autoChooser.addOption("Auto 1",
       sequence(
         new InstantCommand(
           () -> {
             swerveDrive.shiftUp();
             swerveDrive.setPose(path1A.getInitialState());
-          }, swerveDrive),
-        new PPSwerveControllerCommand(
-          path1A, 
-          swerveDrive::getPose,
-          swerveDrive.getKinematics(), 
-          new PIDController(Constants.Auto.TRANSLATE_PID_KP, 0, 0), 
-          new PIDController(Constants.Auto.TRANSLATE_PID_KP, 0, 0), 
-          new ProfiledPIDController(
-            Constants.Auto.ANGLE_PID_KP, 0, 0, 
-            new TrapezoidProfile.Constraints(
-              Constants.Auto.MAX_ANGULAR_SPEED, Constants.Auto.MAX_ANGULAR_ACCELERATION
-            )
-          ), 
-          swerveDrive::drive, 
+          }, 
           swerveDrive
         ),
-        new InstantCommand(() -> swerveDrive.drive(0, 0, 0))
+        swerveDrive.generatePPSwerveControllerCommand(path1A),
+        new InstantCommand(() -> swerveDrive.drive(0, 0, 0)),
+        new RunCommand(
+          () -> {
+            shooter.hoodUp();
+            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.runFlywheel(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ),
+        race(
+          swerveDrive.generatePPSwerveControllerCommand(path1B),
+          sequence(
+            new WaitCommand(path1A.getTotalTimeSeconds() - Constants.Auto.INTAKE_EXTENSION_TIME),
+            new RunCommand(
+              () -> {
+                intake.extend();
+                intake.run(Constants.Intake.SPEED);
+              }, 
+              intake
+            )
+          )
+        ),
+        new InstantCommand(
+          () -> {
+            swerveDrive.drive(0, 0, 0);
+            intake.retract();
+            intake.run(0.0);
+          }
+        ),
+        new RunCommand(
+          () -> {
+            shooter.hoodUp();
+            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.runFlywheel(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ),
+        race(
+          swerveDrive.generatePPSwerveControllerCommand(path1C),
+          new RunCommand(
+            () -> {
+              intake.extend();
+              intake.run(Constants.Intake.SPEED);
+            }, 
+            intake
+          )
+        ),
+        new InstantCommand(
+          () -> {
+            swerveDrive.drive(0, 0, 0);
+            intake.retract();
+            intake.run(0.0);
+          }
+        ),
+        new RunCommand(
+          () -> {
+            shooter.hoodUp();
+            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.runFlywheel(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        )
       )
     );
 
