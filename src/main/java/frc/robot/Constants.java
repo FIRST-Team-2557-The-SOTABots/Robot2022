@@ -257,8 +257,8 @@ public final class Constants {
         public static final int SENSOR_1_RIGHT_PORT = 1;
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
-        public static final int SENSOR_1_LEFT_THRESHOLD = 130;
-        public static final int SENSOR_1_RIGHT_THRESHOLD = 100;
+        public static final int SENSOR_1_LEFT_THRESHOLD = 100;
+        public static final int SENSOR_1_RIGHT_THRESHOLD = 80;
         public static final double INDEXING_SPEED = 0.45;
         public static final double SHOOTING_SPEED = 0.6;
         public static final boolean MOTOR_INVERTED = true;

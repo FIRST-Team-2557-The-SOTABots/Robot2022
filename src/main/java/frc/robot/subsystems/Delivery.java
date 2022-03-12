@@ -18,7 +18,7 @@ import static frc.robot.Constants.Delivery.*;
 public class Delivery extends SubsystemBase {
   /** Creates a new Sensors. */
   
-  private I2C multiplexer = new I2C(I2C.Port.kOnboard, 0x70);
+  private I2C multiplexer = new I2C(I2C.Port.kMXP, 0x70);
   private ColorSensorV3 sensor1Left;
   private ColorSensorV3 sensor1Right;
   private DigitalInput sensor2 = new DigitalInput(SENSOR_2_PORT);
@@ -32,9 +32,9 @@ public class Delivery extends SubsystemBase {
     deliveryMotor.setNeutralMode(NeutralMode.Brake);
 
     multiplexer.write(0x70, 1 << SENSOR_1_LEFT_PORT); 
-    sensor1Left = new ColorSensorV3(I2C.Port.kOnboard);
+    sensor1Left = new ColorSensorV3(I2C.Port.kMXP);
     multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT); 
-    sensor1Right = new ColorSensorV3(I2C.Port.kOnboard);
+    sensor1Right = new ColorSensorV3(I2C.Port.kMXP);
   }
   
   public void runMotor(double speed) {
@@ -56,8 +56,8 @@ public class Delivery extends SubsystemBase {
   }
 
   public boolean getSensor1() {
-    // return getSensor1Left() > SENSOR_1_LEFT_THRESHOLD || getSensor1Right() > SENSOR_1_RIGHT_THRESHOLD;
-    return false;
+    return getSensor1Left() > SENSOR_1_LEFT_THRESHOLD || getSensor1Right() > SENSOR_1_RIGHT_THRESHOLD;
+
   }
   
   public boolean getSensor2() {
@@ -68,5 +68,6 @@ public class Delivery extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("sensor left", getSensor1Left());
     SmartDashboard.putNumber("sensor right", getSensor1Right());
+    SmartDashboard.putBoolean("getSensor1", getSensor1());
   }
 }
