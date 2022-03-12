@@ -235,23 +235,6 @@ public class RobotContainer {
     mStick.setDeadband(RIGHT_TRIGGER, Manipulator.RIGHT_TRIGGER_DEADBAND);
     mStick.setDeadband(LEFT_STICK_Y, Manipulator.LEFT_STICK_Y_DEADBAND);
     mStick.setDeadband(RIGHT_STICK_Y, Manipulator.RIGHT_STICK_Y_DEADBAND);
-
-    mStart.whileHeld(
-      new InstantCommand(
-        () -> {
-          climber.retractHooksNoEncoderLimit();
-        },
-        climber
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> {
-          climber.extendLeftHook(0);
-          climber.extendRightHook(0);
-        },
-        climber
-      )
-    );
     
     da.whenPressed(
       new InstantCommand(
@@ -280,83 +263,22 @@ public class RobotContainer {
       )
     );
 
-    dx.whenPressed(
+    mStart.whileHeld(
       new InstantCommand(
         () -> {
-          RPM -= 50;
-          SmartDashboard.putNumber("RPM", RPM);
-        }
-      )
-    );
-
-    dy.whenPressed(
-      new InstantCommand(
-        () -> {
-          RPM += 50;
-          SmartDashboard.putNumber("RPM", RPM);
-        }
-      )
-    );
-
-    dlb.whenPressed(
-      new RunCommand(
-        () -> {
-          shooter.setMotorRPM(RPM);
-          SmartDashboard.putNumber("RPM", RPM);
-          SmartDashboard.putNumber("Calculated RPM", shooter.calculateRPM(limelight.getY()));
-          if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-
-        }, 
-        
-      shooter
-      
-      )
-    )
-    .whenReleased(
-      new InstantCommand(
-        () -> {
-          shooter.setMotorRPM(0.0);
-          SmartDashboard.putNumber("RPM", RPM);
-
+          climber.retractHooksNoEncoderLimit();
         },
-
-        shooter
-        
+        climber
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          climber.extendLeftHook(0);
+          climber.extendRightHook(0);
+        },
+        climber
       )
     );
-
-    // ma.whileHeld(
-    //   new InstantCommand(
-    //     () -> {
-    //       PathPlannerState pose = testAutoTrajectory.getInitialState();
-    //       SmartDashboard.putNumber("initial angle radians", pose.holonomicRotation.getRadians());
-    //       swerveDrive.setPose(pose);
-    //     }
-    //   )
-    // );
-
-    
-
-    // mb.whileHeld(
-    //   new InstantCommand(
-    //     () -> {
-    //       if (mrb.get())
-    //         delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
-    //       else 
-    //         delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
-
-    //     },
-    //     delivery
-    //   )
-    // ).whenReleased(
-    //   new InstantCommand(
-    //     () -> delivery.runMotor(0.0),
-    //     delivery
-    //   )
-    // );
 
     mx.whenHeld(
       new ConditionalCommand(
@@ -378,32 +300,28 @@ public class RobotContainer {
                   -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
                   output
               );
+
               if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
                 swerveDrive.shiftDown();
               } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
                 swerveDrive.shiftUp();
               }
-
             },
             swerveDrive
-            
           ),
           new RunCommand(
             () -> {
               shooter.hoodUp();
               shooter.setMotorRPM(shooter.calculateRPM(limelight.getY()));
-              SmartDashboard.putNumber("RPM", shooter.calculateRPM(limelight.getY()));
+
               if (shooter.readyToShoot())
                 delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
               else
                 delivery.runMotor(0.0);
             }, 
             shooter, delivery
-
           )
-
-        ), 
-        
+        ),
         new RunCommand(
           () -> {
             shooter.hoodDown();
@@ -413,14 +331,10 @@ public class RobotContainer {
             else
               delivery.runMotor(0.0);
           },
-
           shooter, delivery
-
         ), 
-      
         () -> limelight.targetDetected()
       )
-      
     ).whenReleased(
       new InstantCommand(
         () -> {
