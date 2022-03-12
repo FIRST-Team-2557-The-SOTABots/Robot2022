@@ -93,8 +93,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public double calculateRPM(double distance) {
-    // distance in cm
-    return distance * RPM_PER_DISTANCE;
+    // distance in ty, from limelight
+    
+    return RPM_EQUATION.apply(distance);
   }
 
   @Override

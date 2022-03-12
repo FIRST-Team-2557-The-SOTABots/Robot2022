@@ -39,6 +39,8 @@ public class Limelight extends SubsystemBase {
     distance = calculateDistance(LIMELIGHT_HEIGHT, TARGET_HEIGHT, LIMELIGHT_MOUNT_ANGLE); // TODO: find real params
     SmartDashboard.putNumber("Distance to target", distance);
 
+    SmartDashboard.putBoolean("Target Detected", targetDetected());
+
   }
 
   /** Updates the camera data from the limelight stream */

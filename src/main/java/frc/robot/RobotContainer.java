@@ -26,8 +26,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -277,7 +279,7 @@ public class RobotContainer {
     dx.whenPressed(
       new InstantCommand(
         () -> {
-          RPM -= 500;
+          RPM -= 50;
           SmartDashboard.putNumber("RPM", RPM);
         }
       )
@@ -286,7 +288,7 @@ public class RobotContainer {
     dy.whenPressed(
       new InstantCommand(
         () -> {
-          RPM += 500;
+          RPM += 50;
           SmartDashboard.putNumber("RPM", RPM);
         }
       )
@@ -297,12 +299,28 @@ public class RobotContainer {
         () -> {
           shooter.setMotorRPM(RPM);
           SmartDashboard.putNumber("RPM", RPM);
-          SmartDashboard.putNumber("TY", limelight.getY());
+          SmartDashboard.putNumber("Calculated RPM", shooter.calculateRPM(limelight.getY()));
+          if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
 
         }, 
         
       shooter
       
+      )
+    )
+    .whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.setMotorRPM(0.0);
+          SmartDashboard.putNumber("RPM", RPM);
+
+        },
+
+        shooter
+        
       )
     );
 
@@ -323,49 +341,7 @@ public class RobotContainer {
     //   )
     // );
 
-    ma.whileHeld(
-
-      parallel(
-        new PIDCommand(
-          new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
-          () -> limelight.getX(), 
-          LIMELIGHT_CENTER, 
-          (double output) -> {
-            // get inputs then square them, preserving sign
-            double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-            double str = dStick.getRawAxis(LEFT_STICK_X);
-
-            // pass inputs into drivetrain
-            swerveDrive.drive(
-                -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-                -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-                output
-            );
-            if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-              swerveDrive.shiftDown();
-            } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-              swerveDrive.shiftUp();
-            }
-
-          }
-        ),
-        new RunCommand(
-          () -> {
-            shooter.setMotorRPM(shooter.calculateRPM(limelight.getDistance()));
-            if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-          }, 
-          shooter
-        )
-      )
-    ).whenReleased(
-      new InstantCommand(
-        () -> shooter.runFlywheel(0.0),
-        shooter
-      )
-    );
+    
 
     // mb.whileHeld(
     //   new InstantCommand(
@@ -386,17 +362,66 @@ public class RobotContainer {
     // );
 
     mx.whenHeld(
-      new RunCommand(
-        () -> {
-          shooter.hoodDown();
-          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-          if (shooter.readyToShoot())
-            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
-            delivery.runMotor(0.0);
-        },
-        shooter, delivery
+      new ConditionalCommand(
+        parallel(
+          new PIDCommand(
+            new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
+            () -> limelight.getX(), 
+            LIMELIGHT_CENTER, 
+            (double output) -> {
+              // get inputs then square them, preserving sign
+              double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+              double str = dStick.getRawAxis(LEFT_STICK_X);
+
+              // pass inputs into drivetrain
+              swerveDrive.drive(
+                  -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+                  -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+                  output
+              );
+              if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+                swerveDrive.shiftDown();
+              } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+                swerveDrive.shiftUp();
+              }
+
+            },
+            swerveDrive
+            
+          ),
+          new RunCommand(
+            () -> {
+              shooter.hoodUp();
+              shooter.setMotorRPM(shooter.calculateRPM(limelight.getY()));
+              SmartDashboard.putNumber("RPM", shooter.calculateRPM(limelight.getY()));
+              if (shooter.readyToShoot())
+                delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+              else
+                delivery.runMotor(0.0);
+            }, 
+            shooter, delivery
+
+          )
+
+        ), 
+        
+        new RunCommand(
+          () -> {
+            shooter.hoodDown();
+            shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+
+          shooter, delivery
+
+        ), 
+      
+        () -> limelight.targetDetected()
       )
+      
     ).whenReleased(
       new InstantCommand(
         () -> {

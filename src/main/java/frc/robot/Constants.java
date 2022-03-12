@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.DoubleFunction;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
@@ -230,7 +232,7 @@ public final class Constants {
         public static final int SOLENOID_CHANNEL_B = 1;
         public static final Value EXTEND_VALUE = Value.kReverse;
         public static final Value RETRACT_VALUE = Value.kForward;
-        public static final double SPEED = 1;
+        public static final double SPEED = 0.9;
     }
 
     public static class Shooter {
@@ -246,7 +248,7 @@ public final class Constants {
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
-        public static final double RPM_TOLERANCE = 80; // in motor rpm
+        public static final double RPM_TOLERANCE = 40; // in motor rpm
         public static final double FEEDFORWARD_KS = 0.03269; // in volts
         public static final double FEEDFORWARD_KV = 0.002114; // in volts
         public static final double SPEED_PID_KP = 0.00003;
@@ -254,7 +256,14 @@ public final class Constants {
         public static final double SPEED_PID_KD = 0.0;
         public static final double SHOOT_COOLDOWN = 1.0; // in seconds
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
-        public static final double RPM_PER_DISTANCE = 500.0; // in cm TODO: get real number
+        // public static final double RPM_PER_DISTANCE = -28.0; // in limelight ty
+        // public static final double RPM_INTERCEPT = 4285.0;
+        public static final double A = 4270.0;
+        public static final double B = -55.67;
+        public static final double C = 6.205;
+        public static final double D = -0.1496;
+        public static final double E = -0.01465;
+        public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
     }
 
     public static final class LimeLight {
@@ -263,7 +272,7 @@ public final class Constants {
         public static final double TARGET_HEIGHT = 150.0;
         public static final double LIMELIGHT_OFFSET = 0.0;
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 3.0;
+        public static final double AUTOAIM_TOLERANCE = 4.0;
     }
 
     public static class Delivery {
@@ -274,7 +283,7 @@ public final class Constants {
         public static final int SENSOR_1_LEFT_THRESHOLD = 130;
         public static final int SENSOR_1_RIGHT_THRESHOLD = 100;
         public static final double INDEXING_SPEED = 0.45;
-        public static final double SHOOTING_SPEED = 0.6;
+        public static final double SHOOTING_SPEED = 0.7;
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 1.0; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
