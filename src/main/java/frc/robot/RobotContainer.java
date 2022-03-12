@@ -12,7 +12,10 @@ import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
 import java.util.List;
 
-import edu.wpi.first.math.Drake;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -328,16 +331,9 @@ public class RobotContainer {
     // ma.whileHeld(
     //   new InstantCommand(
     //     () -> {
-    //       intake.extend();
-    //       intake.run(Constants.Intake.SPEED);
-    //     },
-    //     intake
-    //   )
-    // ).whenReleased(
-    //   new InstantCommand(
-    //     () -> {
-    //       intake.run(0.0);
-    //       intake.retract();
+    //       PathPlannerState pose = testAutoTrajectory.getInitialState();
+    //       SmartDashboard.putNumber("initial angle radians", pose.holonomicRotation.getRadians());
+    //       swerveDrive.setPose(pose);
     //     }
     //   )
     // );
@@ -630,32 +626,141 @@ public class RobotContainer {
     //   )
     // );
 
-    autoChooser.addOption("3 ball",
-      new RotatingSwerveControllerCommand(
-        TrajectoryGenerator.generateTrajectory(
-          new Pose2d(0, 0, new Rotation2d(0.0)),
-          List.of(
-            new Translation2d(1, 0),
-            new Translation2d(2, 0)
-          ),
-          new Pose2d(3, 0, new Rotation2d(0.0)),
-          new TrajectoryConfig(
-            Constants.Auto.MAX_WHEEL_SPEED, 
-            Constants.Auto.MAX_WHEEL_ACCELERATION
-          ).setKinematics(swerveDrive.getKinematics())
-        ), 
-        () -> swerveDrive.getSwervePose(), 
-        swerveDrive.getKinematics(), 
-        new PIDController(Constants.Auto.X_PID_KP, 0.0, 0.0), 
-        new PIDController(Constants.Auto.Y_PID_KP, 0.0, 0.0), 
-        new ProfiledPIDController(
-          Constants.Auto.ANGLE_PID_KP, 0.0, 0.0, 
-          new TrapezoidProfile.Constraints(Constants.Auto.MAX_ANGULAR_SPEED, Constants.Auto.MAX_ANGULAR_ACCELERATION)
+    PathPlannerTrajectory path1A = PathPlanner.loadPath("Path_1_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+    PathPlannerTrajectory path1B = PathPlanner.loadPath("Path_1_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+    PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+
+    autoChooser.addOption("Auto 1",
+      sequence(
+        new InstantCommand(
+          () -> {
+            swerveDrive.shiftUp();
+            swerveDrive.setPose(path1A.getInitialState());
+          }, 
+          swerveDrive
         ),
-        (SwerveModuleState[] states) -> swerveDrive.drive(states), 
-        swerveDrive
+        swerveDrive.generatePPSwerveControllerCommand(path1A),
+        new InstantCommand(() -> swerveDrive.drive(0, 0, 0)),
+        new RunCommand(
+          () -> {
+            shooter.hoodUp();
+            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.runFlywheel(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ),
+        race(
+          swerveDrive.generatePPSwerveControllerCommand(path1B),
+          sequence(
+            new WaitCommand(path1A.getTotalTimeSeconds() - Constants.Auto.INTAKE_EXTENSION_TIME),
+            new RunCommand(
+              () -> {
+                intake.extend();
+                intake.run(Constants.Intake.SPEED);
+              }, 
+              intake
+            )
+          )
+        ),
+        new InstantCommand(
+          () -> {
+            swerveDrive.drive(0, 0, 0);
+            intake.retract();
+            intake.run(0.0);
+          }
+        ),
+        new RunCommand(
+          () -> {
+            shooter.hoodUp();
+            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.runFlywheel(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ),
+        race(
+          swerveDrive.generatePPSwerveControllerCommand(path1C),
+          new RunCommand(
+            () -> {
+              intake.extend();
+              intake.run(Constants.Intake.SPEED);
+            }, 
+            intake
+          )
+        ),
+        new InstantCommand(
+          () -> {
+            swerveDrive.drive(0, 0, 0);
+            intake.retract();
+            intake.run(0.0);
+          }
+        ),
+        new RunCommand(
+          () -> {
+            shooter.hoodUp();
+            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        ).withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
+        new InstantCommand(
+          () -> {
+            shooter.runFlywheel(0.0);
+            delivery.runMotor(0.0);
+          },
+          shooter, delivery
+        )
       )
     );
+
+    // autoChooser.addOption("3 ball",
+    //   new RotatingSwerveControllerCommand(
+    //     TrajectoryGenerator.generateTrajectory(
+    //       new Pose2d(0, 0, new Rotation2d(0.0)),
+    //       List.of(
+    //         new Translation2d(1, 0),
+    //         new Translation2d(2, 0)
+    //       ),
+    //       new Pose2d(3, 0, new Rotation2d(0.0)),
+    //       new TrajectoryConfig(
+    //         Constants.Auto.MAX_WHEEL_SPEED, 
+    //         Constants.Auto.MAX_WHEEL_ACCELERATION
+    //       ).setKinematics(swerveDrive.getKinematics())
+    //     ), 
+    //     () -> swerveDrive.getSwervePose(), 
+    //     swerveDrive.getKinematics(), 
+    //     new PIDController(Constants.Auto.X_PID_KP, 0.0, 0.0), 
+    //     new PIDController(Constants.Auto.Y_PID_KP, 0.0, 0.0), 
+    //     new ProfiledPIDController(
+    //       Constants.Auto.ANGLE_PID_KP, 0.0, 0.0, 
+    //       new TrapezoidProfile.Constraints(Constants.Auto.MAX_ANGULAR_SPEED, Constants.Auto.MAX_ANGULAR_ACCELERATION)
+    //     ),
+    //     (SwerveModuleState[] states) -> swerveDrive.drive(states), 
+    //     swerveDrive
+    //   )
+    // );
   }
 
 
