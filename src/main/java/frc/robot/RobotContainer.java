@@ -43,6 +43,7 @@ import frc.robot.commands.ExtendClimbToPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import frc.robot.Constants.LimeLight;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
 import frc.robot.subsystems.Delivery;
@@ -372,6 +373,8 @@ public class RobotContainer {
               // get inputs then square them, preserving sign
               double fwd = dStick.getRawAxis(LEFT_STICK_Y);
               double str = dStick.getRawAxis(LEFT_STICK_X);
+              if (Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE) 
+                output = 0;
 
               // pass inputs into drivetrain
               swerveDrive.drive(

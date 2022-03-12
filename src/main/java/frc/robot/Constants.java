@@ -258,21 +258,22 @@ public final class Constants {
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
         // public static final double RPM_PER_DISTANCE = -28.0; // in limelight ty
         // public static final double RPM_INTERCEPT = 4285.0;
-        public static final double A = 4270.0;
-        public static final double B = -55.67;
-        public static final double C = 6.205;
-        public static final double D = -0.1496;
-        public static final double E = -0.01465;
-        public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
+
+        public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
+            double A = 4270.0;
+            double B = -55.67;
+            double C = 6.205;
+            double D = -0.1496;
+            double E = -0.01465;
+
+            return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
+        };
     }
 
     public static final class LimeLight {
-        public static final double LIMELIGHT_HEIGHT = 120.0;
-        public static final double LIMELIGHT_MOUNT_ANGLE = 20.0;
-        public static final double TARGET_HEIGHT = 150.0;
-        public static final double LIMELIGHT_OFFSET = 0.0;
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 4.0;
+        public static final double AUTOAIM_TOLERANCE = 3.5;
+        public static final double MIN_TY = -8;
     }
 
     public static class Delivery {

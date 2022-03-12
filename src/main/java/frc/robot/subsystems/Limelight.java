@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,50 +14,21 @@ import static frc.robot.Constants.LimeLight.*;
 public class Limelight extends SubsystemBase {
 
   static NetworkTable table;
-  static NetworkTableEntry tx;
-  static NetworkTableEntry ty;
-  static NetworkTableEntry ta;
-  static NetworkTableEntry tv;
 
   private double x;
   private double y;
-  private double area;
   private double valid;
-  private double distance;
 
   /** Creates a new Limelight. */
   public Limelight() {
     table = NetworkTableInstance.getDefault().getTable("limelight");
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    getCamData();
-
-    distance = calculateDistance(LIMELIGHT_HEIGHT, TARGET_HEIGHT, LIMELIGHT_MOUNT_ANGLE); // TODO: find real params
-    SmartDashboard.putNumber("Distance to target", distance);
-
-    SmartDashboard.putBoolean("Target Detected", targetDetected());
-
-  }
-
   /** Updates the camera data from the limelight stream */
   public void getCamData() {
-	  tx = table.getEntry("tx"); // x offset angle of the target's center
-    ty = table.getEntry("ty"); // y offset angle of the target's center
-    ta = table.getEntry("ta"); // % area the target takes of the field of vision
-    tv = table.getEntry("tv"); // 0 if no target detected, 1 if detected
-
-    x = tx.getDouble(0.0);
-    y = ty.getDouble(0.0);
-    area = ta.getDouble(0.0);
-    valid = tv.getDouble(0.0);
-
-    SmartDashboard.putNumber("tx", x);
-    SmartDashboard.putNumber("ty", y);
-    SmartDashboard.putNumber("ta", area);
-    SmartDashboard.putNumber("tv", valid);
+    x = table.getEntry("tx").getDouble(0.0); // x offset angle of the target's center
+    y = table.getEntry("ty").getDouble(0.0); // y offset angle of the target's center
+    valid = table.getEntry("tv").getDouble(0.0); // 0 if no target detected, 1 if detected
   }
 
   /**
@@ -85,32 +55,21 @@ public class Limelight extends SubsystemBase {
     return y;
   }
 
-  /**
-   * Gets distance to a vision target
-   * @return distance over ground to vision target. Returns -1 if no target detected
-   */
-  public double getDistance(){
-    return distance;
-  }
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+    getCamData();
 
-  /**
-   * Calculates ground distance in centimeters to the plane of a vision target. 
-   * Refer to https://docs.limelightvision.io/en/latest/cs_estimating_distance.html
-   * @param camHeight height of the limelight above the ground in cm
-   * @param targetHeight height of the center of the target above the ground in cm
-   * @param camAngle mounting angle of the limelight on the robot in degrees
-   * @return distance in cm or -1 if no target is detected
-   */
-  private double calculateDistance(double camHeight, double targetHeight, double camAngle){
-    if(targetDetected()){
-      double camAngleRads = Math.toRadians(camAngle);
-      double yRads = Math.toRadians(y);
-  
-      double distance = (targetHeight - camHeight) / Math.tan(camAngleRads + yRads);
-      return distance;
+    // String shootStatus = "";
+    if (!targetDetected()) {
+      SmartDashboard.putString("Shoot Status", "No target");
+    } else if (getY() < MIN_TY) {
+      SmartDashboard.putString("Shoot Status", "Too far");
     } else {
-      return -1;
+      SmartDashboard.putString("Shoot Status", new String(Character.toChars(0x1F604)) + new String(Character.toChars(0x1F44D)));
     }
-  }
 
+    // SmartDashboard.putNumber("tx", getX());
+
+  }
 }
