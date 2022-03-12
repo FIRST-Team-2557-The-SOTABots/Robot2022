@@ -325,9 +325,9 @@ public class RobotContainer {
 
     ma.whileHeld(
 
-      new ParallelCommandGroup(
+      parallel(
         new PIDCommand(
-          new PIDController(0.001, 0.0, 0.0), 
+          new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
           () -> limelight.getX(), 
           LIMELIGHT_CENTER, 
           (double output) -> {
@@ -339,7 +339,7 @@ public class RobotContainer {
             swerveDrive.drive(
                 -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
                 -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-                -output
+                output
             );
             if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
               swerveDrive.shiftDown();
@@ -348,31 +348,23 @@ public class RobotContainer {
             }
 
           }
-        ).withInterrupt(() -> Math.abs(LIMELIGHT_CENTER - limelight.getX()) < AUTOAIM_TOLERANCE),
-
+        ),
         new RunCommand(
           () -> {
-            shooter.runFlywheel(shooter.calculateRPM(limelight.getDistance()));
-
+            shooter.setMotorRPM(shooter.calculateRPM(limelight.getDistance()));
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
           }, 
-          
           shooter
-          
-        ).withInterrupt(() -> !mStick.getRawButton(A))
-        .andThen(
-          new InstantCommand(
-            () -> {
-              shooter.runFlywheel(0.0);
-  
-            },
-  
-            shooter
-  
-          )
-  
         )
       )
-
+    ).whenReleased(
+      new InstantCommand(
+        () -> shooter.runFlywheel(0.0),
+        shooter
+      )
     );
 
     // mb.whileHeld(

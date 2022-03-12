@@ -218,7 +218,9 @@ public final class Constants {
         public static final double SHIFT_UP_MIN_INPUT = 1.0; // input above which shift up with high demand occurs
         public static final double SHIFT_COOLDOWN = 1.0; // in seconds
 
-        public static final double TARGET_SEARCH_SPEED = 0.5; // TODO: unoffical number
+        public static final double TARGET_SEARCH_KP = 0.05;
+        public static final double TARGET_SEARCH_KI = 0.0;
+        public static final double TARGET_SEARCH_KD = 0.0;
     }
 
     public static class Intake {
