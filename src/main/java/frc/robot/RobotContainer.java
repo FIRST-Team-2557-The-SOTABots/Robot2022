@@ -5,6 +5,8 @@
 package frc.robot;
 
 import static frc.robot.util.Logitech.Ports.*;
+import static frc.robot.Constants.Swerve.*;
+import static frc.robot.Constants.LimeLight.*;
 
 import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
@@ -14,7 +16,6 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,11 +27,15 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -41,10 +46,12 @@ import frc.robot.commands.ExtendClimbToPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import frc.robot.Constants.LimeLight;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
 import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.util.RotatingSwerveControllerCommand;
@@ -63,12 +70,18 @@ public class RobotContainer {
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
   private Delivery delivery = new Delivery();
+  private Limelight limelight = new Limelight();
 
   // Driver controller and associated buttons
   private Logitech dStick = new Logitech(Driver.PORT);
   private JoystickButton da = new JoystickButton(dStick, A);
   private JoystickButton db = new JoystickButton(dStick, B);
+  private JoystickButton dx = new JoystickButton(dStick, X);
+  private JoystickButton dy = new JoystickButton(dStick, Y);
+  private JoystickButton dlb = new JoystickButton(dStick, LEFT_BUMPER);
   private JoystickButton dstart = new JoystickButton(dStick, START);
+
+  private static double RPM = 4000;
 
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
@@ -267,6 +280,54 @@ public class RobotContainer {
       )
     );
 
+    dx.whenPressed(
+      new InstantCommand(
+        () -> {
+          RPM -= 50;
+          SmartDashboard.putNumber("RPM", RPM);
+        }
+      )
+    );
+
+    dy.whenPressed(
+      new InstantCommand(
+        () -> {
+          RPM += 50;
+          SmartDashboard.putNumber("RPM", RPM);
+        }
+      )
+    );
+
+    dlb.whenPressed(
+      new RunCommand(
+        () -> {
+          shooter.setMotorRPM(RPM);
+          SmartDashboard.putNumber("RPM", RPM);
+          SmartDashboard.putNumber("Calculated RPM", shooter.calculateRPM(limelight.getY()));
+          if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+
+        }, 
+        
+      shooter
+      
+      )
+    )
+    .whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.setMotorRPM(0.0);
+          SmartDashboard.putNumber("RPM", RPM);
+
+        },
+
+        shooter
+        
+      )
+    );
+
     // ma.whileHeld(
     //   new InstantCommand(
     //     () -> {
@@ -276,6 +337,8 @@ public class RobotContainer {
     //     }
     //   )
     // );
+
+    
 
     // mb.whileHeld(
     //   new InstantCommand(
@@ -296,17 +359,68 @@ public class RobotContainer {
     // );
 
     mx.whenHeld(
-      new RunCommand(
-        () -> {
-          shooter.hoodDown();
-          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-          if (shooter.readyToShoot())
-            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
-            delivery.runMotor(0.0);
-        },
-        shooter, delivery
+      new ConditionalCommand(
+        parallel(
+          new PIDCommand(
+            new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
+            () -> limelight.getX(), 
+            LIMELIGHT_CENTER, 
+            (double output) -> {
+              // get inputs then square them, preserving sign
+              double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+              double str = dStick.getRawAxis(LEFT_STICK_X);
+              if (Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE) 
+                output = 0;
+
+              // pass inputs into drivetrain
+              swerveDrive.drive(
+                  -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+                  -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+                  output
+              );
+              if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+                swerveDrive.shiftDown();
+              } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+                swerveDrive.shiftUp();
+              }
+
+            },
+            swerveDrive
+            
+          ),
+          new RunCommand(
+            () -> {
+              shooter.hoodUp();
+              shooter.setMotorRPM(shooter.calculateRPM(limelight.getY()));
+              SmartDashboard.putNumber("RPM", shooter.calculateRPM(limelight.getY()));
+              if (shooter.readyToShoot())
+                delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+              else
+                delivery.runMotor(0.0);
+            }, 
+            shooter, delivery
+
+          )
+
+        ), 
+        
+        new RunCommand(
+          () -> {
+            shooter.hoodDown();
+            shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+            if (shooter.readyToShoot())
+              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+            else
+              delivery.runMotor(0.0);
+          },
+
+          shooter, delivery
+
+        ), 
+      
+        () -> limelight.targetDetected()
       )
+      
     ).whenReleased(
       new InstantCommand(
         () -> {
@@ -439,8 +553,6 @@ public class RobotContainer {
       )     
     );
   }
-
-
 
   public void configureAutonomousCommands() {
     autoChooser = new SendableChooser<>();
