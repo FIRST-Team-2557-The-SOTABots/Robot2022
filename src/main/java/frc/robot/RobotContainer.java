@@ -12,6 +12,7 @@ import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
 import java.util.List;
 
+import edu.wpi.first.math.Drake;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -68,7 +70,12 @@ public class RobotContainer {
   private Logitech dStick = new Logitech(Driver.PORT);
   private JoystickButton da = new JoystickButton(dStick, A);
   private JoystickButton db = new JoystickButton(dStick, B);
+  private JoystickButton dx = new JoystickButton(dStick, X);
+  private JoystickButton dy = new JoystickButton(dStick, Y);
+  private JoystickButton dlb = new JoystickButton(dStick, LEFT_BUMPER);
   private JoystickButton dstart = new JoystickButton(dStick, START);
+
+  private static double RPM = 4000;
 
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
@@ -264,6 +271,38 @@ public class RobotContainer {
           swerveDrive.resetGyro();
         },
         swerveDrive
+      )
+    );
+
+    dx.whenPressed(
+      new InstantCommand(
+        () -> {
+          RPM -= 500;
+          SmartDashboard.putNumber("RPM", RPM);
+        }
+      )
+    );
+
+    dy.whenPressed(
+      new InstantCommand(
+        () -> {
+          RPM += 500;
+          SmartDashboard.putNumber("RPM", RPM);
+        }
+      )
+    );
+
+    dlb.whenPressed(
+      new RunCommand(
+        () -> {
+          shooter.setMotorRPM(RPM);
+          SmartDashboard.putNumber("RPM", RPM);
+          SmartDashboard.putNumber("TY", limelight.getY());
+
+        }, 
+        
+      shooter
+      
       )
     );
 
@@ -498,8 +537,6 @@ public class RobotContainer {
       )     
     );
   }
-
-
 
   public void configureAutonomousCommands() {
     autoChooser = new SendableChooser<>();
