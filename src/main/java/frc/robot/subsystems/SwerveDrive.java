@@ -292,11 +292,7 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     updatePose();
-    ChassisSpeeds speeds = getMeasuredChassisSpeeds();
     SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
-    // SmartDashboard.putNumber("Chassy x Speed", speeds.vxMetersPerSecond);
-    // SmartDashboard.putNumber("Chassy y Speed", speeds.vyMetersPerSecond);
-    // SmartDashboard.putNumber("Chassy w Speed", speeds.omegaRadiansPerSecond);
     SmartDashboard.putNumber("Pose x", getPose().getX());
     SmartDashboard.putNumber("Pose y", getPose().getY());
     SmartDashboard.putNumber("gyro angle", getGyroAngle());

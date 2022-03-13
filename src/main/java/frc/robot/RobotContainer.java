@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
@@ -545,6 +546,62 @@ public class RobotContainer {
     PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1D = PathPlanner.loadPath("Path_1_D", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
 
+    CommandGroupBase autoShootCommand = parallel(
+      new PIDCommand(
+        new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
+        () -> limelight.getX(), 
+        LIMELIGHT_CENTER, 
+        (double output) -> {
+          if (Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE) 
+            output = 0;
+
+          swerveDrive.drive(0, 0, output);
+        },
+        swerveDrive
+      ),
+      new RunCommand(
+        () -> {
+          shooter.hoodUp();
+          shooter.setMotorRPM(shooter.calculateRPM(limelight.getY()));
+
+          if (shooter.readyToShoot())
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          else
+            delivery.runMotor(0.0);
+        }, 
+        shooter, delivery
+      )
+    );
+
+    RunCommand runAppendage = new RunCommand(
+      () -> {
+        intake.extend();
+        intake.run(Constants.Intake.SPEED);
+      }, 
+      intake
+    );
+
+    InstantCommand stopShooterDelivery = new InstantCommand(
+      () -> {
+        shooter.runFlywheel(0.0);
+        delivery.runMotor(0.0);
+      },
+      shooter, delivery
+    );
+
+    InstantCommand stopDrivetrain = new InstantCommand(
+      () -> {
+        swerveDrive.drive(0, 0, 0);
+      }
+    );
+    
+    InstantCommand resetAppendage = new InstantCommand(
+      () -> {
+        intake.retract();
+        intake.run(0.0);
+      }
+    );
+
     autoChooser.addOption("Auto 1",
       sequence(
         new InstantCommand(
@@ -554,99 +611,33 @@ public class RobotContainer {
           }, 
           swerveDrive
         ),
-        swerveDrive.generatePPSwerveControllerCommand(path1A),
-        new InstantCommand(() -> swerveDrive.drive(0, 0, 0)),
-        new RunCommand(
-          () -> {
-            shooter.hoodUp();
-            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-            if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        ).withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
-        new InstantCommand(
-          () -> {
-            shooter.runFlywheel(0.0);
-            delivery.runMotor(0.0);
-          },
-          shooter, delivery
+        race(
+          swerveDrive.generatePPSwerveControllerCommand(path1A),
+          runAppendage
         ),
+        stopDrivetrain,
+        resetAppendage,
+        autoShootCommand.withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
+        stopShooterDelivery,
         race(
           swerveDrive.generatePPSwerveControllerCommand(path1B),
-          sequence(
-            new WaitCommand(path1A.getTotalTimeSeconds() - Constants.Auto.INTAKE_EXTENSION_TIME),
-            new RunCommand(
-              () -> {
-                intake.extend();
-                intake.run(Constants.Intake.SPEED);
-              }, 
-              intake
-            )
-          )
+          runAppendage
         ),
-        new InstantCommand(
-          () -> {
-            swerveDrive.drive(0, 0, 0);
-            intake.retract();
-            intake.run(0.0);
-          }
-        ),
-        new RunCommand(
-          () -> {
-            shooter.hoodUp();
-            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-            if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        ).withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
-        new InstantCommand(
-          () -> {
-            shooter.runFlywheel(0.0);
-            delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        ),
+        resetAppendage,
+        stopDrivetrain,
+        autoShootCommand.withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        stopShooterDelivery,
         race(
           swerveDrive.generatePPSwerveControllerCommand(path1C),
-          new RunCommand(
-            () -> {
-              intake.extend();
-              intake.run(Constants.Intake.SPEED);
-            }, 
-            intake
-          )
+          runAppendage
         ),
-        new InstantCommand(
-          () -> {
-            swerveDrive.drive(0, 0, 0);
-            intake.retract();
-            intake.run(0.0);
-          }
-        ),
-        new RunCommand(
-          () -> {
-            shooter.hoodUp();
-            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-            if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        ).withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
-        new InstantCommand(
-          () -> {
-            shooter.runFlywheel(0.0);
-            delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        )
+        stopDrivetrain,
+        new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+        resetAppendage,
+        swerveDrive.generatePPSwerveControllerCommand(path1D),
+        stopDrivetrain,
+        autoShootCommand.withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
+        stopShooterDelivery
       )
     );
 

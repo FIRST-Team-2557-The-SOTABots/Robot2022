@@ -298,13 +298,14 @@ public final class Constants {
 
         public static final double ANGLE_PID_KP = 1.35;
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED; // in radians per second 
-        public static final double MAX_ANGULAR_ACCELERATION = Swerve.MAX_ANGULAR_SPEED / 1.0; // in radians per second per second
+        public static final double MAX_ANGULAR_ACCELERATION = Swerve.MAX_ANGULAR_SPEED / 0.2; // in radians per second per second
         
         public static final double INTAKE_EXTENSION_TIME = 0.6; // in seconds, time intake spends out
 
         public static final double PATH_1_SHOOT_1_DURATION = 2;
         public static final double PATH_1_SHOOT_2_DURATION = 4;
         public static final double PATH_1_SHOOT_3_DURATION = 3;
+        public static final double HUMAN_PLAYER_WAIT_TIME = 0.75;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 
