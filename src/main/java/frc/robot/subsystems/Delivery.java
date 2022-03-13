@@ -10,6 +10,7 @@ import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -35,6 +36,9 @@ public class Delivery extends SubsystemBase {
     sensor1Left = new ColorSensorV3(I2C.Port.kMXP);
     multiplexer.write(0x70, 1 << SENSOR_1_RIGHT_PORT); 
     sensor1Right = new ColorSensorV3(I2C.Port.kMXP);
+    SmartDashboard.putNumber("sensor left", sensor1Left.getIR());
+    SmartDashboard.putNumber("sensor right", sensor1Right.getIR());
+
   }
   
   public void runMotor(double speed) {
@@ -66,5 +70,6 @@ public class Delivery extends SubsystemBase {
 
   @Override
   public void periodic() {
+    
   }
 }

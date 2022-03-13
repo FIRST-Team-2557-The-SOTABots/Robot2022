@@ -300,7 +300,7 @@ public final class Constants {
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 2; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
-        public static final double INTAKE_EXTENSION_TIME = 0.6; // in seconds, time intake spends out
+        public static final double FLYWHEEL_IDLE_SPEED = 3000; // in seconds, time intake spends out
 
         public static final double PATH_1_SHOOT_1_DURATION = 3;
         public static final double PATH_1_SHOOT_2_DURATION = 3;

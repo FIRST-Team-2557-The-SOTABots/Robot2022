@@ -502,7 +502,8 @@ public class RobotContainer {
         ),
         race(
           generatePPSwerveControllerCommand(path1A),
-          generateRunAppendageCommand()
+          generateRunAppendageCommand(),
+          generateRevFlywheelCommand()
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -510,7 +511,8 @@ public class RobotContainer {
         generateStopShooterDeliveryCommand(),
         race(
           generatePPSwerveControllerCommand(path1B),
-          generateRunAppendageCommand()
+          generateRunAppendageCommand(),
+          generateRevFlywheelCommand()
         ),
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
@@ -529,6 +531,13 @@ public class RobotContainer {
         // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         // generateStopShooterDeliveryCommand()
       )
+    );
+  }
+
+  private RunCommand generateRevFlywheelCommand() {
+    return new RunCommand(
+      () -> shooter.setMotorRPM(Constants.Auto.FLYWHEEL_IDLE_SPEED), 
+      shooter
     );
   }
 
