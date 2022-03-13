@@ -66,8 +66,5 @@ public class Delivery extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("sensor left", getSensor1Left());
-    SmartDashboard.putNumber("sensor right", getSensor1Right());
-    SmartDashboard.putBoolean("getSensor1", getSensor1());
   }
 }

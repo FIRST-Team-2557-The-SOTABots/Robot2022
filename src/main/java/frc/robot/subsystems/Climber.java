@@ -197,24 +197,6 @@ public class Climber extends SubsystemBase {
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
   }
 
-  public ParallelRaceGroup generateAnglePIDCommand(AngleMovement angleMovement) {
-    return new PIDCommand(
-      new PIDController(angleMovement.kp, angleMovement.ki, angleMovement.kd),
-      () -> this.getAngleEncoderPosition(), 
-      angleMovement.setpoint,
-      (double output) -> {
-        runAngle(output);
-      }
-    ).withInterrupt(
-      () -> {
-        if (angleMovement == AngleMovement.HOLD_HIGH)
-          return false;
-        else
-          return Math.abs(angleMovement.setpoint - getAngleEncoderPosition()) < angleMovement.tolerance;
-      }
-    );
-  }
-
   @Override
   public void periodic() {
     if (getLeftBotMagLimit())

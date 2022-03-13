@@ -281,8 +281,8 @@ public final class Constants {
         public static final int SENSOR_1_RIGHT_PORT = 1;
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
-        public static final int SENSOR_1_LEFT_THRESHOLD = 100;
-        public static final int SENSOR_1_RIGHT_THRESHOLD = 80;
+        public static final int SENSOR_1_LEFT_THRESHOLD = 105;
+        public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
         public static final double INDEXING_SPEED = 0.45;
         public static final double SHOOTING_SPEED = 0.7;
         public static final boolean MOTOR_INVERTED = true;
@@ -292,20 +292,20 @@ public final class Constants {
     }
 
     public static class Auto {
-        public static final double TRANSLATE_PID_KP = 1.3;
+        public static final double TRANSLATE_PID_KP = 2;
         public static final double MAX_WHEEL_SPEED = Swerve.MAX_WHEEL_SPEED; // in meters per second 
         public static final double MAX_WHEEL_ACCELERATION = Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
-        public static final double ANGLE_PID_KP = 1.35;
-        public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED; // in radians per second 
-        public static final double MAX_ANGULAR_ACCELERATION = Swerve.MAX_ANGULAR_SPEED / 0.2; // in radians per second per second
+        public static final double ANGLE_PID_KP = 3;
+        public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 2; // in radians per second 
+        public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
         public static final double INTAKE_EXTENSION_TIME = 0.6; // in seconds, time intake spends out
 
-        public static final double PATH_1_SHOOT_1_DURATION = 2;
-        public static final double PATH_1_SHOOT_2_DURATION = 4;
+        public static final double PATH_1_SHOOT_1_DURATION = 3;
+        public static final double PATH_1_SHOOT_2_DURATION = 3;
         public static final double PATH_1_SHOOT_3_DURATION = 3;
-        public static final double HUMAN_PLAYER_WAIT_TIME = 0.75;
+        public static final double HUMAN_PLAYER_WAIT_TIME = 3;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 

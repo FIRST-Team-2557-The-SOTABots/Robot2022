@@ -48,7 +48,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     m_autoChooser = m_robotContainer.getAutonomousChooser();
-    SmartDashboard.putData(m_autoChooser);
+    SmartDashboard.putData("Auto", m_autoChooser);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -76,7 +76,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    m_robotContainer.resetRobot(); // TODO delete
+    m_robotContainer.resetRobot();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

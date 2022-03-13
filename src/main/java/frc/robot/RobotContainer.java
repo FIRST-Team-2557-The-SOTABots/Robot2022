@@ -10,33 +10,21 @@ import static frc.robot.Constants.LimeLight.*;
 
 import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
-import java.util.List;
-
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -44,10 +32,11 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AngleProfiledPIDCommand;
 import frc.robot.commands.ExtendClimbToPosition;
+import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.Constants.LimeLight;
+import frc.robot.Constants.Climber.AngleMovement;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
 import frc.robot.subsystems.Delivery;
@@ -55,7 +44,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.util.RotatingSwerveControllerCommand;
+import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -81,8 +70,6 @@ public class RobotContainer {
   private JoystickButton dy = new JoystickButton(dStick, Y);
   private JoystickButton dlb = new JoystickButton(dStick, LEFT_BUMPER);
   private JoystickButton dstart = new JoystickButton(dStick, START);
-
-  private static double RPM = 4000;
 
   // Manipulator controller and associated buttons
   private Logitech mStick = new Logitech(Manipulator.PORT);
@@ -151,38 +138,23 @@ public class RobotContainer {
     );
 
     delivery.setDefaultCommand(
-      new RunCommand(
-        () -> {
-          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0) {
-            if (mb.get())
-              delivery.runMotor(-Constants.Delivery.INDEXING_SPEED);
-            else
-              delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
-          } else
-            delivery.runMotor(0.0);
-        }, 
-        delivery  
+      sequence(
+        new WaitUntilCommand(() -> delivery.getSensor1()),
+        parallel(
+          new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+          new UninterruptibleProxyScheduleCommand(
+            new RunCommand(
+              () -> {
+                intake.retract();
+                intake.run(0.0);
+              }, 
+              intake
+            ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
+          )
+        ),
+        new WaitCommand(Constants.Delivery.COOLDOWN)
       )
     );
-
-    // delivery.setDefaultCommand(
-    //   new SequentialCommandGroup(
-    //     new WaitUntilCommand(() -> delivery.getSensor1()),
-    //     new ParallelCommandGroup(
-    //       new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
-    //       new UninterruptibleProxyScheduleCommand(
-    //         new RunCommand(
-    //           () -> {
-    //             intake.retract();
-    //             intake.run(0.0);
-    //           }, 
-    //           intake
-    //         ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
-    //       )
-    //     ),
-    //     new WaitCommand(Constants.Delivery.COOLDOWN)
-    //   )
-    // );
 
     climber.setDefaultCommand(
       new RunCommand(
@@ -389,11 +361,11 @@ public class RobotContainer {
           SmartDashboard.putString("waiting", "step 2");
           return mrb.get();}),
         new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
+        generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
         new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber).withTimeout(Constants.Climber.ANGLED_EXTEND_TIMEOUT),
         new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
         new ParallelRaceGroup(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
+          generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
           sequence(
             new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
             new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
@@ -409,11 +381,11 @@ public class RobotContainer {
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
         ),
         parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
+          generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
         ),
         parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
+          generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
         ),
         new ParallelRaceGroup(
@@ -429,11 +401,11 @@ public class RobotContainer {
           SmartDashboard.putString("waiting", "step 2");
           return mrb.get();}),
         new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
-        climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
+        generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
         new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber).withTimeout(Constants.Climber.ANGLED_EXTEND_TIMEOUT),
         new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
         new ParallelRaceGroup(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
+          generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
           sequence(
             new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
             new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
@@ -449,11 +421,11 @@ public class RobotContainer {
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
         ),
         parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
+          generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
         ),
         parallel(
-          climber.generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
+          generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
           new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
         ),
         new ParallelRaceGroup(
@@ -514,39 +486,91 @@ public class RobotContainer {
       )
     );
 
-    // autoChooser.addOption("2 ball general",
-    //   sequence (
-    //     new InstantCommand(() -> swerveDrive.setFieldCentricActive(false)),
-    //     new ParallelDeadlineGroup(
-    //       new RunCommand(() -> swerveDrive.drive(-1, 0, 0.0), swerveDrive).withTimeout(Constants.Auto.BACK_UP_AUTO_DURATION),
-    //       sequence(
-    //         new WaitCommand(0.0),
-    //         new InstantCommand(
-    //           () -> {
-    //             intake.extend();
-    //             intake.run(Constants.Intake.SPEED);
-    //           },
-    //           intake
-    //         )
-    //       ),
-    //       new InstantCommand(
-    //         () -> {
-    //           intake.retract();
-    //           intake.run(0.0);
-    //         },
-    //         intake
-    //       )
-    //     ),
-    //     new RunCommand(() -> swerveDrive.drive(0.0, 0, 0), swerveDrive).withTimeout(0.0)
-    //   )
-    // );
-
     PathPlannerTrajectory path1A = PathPlanner.loadPath("Path_1_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1B = PathPlanner.loadPath("Path_1_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1D = PathPlanner.loadPath("Path_1_D", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
 
-    CommandGroupBase autoShootCommand = parallel(
+    autoChooser.addOption("Auto 1",
+      sequence(
+        new InstantCommand(
+          () -> {
+            swerveDrive.shiftUp();
+            swerveDrive.setPose(path1A.getInitialState());
+          }, 
+          swerveDrive
+        ),
+        race(
+          generatePPSwerveControllerCommand(path1A),
+          generateRunAppendageCommand()
+        ),
+        generateStopDrivetrainCommand(),
+        generateResetAppendageCommand(),
+        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
+        generateStopShooterDeliveryCommand(),
+        race(
+          generatePPSwerveControllerCommand(path1B),
+          generateRunAppendageCommand()
+        ),
+        generateResetAppendageCommand(),
+        generateStopDrivetrainCommand(),
+        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        generateStopShooterDeliveryCommand()
+        // TODO: needs tuning
+        // race(
+        //   generatePPSwerveControllerCommand(path1C),
+        //   generateRunAppendageCommand()
+        // ),
+        // generateStopDrivetrainCommand(),
+        // new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+        // generateResetAppendageCommand()
+        // generatePPSwerveControllerCommand(path1D),
+        // generateStopDrivetrainCommand(),
+        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
+        // generateStopShooterDeliveryCommand()
+      )
+    );
+  }
+
+  private InstantCommand generateResetAppendageCommand() {
+    return new InstantCommand(
+      () -> {
+        intake.retract();
+        intake.run(0.0);
+      }
+    );
+  }
+
+  private InstantCommand generateStopDrivetrainCommand() {
+    return new InstantCommand(
+      () -> {
+        swerveDrive.drive(0, 0, 0);
+      }
+    );
+  }
+
+  private InstantCommand generateStopShooterDeliveryCommand() {
+    return new InstantCommand(
+      () -> {
+        shooter.runFlywheel(0.0);
+        delivery.runMotor(0.0);
+      },
+      shooter, delivery
+    );
+  }
+
+  private RunCommand generateRunAppendageCommand() {
+    return new RunCommand(
+      () -> {
+        intake.extend();
+        intake.run(Constants.Intake.SPEED);
+      }, 
+      intake
+    );
+  }
+
+  private CommandGroupBase generateAutoShootCommand() {
+    return parallel(
       new PIDCommand(
         new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
         () -> limelight.getX(), 
@@ -572,104 +596,43 @@ public class RobotContainer {
         shooter, delivery
       )
     );
-
-    RunCommand runAppendage = new RunCommand(
-      () -> {
-        intake.extend();
-        intake.run(Constants.Intake.SPEED);
-      }, 
-      intake
-    );
-
-    InstantCommand stopShooterDelivery = new InstantCommand(
-      () -> {
-        shooter.runFlywheel(0.0);
-        delivery.runMotor(0.0);
-      },
-      shooter, delivery
-    );
-
-    InstantCommand stopDrivetrain = new InstantCommand(
-      () -> {
-        swerveDrive.drive(0, 0, 0);
-      }
-    );
-    
-    InstantCommand resetAppendage = new InstantCommand(
-      () -> {
-        intake.retract();
-        intake.run(0.0);
-      }
-    );
-
-    autoChooser.addOption("Auto 1",
-      sequence(
-        new InstantCommand(
-          () -> {
-            swerveDrive.shiftUp();
-            swerveDrive.setPose(path1A.getInitialState());
-          }, 
-          swerveDrive
-        ),
-        race(
-          swerveDrive.generatePPSwerveControllerCommand(path1A),
-          runAppendage
-        ),
-        stopDrivetrain,
-        resetAppendage,
-        autoShootCommand.withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
-        stopShooterDelivery,
-        race(
-          swerveDrive.generatePPSwerveControllerCommand(path1B),
-          runAppendage
-        ),
-        resetAppendage,
-        stopDrivetrain,
-        autoShootCommand.withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
-        stopShooterDelivery,
-        race(
-          swerveDrive.generatePPSwerveControllerCommand(path1C),
-          runAppendage
-        ),
-        stopDrivetrain,
-        new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-        resetAppendage,
-        swerveDrive.generatePPSwerveControllerCommand(path1D),
-        stopDrivetrain,
-        autoShootCommand.withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
-        stopShooterDelivery
-      )
-    );
-
-    // autoChooser.addOption("3 ball",
-    //   new RotatingSwerveControllerCommand(
-    //     TrajectoryGenerator.generateTrajectory(
-    //       new Pose2d(0, 0, new Rotation2d(0.0)),
-    //       List.of(
-    //         new Translation2d(1, 0),
-    //         new Translation2d(2, 0)
-    //       ),
-    //       new Pose2d(3, 0, new Rotation2d(0.0)),
-    //       new TrajectoryConfig(
-    //         Constants.Auto.MAX_WHEEL_SPEED, 
-    //         Constants.Auto.MAX_WHEEL_ACCELERATION
-    //       ).setKinematics(swerveDrive.getKinematics())
-    //     ), 
-    //     () -> swerveDrive.getSwervePose(), 
-    //     swerveDrive.getKinematics(), 
-    //     new PIDController(Constants.Auto.X_PID_KP, 0.0, 0.0), 
-    //     new PIDController(Constants.Auto.Y_PID_KP, 0.0, 0.0), 
-    //     new ProfiledPIDController(
-    //       Constants.Auto.ANGLE_PID_KP, 0.0, 0.0, 
-    //       new TrapezoidProfile.Constraints(Constants.Auto.MAX_ANGULAR_SPEED, Constants.Auto.MAX_ANGULAR_ACCELERATION)
-    //     ),
-    //     (SwerveModuleState[] states) -> swerveDrive.drive(states), 
-    //     swerveDrive
-    //   )
-    // );
   }
 
+  public ParallelRaceGroup generateAnglePIDCommand(AngleMovement angleMovement) {
+    return new PIDCommand(
+      new PIDController(angleMovement.kp, angleMovement.ki, angleMovement.kd),
+      () -> climber.getAngleEncoderPosition(), 
+      angleMovement.setpoint,
+      (double output) -> {
+        climber.runAngle(output);
+      }
+    ).withInterrupt(
+      () -> {
+        if (angleMovement == AngleMovement.HOLD_HIGH)
+          return false;
+        else
+          return Math.abs(angleMovement.setpoint - climber.getAngleEncoderPosition()) < angleMovement.tolerance;
+      }
+    );
+  }
 
+  public PPSwerveControllerCommand generatePPSwerveControllerCommand(PathPlannerTrajectory trajectory) {
+    return new PPSwerveControllerCommand(
+      trajectory, 
+      swerveDrive::getPose,
+      swerveDrive.getKinematics(), 
+      new PIDController(Constants.Auto.TRANSLATE_PID_KP, 0, 0), 
+      new PIDController(Constants.Auto.TRANSLATE_PID_KP, 0, 0), 
+      new ProfiledPIDController(
+        Constants.Auto.ANGLE_PID_KP, 0, 0, 
+        new TrapezoidProfile.Constraints(
+          Constants.Auto.MAX_ANGULAR_SPEED, Constants.Auto.MAX_ANGULAR_ACCELERATION
+        )
+      ), 
+      swerveDrive::drive, 
+      swerveDrive
+    );
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

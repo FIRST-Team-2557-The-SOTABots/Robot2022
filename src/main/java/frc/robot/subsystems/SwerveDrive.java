@@ -268,26 +268,6 @@ public class SwerveDrive extends SubsystemBase {
 
 
 
-  public PPSwerveControllerCommand generatePPSwerveControllerCommand(PathPlannerTrajectory trajectory) {
-    return new PPSwerveControllerCommand(
-      trajectory, 
-      this::getPose,
-      getKinematics(), 
-      new PIDController(Constants.Auto.TRANSLATE_PID_KP, 0, 0), 
-      new PIDController(Constants.Auto.TRANSLATE_PID_KP, 0, 0), 
-      new ProfiledPIDController(
-        Constants.Auto.ANGLE_PID_KP, 0, 0, 
-        new TrapezoidProfile.Constraints(
-          Constants.Auto.MAX_ANGULAR_SPEED, Constants.Auto.MAX_ANGULAR_ACCELERATION
-        )
-      ), 
-      this::drive, 
-      this
-    );
-  }
-
-
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -296,6 +276,5 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Pose x", getPose().getX());
     SmartDashboard.putNumber("Pose y", getPose().getY());
     SmartDashboard.putNumber("gyro angle", getGyroAngle());
-    SmartDashboard.putNumber("pose angle", getPose().getRotation().getRadians());
   }
 }
