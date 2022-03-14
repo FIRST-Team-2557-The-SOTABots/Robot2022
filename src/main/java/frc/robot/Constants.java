@@ -281,9 +281,9 @@ public final class Constants {
         public static final int SENSOR_1_RIGHT_PORT = 1;
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
-        public static final int SENSOR_1_LEFT_THRESHOLD = 105;
+        public static final int SENSOR_1_LEFT_THRESHOLD = 120;
         public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
-        public static final double INDEXING_SPEED = 0.45;
+        public static final double INDEXING_SPEED = 0.5;
         public static final double SHOOTING_SPEED = 0.7;
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 1.0; // in seconds
@@ -297,7 +297,7 @@ public final class Constants {
         public static final double MAX_WHEEL_ACCELERATION = Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
         public static final double ANGLE_PID_KP = 3;
-        public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 2; // in radians per second 
+        public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
         public static final double FLYWHEEL_IDLE_SPEED = 3000; // in seconds, time intake spends out

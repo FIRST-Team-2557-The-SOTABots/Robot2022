@@ -517,19 +517,21 @@ public class RobotContainer {
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
         generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        generateStopShooterDeliveryCommand(),
+        race(
+          generatePPSwerveControllerCommand(path1C),
+          generateRunAppendageCommand()
+        ),
+        generateStopDrivetrainCommand(),
+        new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+        generateResetAppendageCommand(),
+        race(
+          generatePPSwerveControllerCommand(path1D),
+          generateRevFlywheelCommand()
+        ),
+        generateStopDrivetrainCommand(),
+        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         generateStopShooterDeliveryCommand()
-        // TODO: needs tuning
-        // race(
-        //   generatePPSwerveControllerCommand(path1C),
-        //   generateRunAppendageCommand()
-        // ),
-        // generateStopDrivetrainCommand(),
-        // new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-        // generateResetAppendageCommand()
-        // generatePPSwerveControllerCommand(path1D),
-        // generateStopDrivetrainCommand(),
-        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
-        // generateStopShooterDeliveryCommand()
       )
     );
   }
