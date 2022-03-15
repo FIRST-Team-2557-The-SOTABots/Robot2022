@@ -56,6 +56,10 @@ public class Delivery extends SubsystemBase {
     return sensor1Right.getIR();
   }
 
+  /**
+   * Returns true if either sensor is tripped
+   * @return if either sensor is tripped
+   */
   public boolean getSensor1() {
     return getSensor1Left() > SENSOR_1_LEFT_THRESHOLD || getSensor1Right() > SENSOR_1_RIGHT_THRESHOLD;
 

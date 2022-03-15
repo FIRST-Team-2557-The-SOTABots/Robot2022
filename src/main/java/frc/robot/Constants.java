@@ -188,7 +188,7 @@ public final class Constants {
         public static final double TALON_ENCODER_CPR = 2048;
 
         // These are gear ratios, the number of rotations of driving gear per rotation of driven gear
-        public static final double[] DRIVE_GEAR_RATIOS = {13.6 / 1, 6.5 / 1}; // order is low gear, high gear
+        public static final double[] DRIVE_GEAR_RATIOS = {13.68 / 1, 6.5 / 1}; // order is low gear, high gear
         public static final double TURN_GEAR_RATIO = 16 / 1;
 
         public static final int NUM_MODULES = 4;
@@ -293,8 +293,8 @@ public final class Constants {
 
     public static class Auto {
         public static final double TRANSLATE_PID_KP = 2;
-        public static final double MAX_WHEEL_SPEED = Swerve.MAX_WHEEL_SPEED; // in meters per second 
-        public static final double MAX_WHEEL_ACCELERATION = Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
+        public static final double MAX_WHEEL_SPEED = 4.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = 4.0; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
         public static final double ANGLE_PID_KP = 3;
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
