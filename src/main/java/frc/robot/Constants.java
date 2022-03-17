@@ -157,7 +157,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS = {2.800, 2.105, 0.922, 0.078}; //{2.251, 2.876, 4.121, 4.902}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS = {0.789, 4.531, 3.922, 0.905}; //{2.251, 2.876, 4.121, 4.902}; // in encoder counts
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
 
@@ -277,18 +277,19 @@ public final class Constants {
     }
 
     public static class Delivery {
-        public static final int SENSOR_1_LEFT_PORT = 0;
-        public static final int SENSOR_1_RIGHT_PORT = 1;
+        public static final int SENSOR_1_PORT = 22; // TODO fix
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
         public static final int SENSOR_1_LEFT_THRESHOLD = 120;
         public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
+        public static final int SENSOR_1_THRESHOLD = 30;
         public static final double INDEXING_SPEED = 0.5;
         public static final double SHOOTING_SPEED = 0.7;
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 1.0; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
+        public static final double SENSOR_1_FILTER_TIME_CONSTANT = 0.1; // in seconds
     }
 
     public static class Auto {

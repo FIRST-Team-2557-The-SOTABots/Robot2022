@@ -31,10 +31,12 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AngleProfiledPIDCommand;
+import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.commands.ExtendClimbToPosition;
 import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
+import frc.robot.util.UnendingProxyScheduleCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.Constants.Climber.AngleMovement;
 import frc.robot.Constants.Control.Driver;
@@ -342,101 +344,7 @@ public class RobotContainer {
     mlb.whenPressed(
       sequence(
         new InstantCommand(() -> shooter.hoodDown()),
-        new InstantCommand(() -> climber.unlock()),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_TOP, climber),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 1");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_BOTTOM, climber),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> {
-              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-            }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION).andThen(() -> climber.runAngle(0)),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
-        ),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 2");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
-        generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber).withTimeout(Constants.Climber.ANGLED_EXTEND_TIMEOUT),
-        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
-        new ParallelRaceGroup(
-          generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
-          sequence(
-            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
-            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
-          )
-        ),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 3");
-          return mrb.get();}),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
-          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
-        ),
-        parallel(
-          generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
-        ),
-        parallel(
-          generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
-        ),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> {
-              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-            }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION_2).andThen(() -> climber.runAngle(0)),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
-        ),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 2");
-          return mrb.get();}),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.EVEN_TO_MID, climber),
-        generateAnglePIDCommand(Constants.Climber.AngleMovement.MID_TO_MAX),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_TOP, climber).withTimeout(Constants.Climber.ANGLED_EXTEND_TIMEOUT),
-        new AngleProfiledPIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH, climber),
-        new ParallelRaceGroup(
-          generateAnglePIDCommand(Constants.Climber.AngleMovement.HOLD_HIGH),
-          sequence(
-            new WaitCommand(Constants.Climber.ANGLE_PID_PAUSE),
-            new ExtendClimbToPosition(Constants.Climber.ExtendMovement.TOP_TO_HIGH, climber)
-          )
-        ),
-        new WaitUntilCommand(() -> {
-          SmartDashboard.putString("waiting", "step 3");
-          return mrb.get();}),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED)
-          ).andThen(new InstantCommand(() -> climber.runAngle(0.0))),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HIGH_TO_BOTTOM, climber)
-        ),
-        parallel(
-          generateAnglePIDCommand(Constants.Climber.AngleMovement.MAX_TO_HIGH_NO_LOAD),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_MID, climber)
-        ),
-        parallel(
-          generateAnglePIDCommand(Constants.Climber.AngleMovement.HIGH_TO_MIN),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.MID_TO_BOTTOM, climber)
-        ),
-        new ParallelRaceGroup(
-          new RunCommand(
-            () -> {
-              climber.runAngle(Constants.Climber.TIMED_ANGLE_SPEED);
-            }
-          ).withTimeout(Constants.Climber.TIMED_ANGLE_DURATION_2).andThen(() -> climber.runAngle(0)),
-          new ExtendClimbToPosition(Constants.Climber.ExtendMovement.HANG_BOTTOM, climber)
-        ),
-        new ExtendClimbToPosition(Constants.Climber.ExtendMovement.BOTTOM_TO_EVEN, climber)
+        new ClimbSequenceCommand(climber, mrb)
       )     
     );
   }
@@ -500,7 +408,7 @@ public class RobotContainer {
           }, 
           swerveDrive
         ),
-        race(
+        deadline(
           generatePPSwerveControllerCommand(path1A),
           generateRunAppendageCommand(),
           generateRevFlywheelCommand()
@@ -508,30 +416,34 @@ public class RobotContainer {
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
         generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
-        generateStopShooterDeliveryCommand(),
-        race(
-          generatePPSwerveControllerCommand(path1B),
-          generateRunAppendageCommand(),
-          generateRevFlywheelCommand()
-        ),
-        generateResetAppendageCommand(),
-        generateStopDrivetrainCommand(),
-        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
-        generateStopShooterDeliveryCommand(),
-        race(
-          generatePPSwerveControllerCommand(path1C),
-          generateRunAppendageCommand()
-        ),
-        generateStopDrivetrainCommand(),
-        new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-        generateResetAppendageCommand(),
-        race(
-          generatePPSwerveControllerCommand(path1D),
-          generateRevFlywheelCommand()
-        ),
-        generateStopDrivetrainCommand(),
-        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         generateStopShooterDeliveryCommand()
+        // deadline( 
+        //   // i think run appendage ends because delivery default interrupts it, this was a race so everything else was also interrupted...
+        //   // now it's a deadline so even if run appendage is interrupted path following continues...
+        //   // run appendage being interrupted by the proxy schedule in delivery default should make it go in and stop, it needs to come back out...
+        //   // make a util command that schedules itself if its requirements or free / if another specified command isn't scheduled, repeatedly
+        //   generatePPSwerveControllerCommand(path1B),
+        //   generateRunAppendageCommand(),
+        //   generateRevFlywheelCommand()
+        // ),
+        // generateResetAppendageCommand(),
+        // generateStopDrivetrainCommand(),
+        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        // generateStopShooterDeliveryCommand(),
+        // deadline(
+        //   generatePPSwerveControllerCommand(path1C),
+        //   generateRunAppendageCommand()
+        // ),
+        // generateStopDrivetrainCommand(),
+        // new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+        // generateResetAppendageCommand(),
+        // race(
+        //   generatePPSwerveControllerCommand(path1D),
+        //   generateRevFlywheelCommand()
+        // ),
+        // generateStopDrivetrainCommand(),
+        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
+        // generateStopShooterDeliveryCommand()
       )
     );
   }
@@ -570,13 +482,22 @@ public class RobotContainer {
     );
   }
 
-  private RunCommand generateRunAppendageCommand() {
-    return new RunCommand(
-      () -> {
-        intake.extend();
-        intake.run(Constants.Intake.SPEED);
-      }, 
-      intake
+  /**
+   * Creates an {@link UnendingProxyScheduleCommand} to repeatedly schedule the intake to extend and run.
+   * This allows the command itself to be interrupted by the delivery default command then become scheduled again,
+   * while still allowing the proxy command itself to be interrupted.
+   * 
+   * @return a command to run the intake during autonomous
+   */
+  private UnendingProxyScheduleCommand generateRunAppendageCommand() {
+    return new UnendingProxyScheduleCommand(
+        new RunCommand(
+        () -> {
+          intake.extend();
+          intake.run(Constants.Intake.SPEED);
+        }, 
+        intake
+      )
     );
   }
 
