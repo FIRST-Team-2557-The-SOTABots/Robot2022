@@ -61,7 +61,7 @@ public class RobotContainer {
   private SwerveDrive swerveDrive = new SwerveDrive();
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
-  private Delivery delivery = new Delivery();
+  private Delivery delivery = new Delivery(intake);
   private Limelight limelight = new Limelight();
 
   // Driver controller and associated buttons

@@ -233,6 +233,7 @@ public final class Constants {
         public static final Value EXTEND_VALUE = Value.kReverse;
         public static final Value RETRACT_VALUE = Value.kForward;
         public static final double SPEED = 0.9;
+        public static final double EXTEND_TIME = 0.8;
     }
 
     public static class Shooter {
@@ -277,7 +278,7 @@ public final class Constants {
     }
 
     public static class Delivery {
-        public static final int SENSOR_1_PORT = 22; // TODO fix
+        public static final int SENSOR_1_PORT = 7; // TODO fix
         public static final int SENSOR_2_PORT = 0;
         public static final int MOTOR_PORT = 4;
         public static final int SENSOR_1_LEFT_THRESHOLD = 120;

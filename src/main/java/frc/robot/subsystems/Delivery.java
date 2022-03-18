@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Delivery.*;
@@ -17,20 +18,18 @@ public class Delivery extends SubsystemBase {
   private WPI_TalonSRX deliveryMotor;
 
   private DigitalInput sensor1;
-  private boolean sensor1Previous;
-  private boolean sensor1Changed;
   private DigitalInput sensor2;
+  private Intake intake;
 
-  public Delivery() {
+  public Delivery(Intake intake) {
     deliveryMotor = new WPI_TalonSRX(MOTOR_PORT);
     deliveryMotor.configFactoryDefault();
     deliveryMotor.setInverted(MOTOR_INVERTED);
     deliveryMotor.setNeutralMode(NeutralMode.Brake);
 
     sensor1 = new DigitalInput(SENSOR_1_PORT);
-    sensor1Previous = false;
-    sensor1Changed = false;
     sensor2 = new DigitalInput(SENSOR_2_PORT);
+    this.intake = intake;
   }
   
   public void runMotor(double speed) {
@@ -42,7 +41,11 @@ public class Delivery extends SubsystemBase {
    * @return whether the sensor state changed this loop
    */
   public boolean getSensor1() {
-    return sensor1Changed;
+    if (intake.isRetracted()) {
+      return false;
+    } else {
+      return !sensor1.get();
+    }
   }
   
   public boolean getSensor2() {
@@ -51,11 +54,5 @@ public class Delivery extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (sensor1Previous != sensor1.get()) {
-      sensor1Changed = true;
-    } else {
-      sensor1Changed = false;
-    }
-    sensor1Previous = sensor1.get();
   }
 }
