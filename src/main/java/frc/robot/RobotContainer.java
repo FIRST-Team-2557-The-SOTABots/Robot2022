@@ -344,7 +344,7 @@ public class RobotContainer {
     mlb.whenPressed(
       sequence(
         new InstantCommand(() -> shooter.hoodDown()),
-        new ClimbSequenceCommand(climber, mrb)
+        new ClimbSequenceCommand(climber, mrb::get)
       )     
     );
   }

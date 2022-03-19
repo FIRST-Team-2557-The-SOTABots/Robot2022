@@ -11,17 +11,18 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.Climber;
 
 import static frc.robot.Constants.Climber.*;
+
+import java.util.function.BooleanSupplier;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ClimbSequenceCommand extends SequentialCommandGroup {
   /** Creates a new ClimbSequenceCommand. */
-  public ClimbSequenceCommand(Climber climber, JoystickButton button) {
+  public ClimbSequenceCommand(Climber climber, BooleanSupplier button) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -29,7 +30,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       new ExtendClimbToPosition(ExtendMovement.BOTTOM_TO_TOP, climber),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("waiting", "step 1");
-        return button.get();}),
+        return button.getAsBoolean();}),
       new ExtendClimbToPosition(ExtendMovement.TOP_TO_BOTTOM, climber),
       new ParallelRaceGroup(
         new RunCommand(
@@ -42,7 +43,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       new ExtendClimbToPosition(ExtendMovement.BOTTOM_TO_EVEN, climber),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("waiting", "step 2");
-        return button.get();}),
+        return button.getAsBoolean();}),
       new ExtendClimbToPosition(ExtendMovement.EVEN_TO_MID, climber),
       new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
       new ExtendClimbToPosition(ExtendMovement.MID_TO_TOP, climber).withTimeout(ANGLED_EXTEND_TIMEOUT),
@@ -56,7 +57,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       ),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("waiting", "step 3");
-        return button.get();}),
+        return button.getAsBoolean();}),
       new ParallelRaceGroup(
         new RunCommand(
           () -> climber.runAngle(TIMED_ANGLE_SPEED)
@@ -82,7 +83,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       new ExtendClimbToPosition(ExtendMovement.BOTTOM_TO_EVEN, climber),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("waiting", "step 2");
-        return button.get();}),
+        return button.getAsBoolean();}),
       new ExtendClimbToPosition(ExtendMovement.EVEN_TO_MID, climber),
       new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
       new ExtendClimbToPosition(ExtendMovement.MID_TO_TOP, climber).withTimeout(ANGLED_EXTEND_TIMEOUT),
@@ -96,7 +97,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       ),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("waiting", "step 3");
-        return button.get();}),
+        return button.getAsBoolean();}),
       new ParallelRaceGroup(
         new RunCommand(
           () -> climber.runAngle(TIMED_ANGLE_SPEED)
