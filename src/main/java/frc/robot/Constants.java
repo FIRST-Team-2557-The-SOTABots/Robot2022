@@ -28,10 +28,10 @@ public final class Constants {
         public static final int RIGHT_HOOK_ENCODER_PORT = 3;
         public static final int LEFT_BOT_MAG_SENSOR_PORT = 1; 
         public static final int RIGHT_BOT_MAG_SENSOR_PORT = 2; 
-        public static final int LEFT_TOP_MAG_SENSOR_PORT = 5; // TODO get correct port num
-        public static final int RIGHT_TOP_MAG_SENSOR_PORT = 6; // TODO get correct port num
+        public static final int LEFT_TOP_MAG_SENSOR_PORT = 5;
+        public static final int RIGHT_TOP_MAG_SENSOR_PORT = 6;
         public static final int ANGLE_MOTOR_PORT = 5;
-        public static final int ANGLE_ENCODER_PORT = 0; // TODO: get correct port num
+        public static final int ANGLE_ENCODER_PORT = 0;
         public static final int SOLENOID_CHANNEL_A = 2;
         public static final int SOLENOID_CHANNEL_B = 3;
 
@@ -174,10 +174,10 @@ public final class Constants {
         public static final double[] SPEED_FEEDFORWARD_KS = {0.6284, 0.6284, 0.6284, 0.6284}; //0.4000}; // in volts
         public static final double[] SPEED_FEEDFORWARD_KV = {0.0005339, 0.0005339, 0.0005339, 0.0005339}; //0.0005851}; // in volt seconds per encoder tick
 
-        public static final double SPEED_PID_KP = 0.001; // TODO: update
+        public static final double SPEED_PID_KP = 0.001;
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
-        public static final double SPEED_PID_TOLERANCE = 0.05; // TODO: update
+        public static final double SPEED_PID_TOLERANCE = 0.05; // in motor RPM
 
         public static final int FORWARD_CHANNEL_PORT = 6; 
         public static final int REVERSE_CHANNEL_PORT = 7;
@@ -240,7 +240,7 @@ public final class Constants {
         public static final int FORWARD_CHANNEL_PORT = 4;
         public static final int REVERSE_CHANNEL_PORT = 5;
         public static final Value RAISED_VALUE = Value.kReverse;
-        public static final Value LOWERED_VALUE = Value.kForward; // TODO: find correct directions
+        public static final Value LOWERED_VALUE = Value.kForward;
         public static final int MOTOR_1_PORT = 6; 
         public static final int MOTOR_2_PORT = 7;
         public static final boolean MOTOR_1_INVERTED = true;
