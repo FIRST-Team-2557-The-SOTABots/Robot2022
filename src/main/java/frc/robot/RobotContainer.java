@@ -59,9 +59,9 @@ public class RobotContainer {
 
   private Climber climber = new Climber();
   private SwerveDrive swerveDrive = new SwerveDrive();
-  public Intake intake = new Intake();
+  private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
-  public Delivery delivery = new Delivery();
+  private Delivery delivery = new Delivery(intake);
   private Limelight limelight = new Limelight();
 
   // Driver controller and associated buttons
@@ -141,7 +141,7 @@ public class RobotContainer {
 
     delivery.setDefaultCommand(
       sequence(
-        new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted()),
+        new WaitUntilCommand(() -> delivery.getSensor1()),
         parallel(
           new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
           new UninterruptibleProxyScheduleCommand(
@@ -416,34 +416,34 @@ public class RobotContainer {
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
         generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
-        generateStopShooterDeliveryCommand(),
-        deadline( 
-          generatePPSwerveControllerCommand(path1B),
-          generateRunAppendageCommand(),
-          generateRevFlywheelCommand()
-        ),
-        generateResetAppendageCommand(),
-        generateStopDrivetrainCommand(),
-        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
-        generateStopShooterDeliveryCommand(),
-        deadline(
-          generatePPSwerveControllerCommand(path1C),
-          generateRunAppendageCommand()
-        ),
-        generateStopDrivetrainCommand(),
-        generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-        generateResetAppendageCommand(),
-        race(
-          generatePPSwerveControllerCommand(path1D),
-          generateRevFlywheelCommand()
-        ),
-        generateStopDrivetrainCommand(),
-        new InstantCommand(
-          () -> intake.extend(), 
-          intake
-        ),
-        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         generateStopShooterDeliveryCommand()
+        // deadline( 
+        //   // i think run appendage ends because delivery default interrupts it, this was a race so everything else was also interrupted...
+        //   // now it's a deadline so even if run appendage is interrupted path following continues...
+        //   // run appendage being interrupted by the proxy schedule in delivery default should make it go in and stop, it needs to come back out...
+        //   // make a util command that schedules itself if its requirements or free / if another specified command isn't scheduled, repeatedly
+        //   generatePPSwerveControllerCommand(path1B),
+        //   generateRunAppendageCommand(),
+        //   generateRevFlywheelCommand()
+        // ),
+        // generateResetAppendageCommand(),
+        // generateStopDrivetrainCommand(),
+        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        // generateStopShooterDeliveryCommand(),
+        // deadline(
+        //   generatePPSwerveControllerCommand(path1C),
+        //   generateRunAppendageCommand()
+        // ),
+        // generateStopDrivetrainCommand(),
+        // new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+        // generateResetAppendageCommand(),
+        // race(
+        //   generatePPSwerveControllerCommand(path1D),
+        //   generateRevFlywheelCommand()
+        // ),
+        // generateStopDrivetrainCommand(),
+        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
+        // generateStopShooterDeliveryCommand()
       )
     );
   }

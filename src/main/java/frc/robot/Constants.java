@@ -295,8 +295,8 @@ public final class Constants {
 
     public static class Auto {
         public static final double TRANSLATE_PID_KP = 2;
-        public static final double MAX_WHEEL_SPEED = 3.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
-        public static final double MAX_WHEEL_ACCELERATION = 3.0; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
+        public static final double MAX_WHEEL_SPEED = 4.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = 4.0; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
         public static final double ANGLE_PID_KP = 3;
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
@@ -304,9 +304,9 @@ public final class Constants {
         
         public static final double FLYWHEEL_IDLE_SPEED = 3000; // in seconds, time intake spends out
 
-        public static final double PATH_1_SHOOT_1_DURATION = 2;
-        public static final double PATH_1_SHOOT_2_DURATION = 1.5;
-        public static final double PATH_1_SHOOT_3_DURATION = 2;
+        public static final double PATH_1_SHOOT_1_DURATION = 3;
+        public static final double PATH_1_SHOOT_2_DURATION = 3;
+        public static final double PATH_1_SHOOT_3_DURATION = 3;
         public static final double HUMAN_PLAYER_WAIT_TIME = 3;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
