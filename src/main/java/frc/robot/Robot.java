@@ -51,6 +51,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     m_autoChooser = m_robotContainer.getAutonomousChooser();
     SmartDashboard.putData("Auto", m_autoChooser);
+    System.out.println("delivery go " + (m_robotContainer.delivery.getSensor1() && !m_robotContainer.intake.isRetracted()));
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

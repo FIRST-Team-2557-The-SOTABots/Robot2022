@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.Intake.*;
@@ -48,7 +49,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isRetracted() {
-    return doubleSolenoid.get() == RETRACT_VALUE ? true : isRetracted;
+    return doubleSolenoid.get() == RETRACT_VALUE || doubleSolenoid.get() == Value.kOff ? true : isRetracted;
   }
 
   private void updateRetracted() {
@@ -60,12 +61,16 @@ public class Intake extends SubsystemBase {
     if (stateUpdateTimer.get() > EXTEND_TIME) {
       isRetracted = doubleSolenoid.get() == RETRACT_VALUE ? true : false;
     }
-
-    previousValue = doubleSolenoid.get();
+    
+    if (doubleSolenoid.get() != Value.kOff)
+      previousValue = doubleSolenoid.get();
+    else 
+      previousValue = RETRACT_VALUE;
   }
 
   @Override
   public void periodic() {
     updateRetracted();
+    SmartDashboard.putBoolean("Retracted", isRetracted());
   }
 }
