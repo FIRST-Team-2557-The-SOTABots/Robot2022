@@ -19,7 +19,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.Swerve.*;
 
@@ -45,7 +47,10 @@ public class SwerveModule extends SubsystemBase {
 
     speedMotor = new WPI_TalonFX(SPEED_MOTOR_PORTS[moduleNumber]);
     speedMotor.configFactoryDefault();
-    speedMotor.setInverted(SPEED_MOTOR_INVERTS[moduleNumber]);
+    if (Constants.isCompBot)
+      speedMotor.setInverted(SPEED_MOTOR_INVERTS_COMP_BOT[moduleNumber]);
+    else
+      speedMotor.setInverted(SPEED_MOTOR_INVERTS_PRACTICE_BOT[moduleNumber]);
     speedMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor = new CANSparkMax(ANGLE_MOTOR_PORTS[moduleNumber], MotorType.kBrushless);
     angleMotor.restoreFactoryDefaults();
@@ -167,8 +172,11 @@ public class SwerveModule extends SubsystemBase {
   public double getAngle() {
     // Return the process variable measurement here
     // angle encoder increases with cw movement, this conversion makes it increase with ccw movement
-    // for compatibility with the radian based setpoint from kinematics class   
-    return -1 * MathUtil.inputModulus(angleEncoder.getAverageVoltage() - ANGLE_ENCODER_OFFSETS[moduleNumber], 0, ANGLE_ENCODER_CPR) + ANGLE_ENCODER_CPR;
+    // for compatibility with the radian based setpoint from kinematics class
+    if (Constants.isCompBot)
+      return -1 * MathUtil.inputModulus(angleEncoder.getAverageVoltage() - ANGLE_ENCODER_OFFSETS_COMP_BOT[moduleNumber], 0, ANGLE_ENCODER_CPR) + ANGLE_ENCODER_CPR;
+    else
+      return -1 * MathUtil.inputModulus(angleEncoder.getAverageVoltage() - ANGLE_ENCODER_OFFSETS_PRACTICE_BOT[moduleNumber], 0, ANGLE_ENCODER_CPR) + ANGLE_ENCODER_CPR;
   }
 
 
@@ -211,6 +219,7 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // SmartDashboard.putNumber("module angle no offset" + moduleNumber, angleEncoder.getAverageVoltage());
+    SmartDashboard.putNumber("module angle no offset" + moduleNumber, angleEncoder.getAverageVoltage());
+    SmartDashboard.putNumber("module angle offset" + moduleNumber, getAngle());
   }
 }
