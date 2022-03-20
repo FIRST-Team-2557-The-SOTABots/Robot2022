@@ -67,5 +67,6 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     updateRetracted();
+    SmartDashboard.putData(this);
   }
 }

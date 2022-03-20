@@ -19,9 +19,8 @@ public class Delivery extends SubsystemBase {
 
   private DigitalInput sensor1;
   private DigitalInput sensor2;
-  private Intake intake;
 
-  public Delivery(Intake intake) {
+  public Delivery() {
     deliveryMotor = new WPI_TalonSRX(MOTOR_PORT);
     deliveryMotor.configFactoryDefault();
     deliveryMotor.setInverted(MOTOR_INVERTED);
@@ -29,7 +28,6 @@ public class Delivery extends SubsystemBase {
 
     sensor1 = new DigitalInput(SENSOR_1_PORT);
     sensor2 = new DigitalInput(SENSOR_2_PORT);
-    this.intake = intake;
   }
   
   public void runMotor(double speed) {
@@ -41,11 +39,7 @@ public class Delivery extends SubsystemBase {
    * @return whether the sensor state changed this loop
    */
   public boolean getSensor1() {
-    if (intake.isRetracted()) {
-      return false;
-    } else {
-      return !sensor1.get();
-    }
+    return !sensor1.get();
   }
   
   public boolean getSensor2() {
@@ -54,5 +48,6 @@ public class Delivery extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putData(this);
   }
 }

@@ -154,10 +154,10 @@ public final class Constants {
         public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false};
 
         public static final int[] SPEED_MOTOR_PORTS = {3, 2, 1, 0};
-        public static final boolean[] SPEED_MOTOR_INVERTS = {true, false, true, false};
+        public static final boolean[] SPEED_MOTOR_INVERTS = {true, true, true, true};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS = {0.789, 4.531, 3.922, 0.905}; //{2.251, 2.876, 4.121, 4.902}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS = {0.789, 0.037, 1.718, 2.883}; //{2.251, 2.876, 4.121, 4.902}; // in encoder counts
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
 
@@ -295,24 +295,26 @@ public final class Constants {
 
     public static class Auto {
         public static final double TRANSLATE_PID_KP = 2;
-        public static final double MAX_WHEEL_SPEED = 4.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
-        public static final double MAX_WHEEL_ACCELERATION = 4.0; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
+        public static final double MAX_WHEEL_SPEED = 3.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = 3.0; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
         public static final double ANGLE_PID_KP = 3;
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
-        public static final double FLYWHEEL_IDLE_SPEED = 3000; // in seconds, time intake spends out
+        public static final double FLYWHEEL_IDLE_SPEED = 4000; // in seconds, time intake spends out
 
-        public static final double PATH_1_SHOOT_1_DURATION = 3;
-        public static final double PATH_1_SHOOT_2_DURATION = 3;
-        public static final double PATH_1_SHOOT_3_DURATION = 3;
-        public static final double HUMAN_PLAYER_WAIT_TIME = 3;
+        public static final double PATH_1_SHOOT_1_DURATION = 1.5;
+        public static final double PATH_1_SHOOT_2_DURATION = 1.3;
+        public static final double PATH_1_SHOOT_3_DURATION = 2;
+        public static final double HUMAN_PLAYER_WAIT_TIME = 2;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 
         public static final double SHOOT_HIGH_BACK_SHOOT_DURATION = 5.0; // seconds
         public static final double SHOOT_HIGH_BACK_DRIVE_DURATION = 3.0; // seconds
+
+        public static final double DURATION = 15.0; // seconds
     }
 
     public static class Control {

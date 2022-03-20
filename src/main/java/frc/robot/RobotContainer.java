@@ -18,14 +18,17 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -61,7 +64,7 @@ public class RobotContainer {
   private SwerveDrive swerveDrive = new SwerveDrive();
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
-  private Delivery delivery = new Delivery(intake);
+  private Delivery delivery = new Delivery();
   private Limelight limelight = new Limelight();
 
   // Driver controller and associated buttons
@@ -141,7 +144,11 @@ public class RobotContainer {
 
     delivery.setDefaultCommand(
       sequence(
-        new WaitUntilCommand(() -> delivery.getSensor1()),
+        new WaitUntilCommand(() -> {
+          if (delivery.getSensor1() && !intake.isRetracted())
+            System.out.println("AAAHAHAHAHAHAHAHHAHHAHHAHHHHH");
+          return delivery.getSensor1() && !intake.isRetracted();
+        }),
         parallel(
           new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
           new UninterruptibleProxyScheduleCommand(
@@ -151,11 +158,11 @@ public class RobotContainer {
                 intake.run(0.0);
               }, 
               intake
-            ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
+            ).withTimeout(Constants.Delivery.RETRACTED_DURATION).withName("Auto Retract")
           )
         ),
         new WaitCommand(Constants.Delivery.COOLDOWN)
-      )
+      ).withName("Auto Index")
     );
 
     climber.setDefaultCommand(
@@ -416,52 +423,49 @@ public class RobotContainer {
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
         generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
+        generateStopShooterDeliveryCommand(),
+        deadline(
+          generatePPSwerveControllerCommand(path1B),
+          generateRunAppendageCommand(),
+          generateRevFlywheelCommand()
+        ),
+        generateResetAppendageCommand(),
+        generateStopDrivetrainCommand(),
+        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+        generateStopShooterDeliveryCommand(),
+        deadline(
+          generatePPSwerveControllerCommand(path1C),
+          generateRunAppendageCommand()
+        ),
+        generateStopDrivetrainCommand(),
+        generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+        new InstantCommand(() -> intake.run(0.0)),
+        race(
+          generatePPSwerveControllerCommand(path1D),
+          generateRevFlywheelCommand()
+        ),
+        generateStopDrivetrainCommand(),
+        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         generateStopShooterDeliveryCommand()
-        // deadline( 
-        //   // i think run appendage ends because delivery default interrupts it, this was a race so everything else was also interrupted...
-        //   // now it's a deadline so even if run appendage is interrupted path following continues...
-        //   // run appendage being interrupted by the proxy schedule in delivery default should make it go in and stop, it needs to come back out...
-        //   // make a util command that schedules itself if its requirements or free / if another specified command isn't scheduled, repeatedly
-        //   generatePPSwerveControllerCommand(path1B),
-        //   generateRunAppendageCommand(),
-        //   generateRevFlywheelCommand()
-        // ),
-        // generateResetAppendageCommand(),
-        // generateStopDrivetrainCommand(),
-        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
-        // generateStopShooterDeliveryCommand(),
-        // deadline(
-        //   generatePPSwerveControllerCommand(path1C),
-        //   generateRunAppendageCommand()
-        // ),
-        // generateStopDrivetrainCommand(),
-        // new WaitCommand(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-        // generateResetAppendageCommand(),
-        // race(
-        //   generatePPSwerveControllerCommand(path1D),
-        //   generateRevFlywheelCommand()
-        // ),
-        // generateStopDrivetrainCommand(),
-        // generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
-        // generateStopShooterDeliveryCommand()
+      ).withTimeout(Constants.Auto.DURATION).andThen(
+        () -> swerveDrive.setFieldCentricActive(true)
       )
     );
   }
 
   private RunCommand generateRevFlywheelCommand() {
     return new RunCommand(
-      () -> shooter.setMotorRPM(Constants.Auto.FLYWHEEL_IDLE_SPEED), 
-      shooter
+      () -> shooter.setMotorRPM(Constants.Auto.FLYWHEEL_IDLE_SPEED)
     );
   }
 
-  private InstantCommand generateResetAppendageCommand() {
+  private CommandBase generateResetAppendageCommand() {
     return new InstantCommand(
       () -> {
         intake.retract();
         intake.run(0.0);
       }
-    );
+    ).withName("Turn Off Retract");
   }
 
   private InstantCommand generateStopDrivetrainCommand() {
@@ -477,8 +481,7 @@ public class RobotContainer {
       () -> {
         shooter.runFlywheel(0.0);
         delivery.runMotor(0.0);
-      },
-      shooter, delivery
+      }
     );
   }
 
@@ -501,7 +504,7 @@ public class RobotContainer {
     );
   }
 
-  private CommandGroupBase generateAutoShootCommand() {
+  private CommandBase generateAutoShootCommand() {
     return parallel(
       new PIDCommand(
         new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
@@ -527,7 +530,7 @@ public class RobotContainer {
         }, 
         shooter, delivery
       )
-    );
+    ).withName("Auto Shoot");
   }
 
   public ParallelRaceGroup generateAnglePIDCommand(AngleMovement angleMovement) {
