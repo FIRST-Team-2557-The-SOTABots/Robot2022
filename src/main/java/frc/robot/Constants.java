@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
  */
 public final class Constants {
 
+    public static boolean isCompBot = true;
+
     public static final double METERS_PER_INCH = 0.0254;
 
     public static final class Climber {
