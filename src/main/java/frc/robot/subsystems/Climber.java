@@ -10,20 +10,13 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.Climber.*;
 
@@ -153,42 +146,8 @@ public class Climber extends SubsystemBase {
   }
 
   public double getAngleEncoderPosition() {
-    return -angleMotor.getSelectedSensorPosition();
+    return ANGLE_HOOK_INVERTED ? -angleMotor.getSelectedSensorPosition() : angleMotor.getSelectedSensorPosition();
   }
-
-
-
-  // /**
-  //  * 
-  //  * @return angle of the angling arm in radians
-  //  */
-  // public double getAngle() {
-  //   return (MAX_ANGLE - MIN_ANGLE) / (MAX_ANGLE_ENCODER - MIN_ANGLE_ENCODER) * getAngleEncoderPosition() + MIN_ANGLE;
-  // }
-
-  /**
-   * 
-   * @return length of extending arm from the pivot point to the hook in meters
-   */
-  // public double getLength() {
-
-  //   // TODO make return length of the extending arms 
-  //   return (MAX_EXTEND_HOOK_LENGTH - MIN_EXTEND_HOOK_LENGTH) / (MAX_EXTEND_HOOK_ENCODER - MIN_EXTEND_HOOK_ENCODER) * getExtendEncoderPosition() + MIN_EXTEND_HOOK_LENGTH;
-
-  // }
-
-  // /**
-  //  * 
-  //  * @param angle in radians
-  //  * @return returns length of the extending arms from the angle of the angling arms
-  //  */
-  // public double getReqLength(double a) {
-  //   return ANGLE_HOOK_LENGTH * Math.cos(a) + 
-  //     Math.sqrt(
-  //       Math.pow(DISTANCE_BETWEEN_BARS, 2) - 
-  //       Math.pow(ANGLE_HOOK_LENGTH, 2) * Math.pow(Math.sin(a), 2)
-  //     );
-  // }
 
   public void reset() {
     lock();

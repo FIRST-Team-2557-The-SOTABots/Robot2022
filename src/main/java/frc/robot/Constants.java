@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
  */
 public final class Constants {
 
+    // this is updated in robotPeriodic by a SmartDashboard call
+    // certain constants differ between robots, this variable controls which is used
     public static boolean isCompBot = true;
 
     public static final double METERS_PER_INCH = 0.0254;
@@ -42,42 +44,35 @@ public final class Constants {
 
         public static final boolean LEFT_HOOK_INVERTED = false; 
         public static final boolean RIGHT_HOOK_INVERTED = true; 
-        public static final boolean ANGLE_HOOK_INVERTED = true; //TODO check 
+        public static final boolean ANGLE_HOOK_INVERTED = isCompBot ? false : true;
 
         public static final double MIN_EXTEND_ENCODER_LEFT = 0.0; 
-        public static final double EVEN_EXTEND_ENCODER_LEFT = 0.356; 
-        public static final double MID_EXTEND_ENCODER_LEFT = 1.82;
+        public static final double EVEN_EXTEND_ENCODER_LEFT = isCompBot ? 0.333 : 0.356; 
+        public static final double MID_EXTEND_ENCODER_LEFT = isCompBot ? 1.720 : 1.82;
         public static final double HIGH_EXTEND_ENCODER_LEFT = 5.69;
-        public static final double MAX_EXTEND_ENCODER_LEFT = 7.0; 
+        public static final double MAX_EXTEND_ENCODER_LEFT = isCompBot ? 7.845 : 7.0; 
         public static final double EXTEND_HIGH_LIMIT_LEFT = MAX_EXTEND_ENCODER_LEFT; 
         public static final double EXTEND_LOW_LIMIT_LEFT = MIN_EXTEND_ENCODER_LEFT;
 
         public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; 
-        public static final double EVEN_EXTEND_ENCODER_RIGHT = 0.356; 
-        public static final double MID_EXTEND_ENCODER_RIGHT = 2.13;
+        public static final double EVEN_EXTEND_ENCODER_RIGHT = isCompBot ? 0.347 : 0.356; 
+        public static final double MID_EXTEND_ENCODER_RIGHT = isCompBot ? 1.578 : 2.13;
         public static final double HIGH_EXTEND_ENCODER_RIGHT = 6.94;
-        public static final double MAX_EXTEND_ENCODER_RIGHT = 8.7; 
+        public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.342 : 8.7; 
         public static final double EXTEND_HIGH_LIMIT_RIGHT = MAX_EXTEND_ENCODER_RIGHT; 
         public static final double EXTEND_LOW_LIMIT_RIGHT = MIN_EXTEND_ENCODER_RIGHT;
-        
-        public static final double MAX_EXTEND_HOOK_LENGTH = 25 * METERS_PER_INCH; // meters // TODO update
-        public static final double MIN_EXTEND_HOOK_LENGTH = 25 * METERS_PER_INCH; // meters // TODO update
 
-
-        public static final int MAX_ANGLE_ENCODER = 1600; // encoder value at front hard stop 
-        public static final int HIGH_ANGLE_ENCODER = 700; // 1250 // encoder value between front hard stop and extend hooks TODO find actual 
-        public static final int MID_ANGLE_ENCODER = 300; // encoder value at even with extend hooks 
+        public static final int MAX_ANGLE_ENCODER = isCompBot ? 1873 : 1600; // encoder value at front hard stop 
+        public static final int HIGH_ANGLE_ENCODER = 700; // 1250 // encoder value between front hard stop and extend hooks TODO UPDATE FOR COMP BOT
+        public static final int MID_ANGLE_ENCODER = isCompBot ? 400 : 300; // encoder value at even with extend hooks 
         public static final int MIN_ANGLE_ENCODER = 0; // encoder value at back hard stop
         public static final double ANGLE_ENCODER_HIGH_LIMIT = MAX_ANGLE_ENCODER;
         public static final double ANGLE_ENCODER_LOW_LIMIT = MIN_ANGLE_ENCODER;
 
         public static final double MAX_ANGLE = 45 * Math.PI / 180; // angle at front hard stop, in degrees TODO fix
         public static final double MIN_ANGLE = -10 * Math.PI / 180; // angle at back hard stop, in radians TODO find slope
-        
-        public static final double ANGLE_HOOK_LENGTH = 35 * METERS_PER_INCH; // in meters // TODO get better measurements if possible
-        public static final double DISTANCE_BETWEEN_BARS = 28.5024669985 * METERS_PER_INCH; // in meters
 
-        public static final double EXTEND_PID_TOLERANCE = 0.1; // 0.08;
+        public static final double EXTEND_PID_TOLERANCE = 0.1;
         public static final double EXTEND_PID_OVERSHOOT = 0.3; // aim to extend slightly beyond max value to help reach the setpoint
         
         public static final double ANGLE_PID_TOLERANCE = 0.0;
@@ -86,10 +81,10 @@ public final class Constants {
         public static final double ANGLE_PID_CHANGE_KP_RANGE = 200;
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002;
 
-        public static final double ANGLE_PID_PAUSE = 1;
-        public static final double ANGLED_EXTEND_TIMEOUT = 3;
-        public static final double SLOW_RETRACT_SPEED = -0.4;
-        public static final double TIMED_ANGLE_SPEED = 0.2;
+        public static final double ANGLE_PID_PAUSE = 1; // time in seconds waited before extend hooks clamp on next rung
+        public static final double ANGLED_EXTEND_TIMEOUT = 3; // max time in seconds to wait for angle hooks to extend while angled
+        public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
+        public static final double TIMED_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for timed movements
         public static final double TIMED_ANGLE_DURATION = 0.4; // in seconds
         public static final double TIMED_ANGLE_DURATION_2 = 0.4; // in seconds
         
