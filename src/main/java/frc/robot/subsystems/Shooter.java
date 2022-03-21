@@ -75,7 +75,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public double getMotorRPM(){
-    return motor1.getEncoder().getVelocity();
+    return Math.abs(motor1.getEncoder().getVelocity());
   }
 
   public void hoodUp() {
@@ -104,5 +104,7 @@ public class Shooter extends SubsystemBase {
     updateSpeedSample();
     
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("set speed", speedPID.getSetpoint());
+    SmartDashboard.putNumber("actual speed", getMotorRPM());
   }
 }

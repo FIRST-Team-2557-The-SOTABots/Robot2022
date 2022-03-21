@@ -242,15 +242,15 @@ public final class Constants {
         public static final Value LOWERED_VALUE = Value.kForward;
         public static final int MOTOR_1_PORT = 6; 
         public static final int MOTOR_2_PORT = 7;
-        public static final boolean MOTOR_1_INVERTED = true;
-        public static final boolean MOTOR_2_INVERTED = false;
+        public static final boolean MOTOR_1_INVERTED = isCompBot ? false : true;
+        public static final boolean MOTOR_2_INVERTED = !MOTOR_1_INVERTED;
         public static final double RAMP_RATE = 1.5;
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
         public static final double RPM_TOLERANCE = 40; // in motor rpm
-        public static final double FEEDFORWARD_KS = 0.03269; // in volts
-        public static final double FEEDFORWARD_KV = 0.002114; // in volts
+        public static final double FEEDFORWARD_KS = isCompBot ? 0.1860 : 0.03269; // in volts
+        public static final double FEEDFORWARD_KV = isCompBot ? 0.002110 : 0.002114; // in volts
         public static final double SPEED_PID_KP = 0.00003;
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
@@ -330,8 +330,8 @@ public final class Constants {
             public static final int PORT = 1;
             public static final double LEFT_TRIGGER_DEADBAND = 0.5;
             public static final double RIGHT_TRIGGER_DEADBAND = 0.5;
-            public static final double LEFT_STICK_Y_DEADBAND = 0.5;
-            public static final double RIGHT_STICK_Y_DEADBAND = 0.5;
+            public static final double LEFT_STICK_Y_DEADBAND = 0.1;
+            public static final double RIGHT_STICK_Y_DEADBAND = 0.1;
         }
     }
 

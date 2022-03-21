@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isRetracted() {
-    return doubleSolenoid.get() == RETRACT_VALUE ? true : isRetracted;
+    return doubleSolenoid.get() == RETRACT_VALUE || doubleSolenoid.get() == Value.kOff ? true : isRetracted;
   }
 
   private void updateRetracted() {
@@ -61,7 +61,10 @@ public class Intake extends SubsystemBase {
       isRetracted = doubleSolenoid.get() == RETRACT_VALUE ? true : false;
     }
 
-    previousValue = doubleSolenoid.get();
+    if (doubleSolenoid.get() != Value.kOff)
+      previousValue = doubleSolenoid.get();
+    else 
+      previousValue = RETRACT_VALUE;
   }
 
   @Override
