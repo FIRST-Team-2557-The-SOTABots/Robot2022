@@ -43,6 +43,8 @@ public class AngleProfiledPIDCommand extends CommandBase {
   @Override
   public void execute() {
     SmartDashboard.putString("Angle Command", "Executing");
+
+    // as the robot gets closer to its setpoint in MAX_TO_HIGH movement, KP is increased to compensate for increased torque from gravity
     if (angleMovement == AngleMovement.MAX_TO_HIGH) {
       if (Math.abs(angleMovement.setpoint - climber.getAngleEncoderPosition()) < ANGLE_PID_CHANGE_KP_RANGE) {
         controller.setP(ANGLE_PID_CHANGE_KP_VALUE);
@@ -50,6 +52,7 @@ public class AngleProfiledPIDCommand extends CommandBase {
         controller.setP(angleMovement.kp);
       }
 
+      // TODO: make run angle for all movements
       climber.runAngle(controller.calculate(climber.getAngleEncoderPosition()));
     }
   } 

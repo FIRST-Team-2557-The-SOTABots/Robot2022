@@ -43,9 +43,9 @@ public class RunDelivery extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(photoTurnedOn && !delivery.getSensor2()){
-      return true;
-    }
+    // if(photoTurnedOn && !delivery.getSensor2()){
+    //   return true;
+    // }
     return false;
   }
 }

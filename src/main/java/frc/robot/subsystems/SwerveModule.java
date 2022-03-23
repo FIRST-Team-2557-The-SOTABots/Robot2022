@@ -4,12 +4,14 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -19,6 +21,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.Swerve.*;
 
@@ -44,7 +47,10 @@ public class SwerveModule extends SubsystemBase {
 
     speedMotor = new WPI_TalonFX(SPEED_MOTOR_PORTS[moduleNumber]);
     speedMotor.configFactoryDefault();
-    speedMotor.setInverted(SPEED_MOTOR_INVERTS[moduleNumber]);
+    if (Constants.isCompBot)
+      speedMotor.setInverted(SPEED_MOTOR_INVERTS_COMP_BOT[moduleNumber]);
+    else
+      speedMotor.setInverted(SPEED_MOTOR_INVERTS_PRACTICE_BOT[moduleNumber]);
     speedMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor = new CANSparkMax(ANGLE_MOTOR_PORTS[moduleNumber], MotorType.kBrushless);
     angleMotor.restoreFactoryDefaults();
@@ -72,10 +78,7 @@ public class SwerveModule extends SubsystemBase {
    * 
    * @param state the speed and rotation the module should track
    */
-  public void drive(SwerveModuleState state) {
-    // add angle offset as radian angle before optimizing
-    state.angle = state.angle.plus(new Rotation2d(nativeToRadians(ANGLE_ENCODER_OFFSETS[moduleNumber])));
-    
+  public void drive(SwerveModuleState state) {    
     // optimize state so that module never turns more than 90 degrees
     state = SwerveModuleState.optimize(state, new Rotation2d(nativeToRadians(getAngle())));
 
@@ -90,10 +93,11 @@ public class SwerveModule extends SubsystemBase {
       angleMotor.setVoltage(anglePIDOutput + angleFFOutput);
 
     double speedSetpointNative = metersPerSecondToNative(state.speedMetersPerSecond);
-    double speedPIDOutput = speedPID.calculate(speedMotor.getSelectedSensorVelocity(), speedSetpointNative);
+    double speedPIDOutput = speedSetpointNative == 0 ? 0.0 : speedPID.calculate(speedMotor.getSelectedSensorVelocity(), speedSetpointNative);
     double speedFFOutput = speedFF.calculate(speedSetpointNative);
 
     speedMotor.setVoltage(speedFFOutput + speedPIDOutput);
+    // speedMotor.set(ControlMode.PercentOutput, speedSetpointNative / MAX_WHEEL_SPEED);
   }
 
 
@@ -169,7 +173,10 @@ public class SwerveModule extends SubsystemBase {
     // Return the process variable measurement here
     // angle encoder increases with cw movement, this conversion makes it increase with ccw movement
     // for compatibility with the radian based setpoint from kinematics class
-    return -1 * angleEncoder.getAverageVoltage() + ANGLE_ENCODER_CPR;
+    if (Constants.isCompBot)
+      return -1 * MathUtil.inputModulus(angleEncoder.getAverageVoltage() - ANGLE_ENCODER_OFFSETS_COMP_BOT[moduleNumber], 0, ANGLE_ENCODER_CPR) + ANGLE_ENCODER_CPR;
+    else
+      return -1 * MathUtil.inputModulus(angleEncoder.getAverageVoltage() - ANGLE_ENCODER_OFFSETS_PRACTICE_BOT[moduleNumber], 0, ANGLE_ENCODER_CPR) + ANGLE_ENCODER_CPR;
   }
 
 
@@ -191,12 +198,10 @@ public class SwerveModule extends SubsystemBase {
    */
   public SwerveModuleState getMeasuredState() {
     SwerveModuleState state = new SwerveModuleState(getSpeed(), new Rotation2d(nativeToRadians(getAngle())));
-    // TODO: uncomment if this is necessary
-    // // state should have positive wheel speed, flip direction if flipping wheel speed is necessary  
-    // if (state.speedMetersPerSecond < 0.0) {
-    //   state.speedMetersPerSecond *= -1;
-    //   state.angle = state.angle.plus(new Rotation2d(Math.PI));
-    // }
+    if (state.speedMetersPerSecond < 0.0) {
+      state.speedMetersPerSecond *= -1;
+      state.angle = state.angle.plus(new Rotation2d(Math.PI));
+    }
     return state;
   }
 
@@ -214,6 +219,7 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // SmartDashboard.putNumber("module" + moduleNumber, getAngle());
+    SmartDashboard.putNumber("module angle no offset" + moduleNumber, angleEncoder.getAverageVoltage());
+    SmartDashboard.putNumber("module angle offset" + moduleNumber, getAngle());
   }
 }

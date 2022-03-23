@@ -4,21 +4,28 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.Swerve.*;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 public class SwerveDrive extends SubsystemBase {
 
@@ -31,7 +38,6 @@ public class SwerveDrive extends SubsystemBase {
   private AHRS gyro;
   private DoubleSolenoid shifter;
   
-  private Pose2d pose;
   private SwerveDriveOdometry odometry;
   
   /** Creates a new SwerveDrive. */
@@ -51,12 +57,11 @@ public class SwerveDrive extends SubsystemBase {
 
     gyro = new AHRS(Port.kMXP);
     gyro.reset();
+    gyro.setAngleAdjustment(0.0);
     shifter = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
     shiftDown();
 
-    // construct swerve pose with values from constants as starting point
-    pose = new Pose2d(0.0, 0.0, new Rotation2d(0.0));
-    odometry = new SwerveDriveOdometry(swerveDriveKinematics, new Rotation2d(getGyroAngle()), pose);
+    odometry = new SwerveDriveOdometry(swerveDriveKinematics, new Rotation2d(getGyroAngle()), new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
   }
 
 
@@ -150,6 +155,10 @@ public class SwerveDrive extends SubsystemBase {
 
   
 
+  /**
+   * Sets the gyro's angle
+   * @param radians the angle to set in radians
+   */
   public void setGyroAngle(double radians) {
     gyro.reset();
     gyro.setAngleAdjustment(-Math.toDegrees(radians));
@@ -161,6 +170,7 @@ public class SwerveDrive extends SubsystemBase {
    * resets the gyro to 0 degrees
    */
   public void resetGyro() {
+    gyro.setAngleAdjustment(0.0);
     gyro.reset();
   }
 
@@ -169,8 +179,26 @@ public class SwerveDrive extends SubsystemBase {
   /**
    * @return Pose2d object representing the robot's position and rotation
    */
-  public Pose2d getSwervePose() {
-    return pose;
+  public Pose2d getPose() {
+    return odometry.getPoseMeters();
+  }
+
+
+
+  /**
+   * Sets the robot's pose. Also sets the gyro angle to the angle in the pose.
+   * @param state the pose to set
+   */
+  public void setPose(PathPlannerState state) {
+    setGyroAngle(state.holonomicRotation.getRadians());
+    odometry.resetPosition(
+      new Pose2d(
+        state.poseMeters.getX(), 
+        state.poseMeters.getY(), 
+        new Rotation2d(getGyroAngle())
+      ), 
+      new Rotation2d(getGyroAngle())
+    );
   }
 
 
@@ -179,7 +207,11 @@ public class SwerveDrive extends SubsystemBase {
    * Updates the pose of the swerve drive
    */
   public void updatePose() {
-    pose = odometry.update(new Rotation2d(getGyroAngle()), moduleStates);
+    SwerveModuleState[] measuredModuleStates = new SwerveModuleState[NUM_MODULES];
+    for (int i = 0; i < NUM_MODULES; i++) {
+      measuredModuleStates[i] = swerveModules[i].getMeasuredState();
+    }
+    odometry.update(new Rotation2d(getGyroAngle()), measuredModuleStates);
   }
 
 
@@ -241,5 +273,6 @@ public class SwerveDrive extends SubsystemBase {
     // This method will be called once per scheduler run
     updatePose();
     SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
+    SmartDashboard.putNumber("gyro angle", getGyroAngle());
   }
 }
