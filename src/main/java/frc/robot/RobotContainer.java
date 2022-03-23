@@ -18,29 +18,25 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.AngleProfiledPIDCommand;
 import frc.robot.commands.ClimbSequenceCommand;
-import frc.robot.commands.ExtendClimbToPosition;
+import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import frc.robot.util.UnendingProxyScheduleCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Climber.AngleMovement;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
@@ -143,26 +139,26 @@ public class RobotContainer {
     );
 
     delivery.setDefaultCommand(
-      sequence(
-        new WaitUntilCommand(() -> {
-          if (delivery.getSensor1() && !intake.isRetracted())
-            System.out.println("AAAHAHAHAHAHAHAHHAHHAHHAHHHHH");
-          return delivery.getSensor1() && !intake.isRetracted();
-        }),
-        parallel(
-          new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
-          new UninterruptibleProxyScheduleCommand(
-            new RunCommand(
-              () -> {
-                intake.retract();
-                intake.run(0.0);
-              }, 
-              intake
-            ).withTimeout(Constants.Delivery.RETRACTED_DURATION).withName("Auto Retract")
-          )
-        ),
-        new WaitCommand(Constants.Delivery.COOLDOWN)
-      ).withName("Auto Index")
+      new DeliveryCommand(delivery, intake)
+      // sequence(
+      //   new InstantCommand(() -> SmartDashboard.putString("Delivery Waiting", "")),
+      //   new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted())
+      //   .andThen(() -> SmartDashboard.putString("Delivery Start", "")),
+      //   parallel(
+      //     new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+      //     new UninterruptibleProxyScheduleCommand(
+      //       new RunCommand(
+      //         () -> {
+      //           intake.retract();
+      //           intake.run(0.0);
+      //         }, 
+      //         intake
+      //       ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
+      //       .andThen(() -> SmartDashboard.putString("Intake Retracted", ""))
+      //     )
+      //   ),
+      //   new WaitCommand(Constants.Delivery.COOLDOWN)
+      // )
     );
 
     climber.setDefaultCommand(
@@ -418,7 +414,8 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1A),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand()
+          generateRevFlywheelCommand(),
+          new DeliveryCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -427,7 +424,8 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1B),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand()
+          generateRevFlywheelCommand(),
+          new DeliveryCommand(delivery, intake)
         ),
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
@@ -435,21 +433,30 @@ public class RobotContainer {
         generateStopShooterDeliveryCommand(),
         deadline(
           generatePPSwerveControllerCommand(path1C),
-          generateRunAppendageCommand()
+          generateRunAppendageCommand(),
+          new DeliveryCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
-        generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-        new InstantCommand(() -> intake.run(0.0)),
-        race(
+        deadline(
+          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+          new DeliveryCommand(delivery, intake)
+        ),
+        deadline(
           generatePPSwerveControllerCommand(path1D),
-          generateRevFlywheelCommand()
+          generateRevFlywheelCommand(),
+          new RunCommand(
+            () -> {
+              intake.run(0.0);
+              intake.extend();
+            }
+          )
         ),
         generateStopDrivetrainCommand(),
         generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         generateStopShooterDeliveryCommand()
-      ).withTimeout(Constants.Auto.DURATION).andThen(
-        () -> swerveDrive.setFieldCentricActive(true)
       )
+      .withTimeout(Constants.Auto.DURATION)
+      .andThen(() -> swerveDrive.setFieldCentricActive(true))
     );
   }
 

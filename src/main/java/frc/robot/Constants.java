@@ -21,7 +21,7 @@ public final class Constants {
 
     // this is updated in robotPeriodic by a SmartDashboard call
     // certain constants differ between robots, this variable controls which is used
-    public static boolean isCompBot = true;
+    public static boolean isCompBot = false;
 
     public static final double METERS_PER_INCH = 0.0254;
 

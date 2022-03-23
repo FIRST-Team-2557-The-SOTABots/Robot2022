@@ -48,5 +48,6 @@ public class Delivery extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putData(this);
   }
 }
