@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.commands.DeliveryCommand;
+import frc.robot.commands.ExtendClimbToTop;
 import frc.robot.commands.RunDelivery;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;

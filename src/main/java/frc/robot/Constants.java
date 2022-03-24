@@ -21,7 +21,7 @@ public final class Constants {
 
     // this is updated in robotPeriodic by a SmartDashboard call
     // certain constants differ between robots, this variable controls which is used
-    public static boolean isCompBot = false;
+    public static boolean isCompBot = true;
 
     public static final double METERS_PER_INCH = 0.0254;
 
@@ -49,16 +49,16 @@ public final class Constants {
         public static final double MIN_EXTEND_ENCODER_LEFT = 0.0; 
         public static final double EVEN_EXTEND_ENCODER_LEFT = isCompBot ? 0.333 : 0.356; 
         public static final double MID_EXTEND_ENCODER_LEFT = isCompBot ? 1.720 : 1.82;
-        public static final double HIGH_EXTEND_ENCODER_LEFT = 5.69;
-        public static final double MAX_EXTEND_ENCODER_LEFT = isCompBot ? 7.845 : 7.0; 
+        public static final double HIGH_EXTEND_ENCODER_LEFT = isCompBot ? 6.84 : 5.69;
+        public static final double MAX_EXTEND_ENCODER_LEFT = isCompBot ? 8.60 : 7.0; 
         public static final double EXTEND_HIGH_LIMIT_LEFT = MAX_EXTEND_ENCODER_LEFT; 
         public static final double EXTEND_LOW_LIMIT_LEFT = MIN_EXTEND_ENCODER_LEFT;
 
         public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; 
         public static final double EVEN_EXTEND_ENCODER_RIGHT = isCompBot ? 0.347 : 0.356; 
         public static final double MID_EXTEND_ENCODER_RIGHT = isCompBot ? 1.578 : 2.13;
-        public static final double HIGH_EXTEND_ENCODER_RIGHT = 6.94;
-        public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.342 : 8.7; 
+        public static final double HIGH_EXTEND_ENCODER_RIGHT = isCompBot ? 6.96 : 6.94;
+        public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.83 : 8.7; 
         public static final double EXTEND_HIGH_LIMIT_RIGHT = MAX_EXTEND_ENCODER_RIGHT; 
         public static final double EXTEND_LOW_LIMIT_RIGHT = MIN_EXTEND_ENCODER_RIGHT;
 
@@ -85,8 +85,9 @@ public final class Constants {
         public static final double ANGLED_EXTEND_TIMEOUT = 3; // max time in seconds to wait for angle hooks to extend while angled
         public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
         public static final double TIMED_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for timed movements
-        public static final double TIMED_ANGLE_DURATION = 0.4; // in seconds
-        public static final double TIMED_ANGLE_DURATION_2 = 0.4; // in seconds
+        public static final double TIMED_ANGLE_DURATION = 0.7; // in seconds
+        public static final double TIMED_ANGLE_DURATION_2 = 0.7; // in seconds
+        public static final double EXTEND_TO_TOP_SPEED = 0.7;
         
         public enum ExtendMovement {
             BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 6, 6, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
