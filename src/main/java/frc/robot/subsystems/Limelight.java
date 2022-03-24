@@ -69,5 +69,6 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putString("Shoot Status", new String(Character.toChars(0x1F604)) + new String(Character.toChars(0x1F44D)));
     }
 
+    SmartDashboard.putNumber("ty", getY());
   }
 }

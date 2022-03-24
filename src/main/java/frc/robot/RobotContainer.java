@@ -350,6 +350,21 @@ public class RobotContainer {
         new ClimbSequenceCommand(climber, mrb::get)
       )     
     );
+
+    // new JoystickButton(mStick, BACK).whenHeld(
+    //   new RunCommand(
+    //     () -> shooter.setMotorRPM(SmartDashboard.getNumber("setpoint", 5000)), 
+    //     shooter
+    //   )
+    // ).whenReleased(() -> shooter.runFlywheel(0.0));
+
+    
+    // new JoystickButton(mStick, LEFT_STICK_BUTTON).whenHeld(
+    //   new RunCommand(
+    //     () -> shooter.runFlywheel(1), 
+    //     shooter
+    //   )
+    // ).whenReleased(() -> shooter.runFlywheel(0.0));
   }
 
   public void configureAutonomousCommands() {
