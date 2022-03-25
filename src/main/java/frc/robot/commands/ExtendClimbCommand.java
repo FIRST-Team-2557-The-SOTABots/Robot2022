@@ -49,19 +49,13 @@ public class ExtendClimbCommand extends CommandBase {
       if (movement.leftSetpoint - climber.getLeftEncoderPosition() > 0) {
         climber.extendLeftHook(movement.speed);
       } else {
-        // if (movement == SimpleExtendMovement.HOLD_RELEASE)
-        //   climber.extendLeftHook(0.0);
-        // else
-          climber.extendLeftHook(-movement.speed);
+        climber.extendLeftHook(-movement.speed);
       }
       
       if (movement.rightSetpoint - climber.getRightEncoderPosition() > 0) {
         climber.extendRightHook(movement.speed);
       } else {
-        // if (movement == SimpleExtendMovement.HOLD_RELEASE)
-        //   climber.extendRightHook(0.0);
-        // else
-          climber.extendRightHook(-movement.speed);
+        climber.extendRightHook(-movement.speed);
       }
     }
   }
@@ -77,9 +71,6 @@ public class ExtendClimbCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // if (movement == SimpleExtendMovement.HOLD_RELEASE)
-    //   return false;
-
     switch (movement) {
       case BOTTOM_TO_TOP:
       case MID_TO_TOP:
@@ -88,10 +79,12 @@ public class ExtendClimbCommand extends CommandBase {
       case HIGH_TO_BOTTOM:
       case MID_TO_BOTTOM:
         return climber.getLeftBotMagLimit() && climber.getRightBotMagLimit();
+      default:
+        return 
+          Math.abs(movement.leftSetpoint - climber.getLeftEncoderPosition()) < movement.tolerance &&
+          Math.abs(movement.rightSetpoint - climber.getRightEncoderPosition()) < movement.tolerance;
     }
 
-    return 
-      Math.abs(movement.leftSetpoint - climber.getLeftEncoderPosition()) < movement.tolerance &&
-      Math.abs(movement.rightSetpoint - climber.getRightEncoderPosition()) < movement.tolerance;
+    
   }
 }
