@@ -33,6 +33,7 @@ import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.ExtendClimbToTop;
 import frc.robot.commands.RunDelivery;
+import frc.robot.commands.SimpleClimbSequenceCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import frc.robot.util.UnendingProxyScheduleCommand;
@@ -242,6 +243,11 @@ public class RobotContainer {
       )
     );
 
+    new JoystickButton(mStick, BACK).whenPressed(
+      () -> climber.unlock(),
+      climber
+    );
+
     mStart.whileHeld(
       new InstantCommand(
         () -> {
@@ -348,7 +354,8 @@ public class RobotContainer {
     mlb.whenPressed(
       sequence(
         new InstantCommand(() -> shooter.hoodDown()),
-        new ClimbSequenceCommand(climber, mrb::get)
+        new SimpleClimbSequenceCommand(climber, mrb::get)
+        // new ClimbSequenceCommand(climber, mrb::get)
       )     
     );
   }

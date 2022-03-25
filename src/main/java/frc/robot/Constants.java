@@ -49,6 +49,7 @@ public final class Constants {
         public static final double MIN_EXTEND_ENCODER_LEFT = 0.0; 
         public static final double EVEN_EXTEND_ENCODER_LEFT = isCompBot ? 0.333 : 0.356; 
         public static final double MID_EXTEND_ENCODER_LEFT = isCompBot ? 1.720 : 1.82;
+        public static final double RELEASE_EXTEND_ENCODER_LEFT = 1.261;
         public static final double HIGH_EXTEND_ENCODER_LEFT = isCompBot ? 6.84 : 5.69;
         public static final double MAX_EXTEND_ENCODER_LEFT = isCompBot ? 8.60 : 7.0; 
         public static final double EXTEND_HIGH_LIMIT_LEFT = MAX_EXTEND_ENCODER_LEFT; 
@@ -57,14 +58,15 @@ public final class Constants {
         public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; 
         public static final double EVEN_EXTEND_ENCODER_RIGHT = isCompBot ? 0.347 : 0.356; 
         public static final double MID_EXTEND_ENCODER_RIGHT = isCompBot ? 1.578 : 2.13;
+        public static final double RELEASE_EXTEND_ENCODER_RIGHT = 1.281;
         public static final double HIGH_EXTEND_ENCODER_RIGHT = isCompBot ? 6.96 : 6.94;
-        public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.83 : 8.7; 
+        public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.94 : 8.7; 
         public static final double EXTEND_HIGH_LIMIT_RIGHT = MAX_EXTEND_ENCODER_RIGHT; 
         public static final double EXTEND_LOW_LIMIT_RIGHT = MIN_EXTEND_ENCODER_RIGHT;
 
         public static final int MAX_ANGLE_ENCODER = isCompBot ? 1873 : 1600; // encoder value at front hard stop 
-        public static final int HIGH_ANGLE_ENCODER = 700; // 1250 // encoder value between front hard stop and extend hooks TODO UPDATE FOR COMP BOT
-        public static final int MID_ANGLE_ENCODER = isCompBot ? 400 : 300; // encoder value at even with extend hooks 
+        public static final int HIGH_ANGLE_ENCODER = 700; // encoder value between front hard stop and extend hooks TODO UPDATE FOR COMP BOT
+        public static final int MID_ANGLE_ENCODER = isCompBot ? 600 : 300; // encoder value at even with extend hooks 
         public static final int MIN_ANGLE_ENCODER = 0; // encoder value at back hard stop
         public static final double ANGLE_ENCODER_HIGH_LIMIT = MAX_ANGLE_ENCODER;
         public static final double ANGLE_ENCODER_LOW_LIMIT = MIN_ANGLE_ENCODER;
@@ -75,19 +77,49 @@ public final class Constants {
         public static final double EXTEND_PID_TOLERANCE = 0.1;
         public static final double EXTEND_PID_OVERSHOOT = 0.3; // aim to extend slightly beyond max value to help reach the setpoint
         
-        public static final double ANGLE_PID_TOLERANCE = 0.0;
         public static final double ANGLE_PID_MAX_VELOCITY = 300;
         public static final double ANGLE_PID_MAX_ACCELERATION = 900;
         public static final double ANGLE_PID_CHANGE_KP_RANGE = 200;
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002;
 
+        public static final double ANGLE_HOOKS_TO_BAR_TIMEOUT = 0.9;
         public static final double ANGLE_PID_PAUSE = 1; // time in seconds waited before extend hooks clamp on next rung
         public static final double ANGLED_EXTEND_TIMEOUT = 3; // max time in seconds to wait for angle hooks to extend while angled
         public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
         public static final double TIMED_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for timed movements
         public static final double TIMED_ANGLE_DURATION = 0.7; // in seconds
         public static final double TIMED_ANGLE_DURATION_2 = 0.7; // in seconds
-        public static final double EXTEND_TO_TOP_SPEED = 0.7;
+        public static final double EXTEND_TO_TOP_SPEED = 1.0;
+        public static final double RUN_TO_ANGLE_TOLERANCE = 10; // in angle encoder counts, tolerance of AngleClimbToPosition
+        public static final double RUN_TO_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition
+        public static final double RUN_TO_ANGLE_SPEED_FAST = 0.4; // duty cycle angle hooks run at for AngleClimbToPosition
+
+        public enum SimpleExtendMovement {
+            BOTTOM_TO_TOP(MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT, 1.0, 0.0), 
+            TOP_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0),
+            BOTTOM_TO_EVEN(EVEN_EXTEND_ENCODER_LEFT, EVEN_EXTEND_ENCODER_RIGHT, 0.5, 0.1),
+            EVEN_TO_MID(MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT, 1.0, 0.1),
+            MID_TO_TOP(MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT, 1.0, 0.0),
+            TOP_TO_HIGH(HIGH_EXTEND_ENCODER_LEFT, HIGH_EXTEND_ENCODER_RIGHT, 0.8, 0.1),
+            // HIGH_TO_RELEASE(RELEASE_EXTEND_ENCODER_LEFT, RELEASE_EXTEND_ENCODER_RIGHT, 0.8, 0.05),
+            // HOLD_RELEASE(RELEASE_EXTEND_ENCODER_LEFT, RELEASE_EXTEND_ENCODER_RIGHT, 0.5, 0.0),
+            HIGH_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0),
+            BOTTOM_TO_MID(MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT, 0.9, 0.1),
+            MID_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0);
+            // RELEASE_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0);
+
+            public final double leftSetpoint;
+            public final double rightSetpoint;
+            public final double speed;
+            public final double tolerance;
+
+            SimpleExtendMovement(double leftSetpoint, double rightSetpoint, double speed, double tolerance) {
+                this.leftSetpoint = leftSetpoint;
+                this.rightSetpoint = rightSetpoint;
+                this.speed = speed;
+                this.tolerance = tolerance;
+            }
+        }
         
         public enum ExtendMovement {
             BOTTOM_TO_TOP(0.65, 0.0005, 0.0, 6, 6, MAX_EXTEND_ENCODER_LEFT + EXTEND_PID_OVERSHOOT, MAX_EXTEND_ENCODER_RIGHT + EXTEND_PID_OVERSHOOT),
