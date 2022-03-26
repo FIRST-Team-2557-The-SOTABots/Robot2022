@@ -7,6 +7,9 @@ package frc.robot;
 import static frc.robot.util.Logitech.Ports.*;
 import static frc.robot.Constants.Swerve.*;
 import static frc.robot.Constants.LimeLight.*;
+import static frc.robot.Constants.Shooter.*;
+import static frc.robot.Constants.Intake.*;
+import static frc.robot.Constants.Delivery.*;
 
 import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
@@ -171,6 +174,17 @@ public class RobotContainer {
       )
     );
 
+    shooter.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0.5) {
+            shooter.setMotorRPM(UPPER_HUB_RPM);
+          } else {
+            shooter.setMotorRPM(0.0);
+          }
+        }, shooter)
+    );
+
     intake.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -258,60 +272,98 @@ public class RobotContainer {
       )
     );
 
-    mx.whenHeld(
-      new ConditionalCommand(
-        parallel(
-          new PIDCommand(
-            new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
-            () -> limelight.getX(), 
-            LIMELIGHT_CENTER, 
-            (double output) -> {
-              // get inputs then square them, preserving sign
-              double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-              double str = dStick.getRawAxis(LEFT_STICK_X);
-              if (Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE) 
-                output = 0;
+    ma.whenPressed(
+      new RunCommand(
+        () -> {
+          intake.extend();
+          intake.run(-SPEED);
+          delivery.runMotor(-SHOOTING_SPEED);
+        }, delivery, intake)
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          intake.retract();
+          intake.run(0.0);
+          delivery.runMotor(0.0);
+        }
+      )
+    );
 
-              // pass inputs into drivetrain
-              swerveDrive.drive(
-                  -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-                  -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-                  output
-              );
+    mb.whenPressed(
+      new RunCommand(
+        ()-> {
+          delivery.runMotor(-INDEXING_SPEED);
+        },
 
-              if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-                swerveDrive.shiftDown();
-              } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-                swerveDrive.shiftUp();
-              }
-            },
-            swerveDrive
-          ),
-          new RunCommand(
-            () -> {
-              shooter.hoodUp();
-              shooter.setMotorRPM(shooter.calculateRPM(limelight.getY()));
+        delivery
 
-              if (shooter.readyToShoot())
-                delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-              else
-                delivery.runMotor(0.0);
-            }, 
-            shooter, delivery
-          )
-        ),
-        new RunCommand(
-          () -> {
+      )
+
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          delivery.runMotor(0.0);
+        },
+
+        delivery
+
+      )
+    );
+
+    // Jonas, the conditional command only selects the command on its initialization.
+    // I switched this to while held so that it is repeatedly scheduled.
+    // But since the command is already scheduled, the initialize method is not called, 4
+    // and the conditional command does not select the proper command
+
+    mx.whileHeld(
+      new PIDCommand(
+        new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
+        () -> limelight.getX(), 
+        LIMELIGHT_CENTER, 
+        (double output) -> {
+          double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+          double str = dStick.getRawAxis(LEFT_STICK_X);
+          double rot = dStick.getRawAxis(RIGHT_STICK_X);
+
+          if (limelight.targetDetected()) {
+            if (Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE) 
+              output = 0;
+
+            swerveDrive.drive(
+              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+              output
+            );
+            
+            shooter.hoodUp();
+            shooter.setMotorRPM(
+              Constants.Shooter.RPM_EQUATION.apply(
+                limelight.getY()
+              )
+            );
+          } else {
+            swerveDrive.drive(
+              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+              -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
+            );
+            
             shooter.hoodDown();
             shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-            if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        ), 
-        () -> limelight.targetDetected()
+          }
+          
+          if (shooter.readyToShoot())
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          else
+            delivery.runMotor(0.0);
+
+          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+            swerveDrive.shiftDown();
+          } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+            swerveDrive.shiftUp();
+          }
+        },
+        swerveDrive, delivery, shooter
       )
     ).whenReleased(
       new InstantCommand(

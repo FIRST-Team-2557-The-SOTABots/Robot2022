@@ -21,7 +21,7 @@ public final class Constants {
 
     // this is updated in robotPeriodic by a SmartDashboard call
     // certain constants differ between robots, this variable controls which is used
-    public static boolean isCompBot = true;
+    public static boolean isCompBot = false;
 
     public static final double METERS_PER_INCH = 0.0254;
 
@@ -249,8 +249,8 @@ public final class Constants {
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
         public static final double RPM_TOLERANCE = 40; // in motor rpm
-        public static final double FEEDFORWARD_KS = isCompBot ? 0.2442 : 0.03269; // in volts
-        public static final double FEEDFORWARD_KV = isCompBot ? 0.002081 : 0.002114; // in volts
+        public static final double FEEDFORWARD_KS = isCompBot ? 0.2442 : 0.0; // in volts
+        public static final double FEEDFORWARD_KV = isCompBot ? 0.002081 : 0.002126; // in volts
         public static final double SPEED_PID_KP = 0.00095;
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
@@ -272,7 +272,7 @@ public final class Constants {
 
     public static final class LimeLight {
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 3.5;
+        public static final double AUTOAIM_TOLERANCE = 2.5;
         public static final double MIN_TY = -8;
     }
 
