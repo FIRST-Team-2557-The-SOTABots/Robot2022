@@ -244,20 +244,21 @@ public final class Constants {
         public static final int MOTOR_2_PORT = 7;
         public static final boolean MOTOR_1_INVERTED = isCompBot ? false : true;
         public static final boolean MOTOR_2_INVERTED = !MOTOR_1_INVERTED;
-        public static final double RAMP_RATE = 1.5;
+        public static final double RAMP_RATE = 0.75;
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
         public static final double RPM_TOLERANCE = 40; // in motor rpm
-        public static final double FEEDFORWARD_KS = isCompBot ? 0.2442 : 0.0; // in volts
-        public static final double FEEDFORWARD_KV = isCompBot ? 0.002081 : 0.002126; // in volts
-        public static final double SPEED_PID_KP = 0.00095;
-        public static final double SPEED_PID_KI = 0.0;
+        public static final double FEEDFORWARD_KS = isCompBot ?  0.0 : 0.0; // in volts
+        public static final double FEEDFORWARD_KV = isCompBot ? 0.00226 : 0.002126; // in volts
+        public static final double SPEED_PID_KP = 0.00035;
+        public static final double SPEED_PID_KI = 0.005;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_I_ZONE = 0.0; // in RPM, max error for integral to be active
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
         // public static final double RPM_PER_DISTANCE = -28.0; // in limelight ty
         // public static final double RPM_INTERCEPT = 4285.0;
+        public static final double IDLE_SPEED = 0.2;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
             double A = 4270.0;
@@ -272,7 +273,7 @@ public final class Constants {
 
     public static final class LimeLight {
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 2.5;
+        public static final double AUTOAIM_TOLERANCE = 1.5;
         public static final double MIN_TY = -8;
     }
 
@@ -286,7 +287,7 @@ public final class Constants {
         public static final double INDEXING_SPEED = 0.5;
         public static final double SHOOTING_SPEED = 0.7;
         public static final boolean MOTOR_INVERTED = true;
-        public static final double COOLDOWN = 1.0; // in seconds
+        public static final double COOLDOWN = 0.5; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
         public static final double SENSOR_1_FILTER_TIME_CONSTANT = 0.1; // in seconds

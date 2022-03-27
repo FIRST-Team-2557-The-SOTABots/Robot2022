@@ -71,6 +71,8 @@ public class Shooter extends SubsystemBase {
     // }
     // SmartDashboard.putBoolean("withinIZone", withinIzone);
 
+    SmartDashboard.putNumber("Setpoint", rpm);
+
     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
@@ -85,6 +87,10 @@ public class Shooter extends SubsystemBase {
     averageSpeed /= speedSample.size();
 
     return Math.abs(averageSpeed - speedPID.getSetpoint()) < RPM_TOLERANCE;
+  }
+
+  public void setIdle() {
+    this.runFlywheel(IDLE_SPEED);
   }
 
   public double getMotorRPM(){

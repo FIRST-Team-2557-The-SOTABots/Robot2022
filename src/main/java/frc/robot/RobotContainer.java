@@ -177,11 +177,8 @@ public class RobotContainer {
     shooter.setDefaultCommand(
       new RunCommand(
         () -> {
-          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0.5) {
-            shooter.setMotorRPM(UPPER_HUB_RPM);
-          } else {
-            shooter.setMotorRPM(0.0);
-          }
+          shooter.setIdle();
+          
         }, shooter)
     );
 
@@ -325,29 +322,22 @@ public class RobotContainer {
           double str = dStick.getRawAxis(LEFT_STICK_X);
           double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
-          if (limelight.targetDetected()) {
-            if (Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE) 
-              output = 0;
+          swerveDrive.drive(
+            -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+            -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+            limelight.targetDetected() ? // Me when the nested ternerary operater
+            Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE ? 
+            0 : output : -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
+          );
 
-            swerveDrive.drive(
-              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-              output
-            );
-            
+          if (limelight.targetDetected()) {            
             shooter.hoodUp();
             shooter.setMotorRPM(
               Constants.Shooter.RPM_EQUATION.apply(
                 limelight.getY()
               )
             );
-          } else {
-            swerveDrive.drive(
-              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-            );
-            
+          } else { 
             shooter.hoodDown();
             shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
           }
@@ -357,18 +347,18 @@ public class RobotContainer {
           else
             delivery.runMotor(0.0);
 
-          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
             swerveDrive.shiftDown();
-          } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+          else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) 
             swerveDrive.shiftUp();
-          }
+          
         },
         swerveDrive, delivery, shooter
       )
     ).whenReleased(
       new InstantCommand(
         () -> {
-          shooter.runFlywheel(0.0);
+          shooter.setIdle();
           delivery.runMotor(0.0);
         }
       )
@@ -389,7 +379,7 @@ public class RobotContainer {
     ).whenReleased(
       new InstantCommand(
         () -> {
-          shooter.runFlywheel(0.0);
+          shooter.setIdle();
           delivery.runMotor(0.0);
         },
         shooter, delivery
