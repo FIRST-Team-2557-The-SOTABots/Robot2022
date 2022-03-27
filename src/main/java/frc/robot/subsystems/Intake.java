@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
     motor = new CANSparkMax(MOTOR_PORT, MotorType.kBrushless);
     motor.restoreFactoryDefaults();
     motor.setInverted(MOTOR_INVERTED);
-    doubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
+    doubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
     retract();
     previousValue = RETRACT_VALUE;
     stateUpdateTimer = new Timer();
@@ -70,7 +70,5 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     updateRetracted();
-    SmartDashboard.putData(this);
-    SmartDashboard.putBoolean("intake extended", !isRetracted());
   }
 }

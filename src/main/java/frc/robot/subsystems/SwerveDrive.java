@@ -58,7 +58,7 @@ public class SwerveDrive extends SubsystemBase {
     gyro = new AHRS(Port.kMXP);
     gyro.reset();
     gyro.setAngleAdjustment(0.0);
-    shifter = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
+    shifter = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
     shiftDown();
 
     odometry = new SwerveDriveOdometry(swerveDriveKinematics, new Rotation2d(getGyroAngle()), new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
@@ -274,5 +274,9 @@ public class SwerveDrive extends SubsystemBase {
     updatePose();
     SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
     SmartDashboard.putNumber("gyro angle", getGyroAngle());
+
+    Pose2d pose = getPose();
+    SmartDashboard.putNumber("pose x", pose.getX());
+    SmartDashboard.putNumber("pose y", pose.getY());
   }
 }

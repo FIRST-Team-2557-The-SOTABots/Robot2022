@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
 
   /** Creates a new Shooter. */
   public Shooter() {
-    hoodSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
+    hoodSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
     
     motor1 = new CANSparkMax(MOTOR_1_PORT, MotorType.kBrushless);
     motor1.restoreFactoryDefaults();
@@ -102,9 +102,5 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     updateSpeedSample();
-    
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("set speed", speedPID.getSetpoint());
-    SmartDashboard.putNumber("actual speed", getMotorRPM());
   }
 }

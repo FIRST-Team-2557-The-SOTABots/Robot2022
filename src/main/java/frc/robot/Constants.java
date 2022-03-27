@@ -21,7 +21,7 @@ public final class Constants {
 
     // this is updated in robotPeriodic by a SmartDashboard call
     // certain constants differ between robots, this variable controls which is used
-    public static boolean isCompBot = false;
+    public static boolean isCompBot = true;
 
     public static final double METERS_PER_INCH = 0.0254;
 
@@ -307,6 +307,9 @@ public final class Constants {
         public static final double PATH_1_SHOOT_2_DURATION = 1.3;
         public static final double PATH_1_SHOOT_3_DURATION = 2;
         public static final double HUMAN_PLAYER_WAIT_TIME = 2;
+
+        public static final double PATH_2_SHOOT_1_DURATION = 2.0;
+        public static final double PATH_2_SHOOT_2_DURATION = 2.0;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 
