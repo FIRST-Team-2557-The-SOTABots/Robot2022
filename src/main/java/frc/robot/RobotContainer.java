@@ -84,6 +84,7 @@ public class RobotContainer {
   private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
   private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
   private JoystickButton mStart = new JoystickButton(mStick, START);
+  private JoystickButton mBack = new JoystickButton(mStick, BACK);
 
 
   private SendableChooser<Command> autoChooser;
@@ -174,6 +175,16 @@ public class RobotContainer {
       )
     );
 
+    shooter.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0.5)
+            shooter.setMotorRPM(SPOOL_RPM);
+        }, 
+        shooter
+        )
+    );
+
     intake.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -240,7 +251,7 @@ public class RobotContainer {
       )
     );
 
-    mStart.whileHeld(
+    mBack.whileHeld(
       new InstantCommand(
         () -> {
           climber.retractHooksNoEncoderLimit();
@@ -255,6 +266,24 @@ public class RobotContainer {
         },
         climber
       )
+    );
+
+    mStart.whileHeld(
+      new RunCommand(
+        () -> {
+          shooter.hoodDown();
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+
+          if (shooter.readyToShoot())
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          else
+            delivery.runMotor(0.0);
+
+        }, 
+        
+          shooter, delivery
+        
+        )
     );
 
     ma.whenPressed(
@@ -319,18 +348,13 @@ public class RobotContainer {
             Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE ? 
             0 : output : -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
           );
-
-          if (limelight.targetDetected()) {            
-            shooter.hoodUp();
-            shooter.setMotorRPM(
-              Constants.Shooter.RPM_EQUATION.apply(
-                limelight.getY()
-              )
-            );
-          } else { 
-            shooter.hoodDown();
-            shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-          }
+                    
+          shooter.hoodUp();
+          shooter.setMotorRPM(
+            Constants.Shooter.RPM_EQUATION.apply(
+              limelight.getY()
+            )
+          );
           
           if (shooter.readyToShoot())
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);

@@ -256,8 +256,7 @@ public final class Constants {
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_I_ZONE = 0.0; // in RPM, max error for integral to be active
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
-        // public static final double RPM_PER_DISTANCE = -28.0; // in limelight ty
-        // public static final double RPM_INTERCEPT = 4285.0;
+        public static final double SPOOL_RPM = 1000;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
             double A = 4270.0;
