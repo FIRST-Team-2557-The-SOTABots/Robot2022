@@ -284,6 +284,13 @@ public class RobotContainer {
           shooter, delivery
         
         )
+    ).whenPressed(
+      new InstantCommand(
+        () -> {
+          shooter.setMotorRPM(0.0);
+          delivery.runMotor(0.0);
+        }
+      )
     );
 
     ma.whenPressed(
