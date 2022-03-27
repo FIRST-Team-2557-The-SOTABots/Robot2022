@@ -21,7 +21,7 @@ public final class Constants {
 
     // this is updated in robotPeriodic by a SmartDashboard call
     // certain constants differ between robots, this variable controls which is used
-    public static boolean isCompBot = false;
+    public static boolean isCompBot = true;
 
     public static final double METERS_PER_INCH = 0.0254;
 
@@ -244,21 +244,20 @@ public final class Constants {
         public static final int MOTOR_2_PORT = 7;
         public static final boolean MOTOR_1_INVERTED = isCompBot ? false : true;
         public static final boolean MOTOR_2_INVERTED = !MOTOR_1_INVERTED;
-        public static final double RAMP_RATE = 0.75;
+        public static final double RAMP_RATE = 1.5; 
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
         public static final double RPM_TOLERANCE = 40; // in motor rpm
-        public static final double FEEDFORWARD_KS = isCompBot ?  0.0 : 0.0; // in volts
-        public static final double FEEDFORWARD_KV = isCompBot ? 0.00226 : 0.002126; // in volts
-        public static final double SPEED_PID_KP = 0.00035;
-        public static final double SPEED_PID_KI = 0.005;
+        public static final double FEEDFORWARD_KS = isCompBot ?  0.0 : 0.0; // in volts //TODO: REDO THIS
+        public static final double FEEDFORWARD_KV = isCompBot ? 0.00217 : 0.002126; // in volts
+        public static final double SPEED_PID_KP = 0.00031;
+        public static final double SPEED_PID_KI = 0.0; 
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_I_ZONE = 0.0; // in RPM, max error for integral to be active
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
         // public static final double RPM_PER_DISTANCE = -28.0; // in limelight ty
         // public static final double RPM_INTERCEPT = 4285.0;
-        public static final double IDLE_SPEED = 0.2;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
             double A = 4270.0;

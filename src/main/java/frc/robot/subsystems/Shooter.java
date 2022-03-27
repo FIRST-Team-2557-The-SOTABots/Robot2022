@@ -89,10 +89,6 @@ public class Shooter extends SubsystemBase {
     return Math.abs(averageSpeed - speedPID.getSetpoint()) < RPM_TOLERANCE;
   }
 
-  public void setIdle() {
-    this.runFlywheel(IDLE_SPEED);
-  }
-
   public double getMotorRPM(){
     return Math.abs(motor1.getEncoder().getVelocity());
   }
@@ -123,7 +119,7 @@ public class Shooter extends SubsystemBase {
     updateSpeedSample();
     
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("error", speedPID.getSetpoint() - getMotorRPM());
-    // SmartDashboard.putNumber("speed", getMotorRPM());
+    SmartDashboard.putNumber("error", speedPID.getSetpoint() - getMotorRPM());
+    SmartDashboard.putNumber("speed", getMotorRPM());
   }
 }

@@ -174,14 +174,6 @@ public class RobotContainer {
       )
     );
 
-    shooter.setDefaultCommand(
-      new RunCommand(
-        () -> {
-          shooter.setIdle();
-          
-        }, shooter)
-    );
-
     intake.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -198,13 +190,9 @@ public class RobotContainer {
     );
   }
 
-
-
   public void resetRobot() {
     climber.reset();
   }
-
-
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -312,6 +300,8 @@ public class RobotContainer {
     // But since the command is already scheduled, the initialize method is not called, 4
     // and the conditional command does not select the proper command
 
+    // Note: did some cleanup
+
     mx.whileHeld(
       new PIDCommand(
         new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
@@ -358,7 +348,7 @@ public class RobotContainer {
     ).whenReleased(
       new InstantCommand(
         () -> {
-          shooter.setIdle();
+          shooter.runFlywheel(0.0);
           delivery.runMotor(0.0);
         }
       )
@@ -379,7 +369,7 @@ public class RobotContainer {
     ).whenReleased(
       new InstantCommand(
         () -> {
-          shooter.setIdle();
+          shooter.runFlywheel(0.0);
           delivery.runMotor(0.0);
         },
         shooter, delivery
