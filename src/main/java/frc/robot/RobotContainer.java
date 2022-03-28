@@ -7,6 +7,8 @@ package frc.robot;
 import static frc.robot.util.Logitech.Ports.*;
 import static frc.robot.Constants.Swerve.*;
 import static frc.robot.Constants.LimeLight.*;
+import static frc.robot.Constants.Intake.*;
+import static frc.robot.Constants.Delivery.*;
 
 import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
@@ -258,6 +260,49 @@ public class RobotContainer {
       )
     );
 
+    ma.whenHeld(
+      new RunCommand(
+        () -> {
+          intake.extend();
+          intake.run(-SPEED);
+          delivery.runMotor(-SHOOTING_SPEED);
+        }, 
+          delivery, intake
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          intake.retract();
+          intake.run(0.0);
+          delivery.runMotor(0.0);
+        },
+
+        delivery, intake
+
+      )
+    );
+
+    mb.whenPressed(
+      new RunCommand(
+        ()-> {
+          delivery.runMotor(-INDEXING_SPEED);
+        },
+
+        delivery
+
+      )
+
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          delivery.runMotor(0.0);
+        },
+
+        delivery
+
+      )
+    );
+
     mx.whenHeld(
       new ConditionalCommand(
         parallel(
@@ -463,8 +508,9 @@ public class RobotContainer {
 
     PathPlannerTrajectory path2A = PathPlanner.loadPath("Path_2_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path2B = PathPlanner.loadPath("Path_2_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+    PathPlannerTrajectory path2C = PathPlanner.loadPath("Path_2_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
 
-    autoChooser.addOption("Auto 2", 
+    autoChooser.addOption("2 Ball Steal", 
       sequence(
         new InstantCommand(
           () -> {
@@ -490,18 +536,11 @@ public class RobotContainer {
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
-        new RunCommand(
-          () -> {
-            shooter.hoodUp();
-            shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-            if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        ).withTimeout(Constants.Auto.PATH_2_SHOOT_2_DURATION),
-        generateStopShooterDeliveryCommand()
+        generateRunOuttakeCommand().withTimeout(Constants.Auto.PATH_2_OUTTAKE_2_DURATION),
+        generateResetAppendageCommand(),
+        generateStopShooterDeliveryCommand(), // Maybe make a seperate stop delivery command, but cant see a problem with this
+        generatePPSwerveControllerCommand(path2C),
+        generateStopDrivetrainCommand()
       )
     );
   }
@@ -554,6 +593,17 @@ public class RobotContainer {
         }, 
         intake
       )
+    );
+  }
+
+  private RunCommand generateRunOuttakeCommand() {
+    return new RunCommand(
+      () -> {
+        intake.extend();
+        intake.run(-SPEED);
+        delivery.runMotor(-SHOOTING_SPEED);
+      }, 
+        delivery, intake
     );
   }
 

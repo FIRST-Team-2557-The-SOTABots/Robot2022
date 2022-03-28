@@ -309,7 +309,7 @@ public final class Constants {
         public static final double HUMAN_PLAYER_WAIT_TIME = 2;
 
         public static final double PATH_2_SHOOT_1_DURATION = 2.0;
-        public static final double PATH_2_SHOOT_2_DURATION = 2.0;
+        public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 
