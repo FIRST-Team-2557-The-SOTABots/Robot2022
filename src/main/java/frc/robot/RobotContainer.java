@@ -402,7 +402,7 @@ public class RobotContainer {
     PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1D = PathPlanner.loadPath("Path_1_D", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
 
-    autoChooser.addOption("Auto 1",
+    autoChooser.addOption("5 Ball",
       sequence(
         new InstantCommand(
           () -> {
