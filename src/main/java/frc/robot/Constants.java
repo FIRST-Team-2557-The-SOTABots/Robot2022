@@ -21,7 +21,7 @@ public final class Constants {
 
     // this is updated in robotPeriodic by a SmartDashboard call
     // certain constants differ between robots, this variable controls which is used
-    public static boolean isCompBot = true;
+    public static boolean isCompBot = false;
 
     public static final double METERS_PER_INCH = 0.0254;
 
@@ -151,12 +151,12 @@ public final class Constants {
         public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false};
 
         public static final int[] SPEED_MOTOR_PORTS = {3, 2, 1, 0};
-        public static final boolean[] SPEED_MOTOR_INVERTS_PRACTICE_BOT = {true, true, true, true};
+        public static final boolean[] SPEED_MOTOR_INVERTS_PRACTICE_BOT = {false, false, false, false};
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
         public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {2.820, 0.911, 2.064, 0.054}; // in encoder counts
-        public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.789, 0.037, 1.718, 2.883}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {1.154, 4.637, 4.338, 1.361}; // in encoder counts
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
 
@@ -259,14 +259,15 @@ public final class Constants {
         public static final double SPOOL_RPM = UPPER_HUB_RPM * (2/3);
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 4270.0;
-            double B = -55.67;
-            double C = 6.205;
-            double D = -0.1496;
-            double E = -0.01465;
+            double A = 3927.177; // 4270.0 Old equation
+            double B = -49.8314; // -55.67
+            double C = 8.8879;   // 6.205
+            double D = 0.0126;   // -0.1496
+            double E = -0.0493;  // -0.01465
 
             return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
         };
+
     }
 
     public static final class LimeLight {
