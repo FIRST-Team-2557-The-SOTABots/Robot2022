@@ -256,14 +256,14 @@ public final class Constants {
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_I_ZONE = 0.0; // in RPM, max error for integral to be active
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
-        public static final double SPOOL_RPM = UPPER_HUB_RPM * (2/3);
+        public static final double SPOOL_RPM = UPPER_HUB_RPM * 0.66;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 3927.177; // 4270.0 Old equation
-            double B = -49.8314; // -55.67
-            double C = 8.8879;   // 6.205
-            double D = 0.0126;   // -0.1496
-            double E = -0.0493;  // -0.01465
+            double A = 4142.1171; // 4270.0 Old equation
+            double B = -66.6285; // -55.67
+            double C = 11.3191;   // 6.205
+            double D = 0.1503;   // -0.1496
+            double E = -0.0694;  // -0.01465
 
             return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
         };

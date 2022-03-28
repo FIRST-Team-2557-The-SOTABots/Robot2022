@@ -293,20 +293,25 @@ public class RobotContainer {
       )
     );
 
-    ma.whenPressed(
+    ma.whenHeld(
       new RunCommand(
         () -> {
           intake.extend();
           intake.run(-SPEED);
           delivery.runMotor(-SHOOTING_SPEED);
-        }, delivery, intake)
+        }, 
+          delivery, intake
+        )
     ).whenReleased(
       new InstantCommand(
         () -> {
           intake.retract();
           intake.run(0.0);
           delivery.runMotor(0.0);
-        }
+        },
+
+        delivery, intake
+
       )
     );
 
