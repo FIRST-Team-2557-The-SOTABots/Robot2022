@@ -259,11 +259,11 @@ public final class Constants {
         public static final double SPOOL_RPM = UPPER_HUB_RPM * 0.66;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 4142.1171; // 4270.0 Old equation
-            double B = -66.6285; // -55.67
-            double C = 11.3191;   // 6.205
-            double D = 0.1503;   // -0.1496
-            double E = -0.0694;  // -0.01465
+            double A = 4142.1171; // https://www.desmos.com/calculator/afs2awaua6
+            double B = -66.6285; 
+            double C = 11.3191;  
+            double D = 0.1503;   
+            double E = -0.0694;  
 
             return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
         };
