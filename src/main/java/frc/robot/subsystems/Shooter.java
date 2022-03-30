@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
 
   /** Creates a new Shooter. */
   public Shooter() {
-    hoodSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
+    hoodSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
     
     motor1 = new CANSparkMax(MOTOR_1_PORT, MotorType.kBrushless);
     motor1.restoreFactoryDefaults();

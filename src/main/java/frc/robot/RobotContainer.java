@@ -26,8 +26,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -179,6 +181,7 @@ public class RobotContainer {
           if (mStick.getRawAxis(LEFT_TRIGGER) > 0) {
             intake.extend();
             intake.run(Constants.Intake.SPEED); 
+            
           } else {
             intake.retract();
             intake.run(0.0);
@@ -452,15 +455,14 @@ public class RobotContainer {
         new InstantCommand(
           () -> {
             swerveDrive.shiftUp();
-            swerveDrive.setPose(path1A.getInitialState());
+            swerveDrive.setPose(path1A.getInitialState()); 
           }, 
           swerveDrive
         ),
         deadline(
           generatePPSwerveControllerCommand(path1A),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          generateRevFlywheelCommand()
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -469,8 +471,7 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1B),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          generateRevFlywheelCommand()
         ),
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
@@ -478,15 +479,12 @@ public class RobotContainer {
         generateStopShooterDeliveryCommand(),
         deadline(
           generatePPSwerveControllerCommand(path1C),
-          generateRunAppendageCommand(),
-          new UnendingProxyScheduleCommand(
-            new DeliveryCommand(delivery, intake)
-          )
+          generateRunAppendageCommand()
+
         ),
         generateStopDrivetrainCommand(),
         deadline(
-          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-          new DeliveryCommand(delivery, intake)
+          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME)
         ),
         deadline(
           generatePPSwerveControllerCommand(path1D),
@@ -522,8 +520,7 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path2A),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          generateRevFlywheelCommand()
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -531,8 +528,7 @@ public class RobotContainer {
         generateStopShooterDeliveryCommand(),
         deadline(
           generatePPSwerveControllerCommand(path2B),
-          generateRunAppendageCommand(),
-          new DeliveryCommand(delivery, intake)
+          generateRunAppendageCommand()
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -576,35 +572,30 @@ public class RobotContainer {
       }
     );
   }
-
   /**
-   * Creates an {@link UnendingProxyScheduleCommand} to repeatedly schedule the intake to extend and run.
-   * This allows the command itself to be interrupted by the delivery default command then become scheduled again,
-   * while still allowing the proxy command itself to be interrupted.
+   * runs and extends appendage for indefinite time
+   * replacement for old command to work in deadline groups
    * 
-   * @return a command to run the intake during autonomous
+   * @return
    */
-  private UnendingProxyScheduleCommand generateRunAppendageCommand() {
-    return new UnendingProxyScheduleCommand(
-        new RunCommand(
-        () -> {
-          intake.extend();
-          intake.run(Constants.Intake.SPEED);
-        }, 
-        intake
-      )
+  private CommandBase generateRunAppendageCommand(){
+    return parallel(
+      new RunCommand(() -> intake.extend()),
+      new RunCommand(() -> intake.run(Constants.Intake.SPEED)),
+      new DeliveryCommand(delivery, intake)
+      
     );
+
   }
 
-  private RunCommand generateRunOuttakeCommand() {
-    return new RunCommand(
-      () -> {
-        intake.extend();
-        intake.run(-SPEED);
-        delivery.runMotor(-SHOOTING_SPEED);
-      }, 
-        delivery, intake
+  private CommandBase generateRunOuttakeCommand() {
+    return parallel(
+      new RunCommand(() -> intake.extend()),
+      new RunCommand(() -> intake.run(-Constants.Intake.SPEED)),
+      new RunCommand(() -> delivery.runMotor(-SHOOTING_SPEED)) 
+
     );
+    
   }
 
   private CommandBase generateAutoShootCommand() {

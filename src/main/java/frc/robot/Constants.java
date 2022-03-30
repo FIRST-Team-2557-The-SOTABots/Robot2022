@@ -180,8 +180,8 @@ public final class Constants {
 
         public static final int FORWARD_CHANNEL_PORT = 6; 
         public static final int REVERSE_CHANNEL_PORT = 7;
-        public static final Value LOW_GEAR_VALUE = Value.kForward;
-        public static final Value HIGH_GEAR_VALUE = Value.kReverse;
+        public static final Value LOW_GEAR_VALUE = isCompBot ? Value.kReverse : Value.kForward;
+        public static final Value HIGH_GEAR_VALUE = isCompBot ? Value.kForward : Value.kReverse;
 
         // in counts per revolution
         public static final double TALON_ENCODER_CPR = 2048;
