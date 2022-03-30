@@ -183,6 +183,9 @@ public class RobotContainer {
         () -> {
           if (mStick.getRawAxis(RIGHT_TRIGGER) > 0.5)
             shooter.setMotorRPM(SPOOL_RPM);
+          else {
+            shooter.setMotorRPM(0.0);
+          }
         }, 
         shooter
         )
@@ -297,14 +300,41 @@ public class RobotContainer {
     );
 
     ma.whenHeld(
-      new RunCommand(
-        () -> {
-          intake.extend();
-          intake.run(-SPEED);
-          delivery.runMotor(-SHOOTING_SPEED);
-        }, 
-          delivery, intake
+      parallel(
+        new RunCommand(
+          () -> {
+
+            intake.extend();
+            intake.run(-SPEED);
+
+          }, 
+          
+            intake
+
+        ),
+
+        sequence(
+          new RunCommand(
+            () -> {
+              delivery.runMotor(-SHOOTING_SPEED);
+            }, 
+            
+            delivery
+            
+          ).withTimeout(MAX_DELIVERY_DURATION),
+
+          new WaitCommand(COOLDOWN)
         )
+
+      )
+      // new RunCommand(
+      //   () -> {
+      //     intake.extend();
+      //     intake.run(-SPEED);
+      //     delivery.runMotor(-SHOOTING_SPEED);
+      //   }, 
+      //     delivery, intake
+      //   )
     ).whenReleased(
       new InstantCommand(
         () -> {
@@ -362,20 +392,18 @@ public class RobotContainer {
             limelight.targetDetected() ? // Me when the nested ternerary operater
             Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE ? 
             0 : output : -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-            
           );
                     
           shooter.hoodUp();
           shooter.setMotorRPM(
+            MAX_TY > limelight.getY() && limelight.getY() > MIN_TY ?  // if not in ty tolerance then no rev
             Constants.Shooter.RPM_EQUATION.apply(
               limelight.getY()
-            )
+            ) 
+            : 0.0
           );
           
-          if (shooter.readyToShoot())
-            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
-            delivery.runMotor(0.0);
+          delivery.runMotor(shooter.readyToShoot() ? Constants.Delivery.SHOOTING_SPEED : 0.0);
 
           if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
             swerveDrive.shiftDown();

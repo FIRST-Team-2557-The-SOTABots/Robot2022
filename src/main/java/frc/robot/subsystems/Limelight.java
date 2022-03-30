@@ -65,7 +65,10 @@ public class Limelight extends SubsystemBase {
       SmartDashboard.putString("Shoot Status", "No target");
     } else if (getY() < MIN_TY) {
       SmartDashboard.putString("Shoot Status", "Too far");
-    } else {
+    }  else if (getY() > MAX_TY) {
+      SmartDashboard.putString("Shoot Status", "Too close");
+    }
+      else {
       SmartDashboard.putString("Shoot Status", new String(Character.toChars(0x1F604)) + new String(Character.toChars(0x1F44D)));
     }
 

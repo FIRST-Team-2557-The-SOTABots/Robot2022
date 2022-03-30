@@ -21,7 +21,7 @@ public final class Constants {
 
     // this is updated in robotPeriodic by a SmartDashboard call
     // certain constants differ between robots, this variable controls which is used
-    public static boolean isCompBot = false;
+    public static boolean isCompBot = true;
 
     public static final double METERS_PER_INCH = 0.0254;
 
@@ -151,12 +151,12 @@ public final class Constants {
         public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false};
 
         public static final int[] SPEED_MOTOR_PORTS = {3, 2, 1, 0};
-        public static final boolean[] SPEED_MOTOR_INVERTS_PRACTICE_BOT = {false, false, false, false};
+        public static final boolean[] SPEED_MOTOR_INVERTS_PRACTICE_BOT = {true, false, false, true};
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
         public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {2.820, 0.911, 2.064, 0.054}; // in encoder counts
-        public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {1.154, 4.637, 4.338, 1.361}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
 
@@ -219,7 +219,7 @@ public final class Constants {
         public static final double SHIFT_UP_MIN_INPUT = 1.0; // input above which shift up with high demand occurs
         public static final double SHIFT_COOLDOWN = 1.0; // in seconds
 
-        public static final double TARGET_SEARCH_KP = 0.05;
+        public static final double TARGET_SEARCH_KP = 0.075;
         public static final double TARGET_SEARCH_KI = 0.0;
         public static final double TARGET_SEARCH_KD = 0.0;
     }
@@ -259,11 +259,11 @@ public final class Constants {
         public static final double SPOOL_RPM = UPPER_HUB_RPM * 0.66;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 4142.1171; // https://www.desmos.com/calculator/afs2awaua6
-            double B = -66.6285; 
-            double C = 11.3191;  
-            double D = 0.1503;   
-            double E = -0.0694;  
+            double A = 4127.177; // https://www.desmos.com/calculator/afs2awaua6
+            double B = -49.8314; 
+            double C = 8.8879;  
+            double D = 0.0426;   
+            double E = -0.0493;  
 
             return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
         };
@@ -272,8 +272,9 @@ public final class Constants {
 
     public static final class LimeLight {
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 1.5;
+        public static final double AUTOAIM_TOLERANCE = 1.0;
         public static final double MIN_TY = -8;
+        public static final double MAX_TY = 11;
     }
 
     public static class Delivery {
@@ -286,7 +287,7 @@ public final class Constants {
         public static final double INDEXING_SPEED = 0.5;
         public static final double SHOOTING_SPEED = 0.7;
         public static final boolean MOTOR_INVERTED = true;
-        public static final double COOLDOWN = 0.5; // in seconds
+        public static final double COOLDOWN = 0.75; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
         public static final double SENSOR_1_FILTER_TIME_CONSTANT = 0.1; // in seconds
