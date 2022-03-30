@@ -479,9 +479,7 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1C),
           generateRunAppendageCommand(),
-          new UnendingProxyScheduleCommand(
-            new DeliveryCommand(delivery, intake)
-          )
+          new DeliveryCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         deadline(

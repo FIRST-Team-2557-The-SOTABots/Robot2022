@@ -180,8 +180,8 @@ public final class Constants {
 
         public static final int FORWARD_CHANNEL_PORT = 6; 
         public static final int REVERSE_CHANNEL_PORT = 7;
-        public static final Value LOW_GEAR_VALUE = Value.kForward;
-        public static final Value HIGH_GEAR_VALUE = Value.kReverse;
+        public static final Value LOW_GEAR_VALUE = isCompBot ? Value.kReverse : Value.kForward;
+        public static final Value HIGH_GEAR_VALUE = isCompBot ? Value.kForward : Value.kReverse;
 
         // in counts per revolution
         public static final double TALON_ENCODER_CPR = 2048;
@@ -251,7 +251,7 @@ public final class Constants {
         public static final double RPM_TOLERANCE = 40; // in motor rpm
         public static final double FEEDFORWARD_KS = isCompBot ? 0.1860 : 0.03269; // in volts
         public static final double FEEDFORWARD_KV = isCompBot ? 0.002110 : 0.002114; // in volts
-        public static final double SPEED_PID_KP = 0.00003;
+        public static final double SPEED_PID_KP = 0.000031;
         public static final double SPEED_PID_KI = 0.0;
         public static final double SPEED_PID_KD = 0.0;
         public static final double SHOOT_COOLDOWN = 1.0; // in seconds
@@ -260,11 +260,11 @@ public final class Constants {
         // public static final double RPM_INTERCEPT = 4285.0;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 4270.0;
-            double B = -55.67;
-            double C = 6.205;
-            double D = -0.1496;
-            double E = -0.01465;
+            double A = 4125.4004; // https://www.desmos.com/calculator/afs2awaua6
+            double B = -55.4491; 
+            double C = 7.6084;  
+            double D = 0.0476;   
+            double E = -0.0393;  
 
             return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
         };

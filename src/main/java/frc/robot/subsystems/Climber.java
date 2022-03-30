@@ -49,7 +49,7 @@ public class Climber extends SubsystemBase {
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
     angleMotor.setInverted(ANGLE_HOOK_INVERTED);
     angleMotor.setNeutralMode(NeutralMode.Brake);
-    angleLock = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
+    angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
     
     leftBotMagSensor = new DigitalInput(LEFT_BOT_MAG_SENSOR_PORT);
     rightBotMagSensor = new DigitalInput(RIGHT_BOT_MAG_SENSOR_PORT);
