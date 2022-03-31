@@ -260,11 +260,11 @@ public final class Constants {
         // public static final double RPM_INTERCEPT = 4285.0;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 4125.4004; // https://www.desmos.com/calculator/afs2awaua6
-            double B = -55.4491; 
-            double C = 7.6084;  
-            double D = 0.0476;   
-            double E = -0.0393;  
+            double A = 4114.2416; // https://www.desmos.com/calculator/afs2awaua6
+            double B = -59.1719; 
+            double C = 7.6789;  
+            double D = 0.0835;   
+            double E = -0.0413;  
 
             return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
         };
@@ -272,7 +272,7 @@ public final class Constants {
 
     public static final class LimeLight {
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 3.5;
+        public static final double AUTOAIM_TOLERANCE = 1.0;
         public static final double MIN_TY = -8;
     }
 
@@ -301,10 +301,10 @@ public final class Constants {
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
-        public static final double FLYWHEEL_IDLE_SPEED = 4000; // in seconds, time intake spends out
+        public static final double FLYWHEEL_IDLE_SPEED = 3500; // in seconds, time intake spends out
 
-        public static final double PATH_1_SHOOT_1_DURATION = 1.5;
-        public static final double PATH_1_SHOOT_2_DURATION = 1.3;
+        public static final double PATH_1_SHOOT_1_DURATION = 1.75;
+        public static final double PATH_1_SHOOT_2_DURATION = 1.5;
         public static final double PATH_1_SHOOT_3_DURATION = 2;
         public static final double HUMAN_PLAYER_WAIT_TIME = 2;
 

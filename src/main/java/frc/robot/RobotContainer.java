@@ -594,7 +594,7 @@ public class RobotContainer {
     );
   }
 
-  private RunCommand generateRunOuttakeCommand() {
+  private CommandBase generateRunOuttakeCommand() {
     return new RunCommand(
       () -> {
         intake.extend();
@@ -602,7 +602,7 @@ public class RobotContainer {
         delivery.runMotor(-SHOOTING_SPEED);
       }, 
         delivery, intake
-    );
+    ).withName("Outtake");
   }
 
   private CommandBase generateAutoShootCommand() {
