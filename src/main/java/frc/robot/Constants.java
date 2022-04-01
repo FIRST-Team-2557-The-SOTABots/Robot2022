@@ -260,13 +260,20 @@ public final class Constants {
         public static final double SPOOL_RPM = UPPER_HUB_RPM * 0.66;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 4127.177; // https://www.desmos.com/calculator/afs2awaua6
-            double B = -49.8314; 
-            double C = 8.8879;  
-            double D = 0.0426;   
-            double E = -0.0493;  
+            double A = 4051; 
+            double B = -1.110; 
+            double C = 4.653;  
+            double D = -1.859;   
+            double E = -0.001278;
+            double F = 0.01852;  
 
-            return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
+            return 
+                A + 
+                B * x + 
+                C * Math.pow(x, 2) + 
+                D * Math.pow(x, 3) + 
+                E * Math.pow(x, 4) + 
+                F * Math.pow(x, 5);
         };
 
     }
@@ -286,12 +293,13 @@ public final class Constants {
         public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
         public static final int SENSOR_1_THRESHOLD = 30;
         public static final double INDEXING_SPEED = 0.5;
-        public static final double SHOOTING_SPEED = 0.7; // TODO: turn this back 
+        public static final double SHOOTING_SPEED = 0.5; // TODO: turn this back 
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 0.75; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
         public static final double SENSOR_1_FILTER_TIME_CONSTANT = 0.1; // in seconds
+        public static final double RAMP_RATE = 0.5;
     }
 
     public static class Auto {

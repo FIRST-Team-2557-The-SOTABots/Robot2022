@@ -25,6 +25,7 @@ public class Delivery extends SubsystemBase {
     deliveryMotor.configFactoryDefault();
     deliveryMotor.setInverted(MOTOR_INVERTED);
     deliveryMotor.setNeutralMode(NeutralMode.Brake);
+    deliveryMotor.configOpenloopRamp(RAMP_RATE);
 
     sensor1 = new DigitalInput(SENSOR_1_PORT);
     sensor2 = new DigitalInput(SENSOR_2_PORT);

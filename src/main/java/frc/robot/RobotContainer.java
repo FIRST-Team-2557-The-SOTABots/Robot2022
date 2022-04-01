@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.RunDelivery;
@@ -88,7 +89,6 @@ public class RobotContainer {
   private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
   private JoystickButton mStart = new JoystickButton(mStick, START);
   private JoystickButton mBack = new JoystickButton(mStick, BACK);
-
 
   private SendableChooser<Command> autoChooser;
 
@@ -376,45 +376,49 @@ public class RobotContainer {
     // Note: did some cleanup
 
     mx.whileHeld(
-      new PIDCommand(
-        new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
-        () -> limelight.getX(), 
-        LIMELIGHT_CENTER, 
-        (double output) -> {
-          double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-          double str = dStick.getRawAxis(LEFT_STICK_X);
-          double rot = dStick.getRawAxis(RIGHT_STICK_X);
+      new AutoAim(limelight, shooter, delivery, swerveDrive, dStick)
+      // new PIDCommand(
+      //   new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
+      //   () -> limelight.getX(), 
+      //   LIMELIGHT_CENTER, 
+      //   (double output) -> {
+      //     double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+      //     double str = dStick.getRawAxis(LEFT_STICK_X);
+      //     double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
-          swerveDrive.drive(
-            -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-            -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-            limelight.targetDetected() ? // Me when the nested ternerary operater
-            Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE ? 
-            0 : output : -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-          );
+      //     swerveDrive.drive(
+      //       -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+      //       -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+      //       limelight.targetDetected() ? // Me when the nested ternerary operater
+      //       Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE ? 
+      //       0 : output : -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
+      //     );
                     
-          shooter.hoodUp();
-          shooter.setMotorRPM(
-            MAX_TY > limelight.getY() && limelight.getY() > MIN_TY ?  // if not in ty tolerance then no rev
-            Constants.Shooter.RPM_EQUATION.apply(
-              limelight.getY()
-            ) 
-            : 0.0
-          );
+      //     shooter.hoodUp();
+      //     shooter.setMotorRPM(
+      //       // MAX_TY > limelight.getY() && limelight.getY() > MIN_TY ?  // if not in ty tolerance then no rev
+      //       // Constants.Shooter.RPM_EQUATION.apply(
+      //       //   limelight.getY()
+      //       // ) 
+      //       // : 0.0
+      //       rpm
+      //     );
           
-          delivery.runMotor(
-            shooter.readyToShoot() && limelight.targetDetected() ? 
-              Constants.Delivery.SHOOTING_SPEED : 0.0
-          );
+      //     if (shooter.readyToShoot() && limelight.targetDetected()) {
+      //       delivery.runMotor(
+      //         Constants.Delivery.SHOOTING_SPEED
+      //       );
+      //     }
+          
 
-          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
-            swerveDrive.shiftDown();
-          else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) 
-            swerveDrive.shiftUp();
+      //     if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
+      //       swerveDrive.shiftDown();
+      //     else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) 
+      //       swerveDrive.shiftUp();
           
-        },
-        swerveDrive, delivery, shooter
-      )
+      //   },
+      //   swerveDrive, delivery, shooter
+      // )
     ).whenReleased(
       new InstantCommand(
         () -> {
@@ -446,12 +450,14 @@ public class RobotContainer {
       )
     );
 
-    mlb.whenPressed(
-      sequence(
-        new InstantCommand(() -> shooter.hoodDown()),
-        new ClimbSequenceCommand(climber, mrb::get)
-      )     
-    );
+    // mlb.whenPressed(
+    //   sequence(
+    //     new InstantCommand(() -> shooter.hoodDown()),
+    //     new ClimbSequenceCommand(climber, mrb::get)
+    //   )     
+    // );
+
+    
 
     // new JoystickButton(mStick, BACK).whenHeld(
     //   new RunCommand(
