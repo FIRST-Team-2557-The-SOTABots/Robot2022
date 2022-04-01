@@ -94,7 +94,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
     configureDefaultCommands();
 
     configureButtonBindings();
@@ -403,7 +402,10 @@ public class RobotContainer {
             : 0.0
           );
           
-          delivery.runMotor(shooter.readyToShoot() ? Constants.Delivery.SHOOTING_SPEED : 0.0);
+          delivery.runMotor(
+            shooter.readyToShoot() && limelight.targetDetected() ? 
+              Constants.Delivery.SHOOTING_SPEED : 0.0
+          );
 
           if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
             swerveDrive.shiftDown();

@@ -34,10 +34,11 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     CameraServer.startAutomaticCapture();
     // SmartDashboard.putNumber("setpoint", 5000);
-    // SmartDashboard.putNumber("izone", 100);
-    // SmartDashboard.putNumber("kp", Constants.Shooter.SPEED_PID_KP);
-    // SmartDashboard.putNumber("ki", Constants.Shooter.SPEED_PID_KI);
-    // SmartDashboard.putNumber("kd", Constants.Shooter.SPEED_PID_KD);
+    SmartDashboard.putNumber("izone", 100);
+    SmartDashboard.putNumber("kp", Constants.Shooter.SPEED_PID_KP);
+    SmartDashboard.putNumber("ki", Constants.Shooter.SPEED_PID_KI);
+    SmartDashboard.putNumber("kd", Constants.Shooter.SPEED_PID_KD);
+    
   }
 
   /**

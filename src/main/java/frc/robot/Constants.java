@@ -155,7 +155,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {2.820, 0.911, 2.064, 0.054}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {2.781, 0.933, 2.135, 3.359}; // in encoder counts, changed offset 3 and 2
         public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
 
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
@@ -249,14 +249,14 @@ public final class Constants {
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
-        public static final double RPM_TOLERANCE = 40; // in motor rpm
-        public static final double FEEDFORWARD_KS = isCompBot ?  0.0 : 0.0; // in volts //TODO: REDO THIS
+        public static final double RPM_TOLERANCE = 100; // in motor rpm
+        public static final double FEEDFORWARD_KS = isCompBot ?  -0.1085 : 0.0; // in volts //TODO: REDO THIS
         public static final double FEEDFORWARD_KV = isCompBot ? 0.00217 : 0.002126; // in volts
-        public static final double SPEED_PID_KP = 0.00031;
+        public static final double SPEED_PID_KP = 0.0015;
         public static final double SPEED_PID_KI = 0.0; 
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_I_ZONE = 0.0; // in RPM, max error for integral to be active
-        public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
+        public static final int SPEED_SAMPLE_SIZE_LIMIT = 10;
         public static final double SPOOL_RPM = UPPER_HUB_RPM * 0.66;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
@@ -273,7 +273,7 @@ public final class Constants {
 
     public static final class LimeLight {
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 1.0;
+        public static final double AUTOAIM_TOLERANCE = 2.0;
         public static final double MIN_TY = -8;
         public static final double MAX_TY = 11;
     }
@@ -286,7 +286,7 @@ public final class Constants {
         public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
         public static final int SENSOR_1_THRESHOLD = 30;
         public static final double INDEXING_SPEED = 0.5;
-        public static final double SHOOTING_SPEED = 0.7;
+        public static final double SHOOTING_SPEED = 0.7; // TODO: turn this back 
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 0.75; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
