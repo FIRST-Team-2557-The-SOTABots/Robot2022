@@ -117,9 +117,5 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     updateSpeedSample();
-    
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("error", speedPID.getSetpoint() - getMotorRPM());
-    SmartDashboard.putNumber("speed", getMotorRPM());
   }
 }

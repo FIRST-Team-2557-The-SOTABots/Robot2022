@@ -181,8 +181,8 @@ public final class Constants {
 
         public static final int FORWARD_CHANNEL_PORT = 6; 
         public static final int REVERSE_CHANNEL_PORT = 7;
-        public static final Value LOW_GEAR_VALUE = Value.kForward;
-        public static final Value HIGH_GEAR_VALUE = Value.kReverse;
+        public static final Value LOW_GEAR_VALUE = isCompBot ? Value.kReverse : Value.kForward;
+        public static final Value HIGH_GEAR_VALUE = isCompBot ? Value.kForward : Value.kReverse;
 
         // in counts per revolution
         public static final double TALON_ENCODER_CPR = 2048;
@@ -254,6 +254,7 @@ public final class Constants {
         public static final double FEEDFORWARD_KV = isCompBot ? 0.00217 : 0.002126; // in volts
         public static final double SPEED_PID_KP = 0.0015;
         public static final double SPEED_PID_KI = 0.0; 
+
         public static final double SPEED_PID_KD = 0.0;
         public static final double SPEED_PID_I_ZONE = 0.0; // in RPM, max error for integral to be active
         public static final int SPEED_SAMPLE_SIZE_LIMIT = 10;
@@ -311,12 +312,15 @@ public final class Constants {
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
-        public static final double FLYWHEEL_IDLE_SPEED = 4000; // in seconds, time intake spends out
+        public static final double FLYWHEEL_IDLE_SPEED = 3500; // in seconds, time intake spends out
 
-        public static final double PATH_1_SHOOT_1_DURATION = 1.5;
-        public static final double PATH_1_SHOOT_2_DURATION = 1.3;
+        public static final double PATH_1_SHOOT_1_DURATION = 1.75;
+        public static final double PATH_1_SHOOT_2_DURATION = 1.5;
         public static final double PATH_1_SHOOT_3_DURATION = 2;
         public static final double HUMAN_PLAYER_WAIT_TIME = 2;
+
+        public static final double PATH_2_SHOOT_1_DURATION = 2.0;
+        public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 

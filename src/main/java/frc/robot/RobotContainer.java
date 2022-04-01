@@ -30,8 +30,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -196,6 +198,7 @@ public class RobotContainer {
           if (mStick.getRawAxis(LEFT_TRIGGER) > 0) {
             intake.extend();
             intake.run(Constants.Intake.SPEED); 
+            
           } else {
             intake.retract();
             intake.run(0.0);
@@ -525,20 +528,19 @@ public class RobotContainer {
     PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1D = PathPlanner.loadPath("Path_1_D", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
 
-    autoChooser.addOption("Auto 1",
+    autoChooser.addOption("5 Ball",
       sequence(
         new InstantCommand(
           () -> {
             swerveDrive.shiftUp();
-            swerveDrive.setPose(path1A.getInitialState());
+            swerveDrive.setPose(path1A.getInitialState()); 
           }, 
           swerveDrive
         ),
         deadline(
           generatePPSwerveControllerCommand(path1A),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          generateRevFlywheelCommand()
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -547,8 +549,7 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1B),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          generateRevFlywheelCommand()
         ),
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
@@ -561,8 +562,7 @@ public class RobotContainer {
         ),
         generateStopDrivetrainCommand(),
         deadline(
-          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-          new DeliveryCommand(delivery, intake)
+          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME)
         ),
         deadline(
           generatePPSwerveControllerCommand(path1D),
@@ -580,6 +580,42 @@ public class RobotContainer {
       )
       .withTimeout(Constants.Auto.DURATION)
       .andThen(() -> swerveDrive.setFieldCentricActive(true))
+    );
+
+    PathPlannerTrajectory path2A = PathPlanner.loadPath("Path_2_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+    PathPlannerTrajectory path2B = PathPlanner.loadPath("Path_2_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+    PathPlannerTrajectory path2C = PathPlanner.loadPath("Path_2_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+
+    autoChooser.addOption("2 Ball Steal", 
+      sequence(
+        new InstantCommand(
+          () -> {
+            swerveDrive.shiftUp();
+            swerveDrive.setPose(path2A.getInitialState());
+          }, 
+          swerveDrive
+        ),
+        deadline(
+          generatePPSwerveControllerCommand(path2A),
+          generateRunAppendageCommand(),
+          generateRevFlywheelCommand()
+        ),
+        generateStopDrivetrainCommand(),
+        generateResetAppendageCommand(),
+        generateAutoShootCommand().withTimeout(Constants.Auto.PATH_2_SHOOT_1_DURATION),
+        generateStopShooterDeliveryCommand(),
+        deadline(
+          generatePPSwerveControllerCommand(path2B),
+          generateRunAppendageCommand()
+        ),
+        generateStopDrivetrainCommand(),
+        generateResetAppendageCommand(),
+        generateRunOuttakeCommand().withTimeout(Constants.Auto.PATH_2_OUTTAKE_2_DURATION),
+        generateResetAppendageCommand(),
+        generateStopShooterDeliveryCommand(), // Maybe make a seperate stop delivery command, but cant see a problem with this
+        generatePPSwerveControllerCommand(path2C),
+        generateStopDrivetrainCommand()
+      )
     );
   }
 
@@ -614,24 +650,31 @@ public class RobotContainer {
       }
     );
   }
-
   /**
-   * Creates an {@link UnendingProxyScheduleCommand} to repeatedly schedule the intake to extend and run.
-   * This allows the command itself to be interrupted by the delivery default command then become scheduled again,
-   * while still allowing the proxy command itself to be interrupted.
+   * runs and extends appendage for indefinite time
+   * replacement for old command to work in deadline groups
    * 
-   * @return a command to run the intake during autonomous
+   * @return
    */
-  private UnendingProxyScheduleCommand generateRunAppendageCommand() {
-    return new UnendingProxyScheduleCommand(
-        new RunCommand(
-        () -> {
-          intake.extend();
-          intake.run(Constants.Intake.SPEED);
-        }, 
-        intake
-      )
+  private CommandBase generateRunAppendageCommand(){
+    return parallel(
+      new RunCommand(() -> intake.extend()),
+      new RunCommand(() -> intake.run(Constants.Intake.SPEED)),
+      new DeliveryCommand(delivery, intake)
+      
     );
+
+  }
+
+  private CommandBase generateRunOuttakeCommand() {
+    return new RunCommand(
+      () -> {
+        intake.extend();
+        intake.run(-SPEED);
+        delivery.runMotor(-SHOOTING_SPEED);
+      }, 
+        delivery, intake
+    ).withName("Outtake");
   }
 
   private CommandBase generateAutoShootCommand() {
