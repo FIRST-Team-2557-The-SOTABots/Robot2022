@@ -5,8 +5,12 @@
 package frc.robot;
 
 import static frc.robot.util.Logitech.Ports.*;
+
+import java.nio.file.Path;
+
 import static frc.robot.Constants.Swerve.*;
 import static frc.robot.Constants.LimeLight.*;
+import static frc.robot.Constants.Shooter.*;
 import static frc.robot.Constants.Intake.*;
 import static frc.robot.Constants.Delivery.*;
 
@@ -33,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.RunDelivery;
@@ -85,13 +90,12 @@ public class RobotContainer {
   private JoystickButton mlb = new JoystickButton(mStick, LEFT_BUMPER);
   private JoystickButton mrb = new JoystickButton(mStick, RIGHT_BUMPER);
   private JoystickButton mStart = new JoystickButton(mStick, START);
-
+  private JoystickButton mBack = new JoystickButton(mStick, BACK);
 
   private SendableChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
     configureDefaultCommands();
 
     configureButtonBindings();
@@ -175,6 +179,19 @@ public class RobotContainer {
       )
     );
 
+    shooter.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0.5)
+            shooter.setMotorRPM(SPOOL_RPM);
+          else {
+            shooter.setMotorRPM(0.0);
+          }
+        }, 
+        shooter
+        )
+    );
+
     intake.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -192,13 +209,9 @@ public class RobotContainer {
     );
   }
 
-
-
   public void resetRobot() {
     climber.reset();
   }
-
-
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -246,7 +259,7 @@ public class RobotContainer {
       )
     );
 
-    mStart.whileHeld(
+    mBack.whileHeld(
       new InstantCommand(
         () -> {
           climber.retractHooksNoEncoderLimit();
@@ -263,15 +276,67 @@ public class RobotContainer {
       )
     );
 
-    ma.whenHeld(
+    mStart.whileHeld(
       new RunCommand(
         () -> {
-          intake.extend();
-          intake.run(-SPEED);
-          delivery.runMotor(-SHOOTING_SPEED);
+          shooter.hoodDown();
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+
+          if (shooter.readyToShoot())
+            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
+          else
+            delivery.runMotor(0.0);
+
         }, 
-          delivery, intake
+        
+          shooter, delivery
+        
+        )
+    ).whenPressed(
+      new InstantCommand(
+        () -> {
+          shooter.setMotorRPM(0.0);
+          delivery.runMotor(0.0);
+        }
       )
+    );
+
+    ma.whenHeld(
+      parallel(
+        new RunCommand(
+          () -> {
+
+            intake.extend();
+            intake.run(-SPEED);
+
+          }, 
+          
+            intake
+
+        ),
+
+        sequence(
+          new RunCommand(
+            () -> {
+              delivery.runMotor(-SHOOTING_SPEED);
+            }, 
+            
+            delivery
+            
+          ).withTimeout(MAX_DELIVERY_DURATION),
+
+          new WaitCommand(COOLDOWN)
+        )
+
+      )
+      // new RunCommand(
+      //   () -> {
+      //     intake.extend();
+      //     intake.run(-SPEED);
+      //     delivery.runMotor(-SHOOTING_SPEED);
+      //   }, 
+      //     delivery, intake
+      //   )
     ).whenReleased(
       new InstantCommand(
         () -> {
@@ -306,61 +371,57 @@ public class RobotContainer {
       )
     );
 
-    mx.whenHeld(
-      new ConditionalCommand(
-        parallel(
-          new PIDCommand(
-            new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
-            () -> limelight.getX(), 
-            LIMELIGHT_CENTER, 
-            (double output) -> {
-              // get inputs then square them, preserving sign
-              double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-              double str = dStick.getRawAxis(LEFT_STICK_X);
-              if (Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE) 
-                output = 0;
+    // Jonas, the conditional command only selects the command on its initialization.
+    // I switched this to while held so that it is repeatedly scheduled.
+    // But since the command is already scheduled, the initialize method is not called, 4
+    // and the conditional command does not select the proper command
 
-              // pass inputs into drivetrain
-              swerveDrive.drive(
-                  -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-                  -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-                  output
-              );
+    // Note: did some cleanup
 
-              if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-                swerveDrive.shiftDown();
-              } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-                swerveDrive.shiftUp();
-              }
-            },
-            swerveDrive
-          ),
-          new RunCommand(
-            () -> {
-              shooter.hoodUp();
-              shooter.setMotorRPM(shooter.calculateRPM(limelight.getY()));
+    mx.whileHeld(
+      new AutoAim(limelight, shooter, delivery, swerveDrive, dStick)
+      // new PIDCommand(
+      //   new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
+      //   () -> limelight.getX(), 
+      //   LIMELIGHT_CENTER, 
+      //   (double output) -> {
+      //     double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+      //     double str = dStick.getRawAxis(LEFT_STICK_X);
+      //     double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
-              if (shooter.readyToShoot())
-                delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-              else
-                delivery.runMotor(0.0);
-            }, 
-            shooter, delivery
-          )
-        ),
-        new RunCommand(
-          () -> {
-            shooter.hoodDown();
-            shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-            if (shooter.readyToShoot())
-              delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-            else
-              delivery.runMotor(0.0);
-          },
-          shooter, delivery
-        ), 
-        () -> limelight.targetDetected()
-      )
+      //     swerveDrive.drive(
+      //       -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+      //       -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+      //       limelight.targetDetected() ? // Me when the nested ternerary operater
+      //       Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE ? 
+      //       0 : output : -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
+      //     );
+                    
+      //     shooter.hoodUp();
+      //     shooter.setMotorRPM(
+      //       // MAX_TY > limelight.getY() && limelight.getY() > MIN_TY ?  // if not in ty tolerance then no rev
+      //       // Constants.Shooter.RPM_EQUATION.apply(
+      //       //   limelight.getY()
+      //       // ) 
+      //       // : 0.0
+      //       rpm
+      //     );
+          
+      //     if (shooter.readyToShoot() && limelight.targetDetected()) {
+      //       delivery.runMotor(
+      //         Constants.Delivery.SHOOTING_SPEED
+      //       );
+      //     }
+          
+
+      //     if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
+      //       swerveDrive.shiftDown();
+      //     else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) 
+      //       swerveDrive.shiftUp();
+          
+      //   },
+      //   swerveDrive, delivery, shooter
+      // )
     ).whenReleased(
       new InstantCommand(
         () -> {
@@ -392,12 +453,29 @@ public class RobotContainer {
       )
     );
 
-    mlb.whenPressed(
-      sequence(
-        new InstantCommand(() -> shooter.hoodDown()),
-        new ClimbSequenceCommand(climber, mrb::get)
-      )     
-    );
+    // mlb.whenPressed(
+    //   sequence(
+    //     new InstantCommand(() -> shooter.hoodDown()),
+    //     new ClimbSequenceCommand(climber, mrb::get)
+    //   )     
+    // );
+
+    
+
+    // new JoystickButton(mStick, BACK).whenHeld(
+    //   new RunCommand(
+    //     () -> shooter.setMotorRPM(SmartDashboard.getNumber("setpoint", 5000)), 
+    //     shooter
+    //   )
+    // ).whenReleased(() -> shooter.runFlywheel(0.0));
+
+    
+    // new JoystickButton(mStick, LEFT_STICK_BUTTON).whenHeld(
+    //   new RunCommand(
+    //     () -> shooter.runFlywheel(1), 
+    //     shooter
+    //   )
+    // ).whenReleased(() -> shooter.runFlywheel(0.0));
   }
 
   public void configureAutonomousCommands() {
