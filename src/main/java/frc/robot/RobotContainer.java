@@ -39,7 +39,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
-import frc.robot.commands.ClimbSequenceCommand
 import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.RunDelivery;
 import frc.robot.commands.SimpleClimbSequenceCommand;
@@ -261,7 +260,7 @@ public class RobotContainer {
       )
     );
 
-    mStart.whileHeld(
+    mBack.whileHeld(
       new InstantCommand(
         () -> {
           climber.retractHooksNoEncoderLimit();
@@ -294,7 +293,7 @@ public class RobotContainer {
           shooter, delivery
         
         )
-    ).whenPressed(
+    ).whenReleased(
       new InstantCommand(
         () -> {
           shooter.setMotorRPM(0.0);
