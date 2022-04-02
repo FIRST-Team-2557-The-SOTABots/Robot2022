@@ -172,5 +172,7 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
     SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
     SmartDashboard.putBoolean("right top", getRightTopMagLimit());
+    SmartDashboard.putBoolean("is locked", getLocked());
+    SmartDashboard.putNumber("Angle power", angleMotor.get());
   }
 }
