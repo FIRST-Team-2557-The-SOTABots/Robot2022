@@ -29,9 +29,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.commands.DeliveryCommand;
-import frc.robot.commands.ExtendClimbToTop;
 import frc.robot.commands.RunDelivery;
 import frc.robot.commands.SimpleClimbSequenceCommand;
 import frc.robot.subsystems.Climber;
@@ -355,7 +353,6 @@ public class RobotContainer {
       sequence(
         new InstantCommand(() -> shooter.hoodDown()),
         new SimpleClimbSequenceCommand(climber, mrb::get)
-        // new ClimbSequenceCommand(climber, mrb::get)
       )     
     );
   }
