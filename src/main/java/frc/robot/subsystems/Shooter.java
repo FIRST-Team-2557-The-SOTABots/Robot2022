@@ -58,6 +58,21 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setMotorRPM(double rpm) {
+    
+    speedPID.setP(SmartDashboard.getNumber("kp", SPEED_PID_KP));
+    speedPID.setI(SmartDashboard.getNumber("ki", SPEED_PID_KI));
+    speedPID.setD(SmartDashboard.getNumber("kd", SPEED_PID_KD));
+
+    boolean withinIzone = true;
+    // reset accumulated error of PID if not within i zone so integral only active within i zone
+    if (Math.abs(speedPID.getSetpoint() - getMotorRPM()) > SmartDashboard.getNumber("izone", SPEED_PID_I_ZONE)) {
+      speedPID.reset();
+      withinIzone = false;
+    }
+    SmartDashboard.putBoolean("withinIZone", withinIzone);
+
+    SmartDashboard.putNumber("Setpoint", rpm);
+
     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
@@ -102,7 +117,5 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     updateSpeedSample();
-    
-    // This method will be called once per scheduler run
   }
 }

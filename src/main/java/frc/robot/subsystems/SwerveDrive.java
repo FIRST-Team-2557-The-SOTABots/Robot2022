@@ -274,5 +274,9 @@ public class SwerveDrive extends SubsystemBase {
     updatePose();
     SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
     SmartDashboard.putNumber("gyro angle", getGyroAngle());
+
+    Pose2d pose = getPose();
+    SmartDashboard.putNumber("pose x", pose.getX());
+    SmartDashboard.putNumber("pose y", pose.getY());
   }
 }

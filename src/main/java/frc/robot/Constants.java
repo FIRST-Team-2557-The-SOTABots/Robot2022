@@ -144,12 +144,13 @@ public final class Constants {
         public static final boolean[] ANGLE_MOTOR_INVERTS = {false, false, false, false};
 
         public static final int[] SPEED_MOTOR_PORTS = {3, 2, 1, 0};
-        public static final boolean[] SPEED_MOTOR_INVERTS_PRACTICE_BOT = {true, true, true, true};
+        public static final boolean[] SPEED_MOTOR_INVERTS_PRACTICE_BOT = {true, false, false, true};
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
         public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {2.781, 0.933, 2.135, 3.359}; // in encoder counts, changed offset 3 and 2
-        public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.789, 0.037, 1.718, 2.883}; // in encoder counts
+        public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
+
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
         public static final int[] ANGLE_ENCODER_PORTS = {3, 2, 1, 0};
 
@@ -173,8 +174,8 @@ public final class Constants {
 
         public static final int FORWARD_CHANNEL_PORT = 6; 
         public static final int REVERSE_CHANNEL_PORT = 7;
-        public static final Value LOW_GEAR_VALUE = Value.kForward;
-        public static final Value HIGH_GEAR_VALUE = Value.kReverse;
+        public static final Value LOW_GEAR_VALUE = isCompBot ? Value.kReverse : Value.kForward;
+        public static final Value HIGH_GEAR_VALUE = isCompBot ? Value.kForward : Value.kReverse;
 
         // in counts per revolution
         public static final double TALON_ENCODER_CPR = 2048;
@@ -212,7 +213,7 @@ public final class Constants {
         public static final double SHIFT_UP_MIN_INPUT = 1.0; // input above which shift up with high demand occurs
         public static final double SHIFT_COOLDOWN = 1.0; // in seconds
 
-        public static final double TARGET_SEARCH_KP = 0.05;
+        public static final double TARGET_SEARCH_KP = 0.075;
         public static final double TARGET_SEARCH_KI = 0.0;
         public static final double TARGET_SEARCH_KD = 0.0;
     }
@@ -237,36 +238,45 @@ public final class Constants {
         public static final int MOTOR_2_PORT = 7;
         public static final boolean MOTOR_1_INVERTED = isCompBot ? false : true;
         public static final boolean MOTOR_2_INVERTED = !MOTOR_1_INVERTED;
-        public static final double RAMP_RATE = 1.5;
+        public static final double RAMP_RATE = 1; 
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
-        public static final double RPM_TOLERANCE = 40; // in motor rpm
-        public static final double FEEDFORWARD_KS = isCompBot ? 0.1860 : 0.03269; // in volts
-        public static final double FEEDFORWARD_KV = isCompBot ? 0.002110 : 0.002114; // in volts
-        public static final double SPEED_PID_KP = 0.00003;
-        public static final double SPEED_PID_KI = 0.0;
+        public static final double RPM_TOLERANCE = 100; // in motor rpm
+        public static final double FEEDFORWARD_KS = isCompBot ?  -0.1085 : 0.0; // in volts //TODO: REDO THIS
+        public static final double FEEDFORWARD_KV = isCompBot ? 0.00217 : 0.002126; // in volts
+        public static final double SPEED_PID_KP = 0.0015;
+        public static final double SPEED_PID_KI = 0.0; 
+
         public static final double SPEED_PID_KD = 0.0;
-        public static final double SHOOT_COOLDOWN = 1.0; // in seconds
-        public static final int SPEED_SAMPLE_SIZE_LIMIT = 5;
-        // public static final double RPM_PER_DISTANCE = -28.0; // in limelight ty
-        // public static final double RPM_INTERCEPT = 4285.0;
+        public static final double SPEED_PID_I_ZONE = 0.0; // in RPM, max error for integral to be active
+        public static final int SPEED_SAMPLE_SIZE_LIMIT = 10;
+        public static final double SPOOL_RPM = UPPER_HUB_RPM * 0.66;
 
         public static final DoubleFunction<Double> RPM_EQUATION = (double x) -> {
-            double A = 4270.0;
-            double B = -55.67;
-            double C = 6.205;
-            double D = -0.1496;
-            double E = -0.01465;
+            double A = 4051; 
+            double B = -1.110; 
+            double C = 4.653;  
+            double D = -1.859;   
+            double E = -0.001278;
+            double F = 0.01852;  
 
-            return A + B * x + C * Math.pow(x, 2) + D * Math.pow(x, 3) + E * Math.pow(x, 4);
+            return 
+                A + 
+                B * x + 
+                C * Math.pow(x, 2) + 
+                D * Math.pow(x, 3) + 
+                E * Math.pow(x, 4) + 
+                F * Math.pow(x, 5);
         };
+
     }
 
     public static final class LimeLight {
         public static final double LIMELIGHT_CENTER = 0.0; 
-        public static final double AUTOAIM_TOLERANCE = 3.5;
+        public static final double AUTOAIM_TOLERANCE = 2.0;
         public static final double MIN_TY = -8;
+        public static final double MAX_TY = 11;
     }
 
     public static class Delivery {
@@ -277,29 +287,33 @@ public final class Constants {
         public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
         public static final int SENSOR_1_THRESHOLD = 30;
         public static final double INDEXING_SPEED = 0.5;
-        public static final double SHOOTING_SPEED = 0.7;
+        public static final double SHOOTING_SPEED = 0.7; // TODO: turn this back 
         public static final boolean MOTOR_INVERTED = true;
-        public static final double COOLDOWN = 1.0; // in seconds
+        public static final double COOLDOWN = 0.75; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
         public static final double SENSOR_1_FILTER_TIME_CONSTANT = 0.1; // in seconds
+        public static final double RAMP_RATE = 0.3;
     }
 
     public static class Auto {
         public static final double TRANSLATE_PID_KP = 2;
-        public static final double MAX_WHEEL_SPEED = 3.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
-        public static final double MAX_WHEEL_ACCELERATION = 3.0; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
+        public static final double MAX_WHEEL_SPEED = 4.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = 3.5; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
         public static final double ANGLE_PID_KP = 3;
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
-        public static final double FLYWHEEL_IDLE_SPEED = 4000; // in seconds, time intake spends out
+        public static final double FLYWHEEL_IDLE_SPEED = 3600; // in seconds, time intake spends out
 
-        public static final double PATH_1_SHOOT_1_DURATION = 1.5;
-        public static final double PATH_1_SHOOT_2_DURATION = 1.3;
+        public static final double PATH_1_SHOOT_1_DURATION = 2;
+        public static final double PATH_1_SHOOT_2_DURATION = 1.25;
         public static final double PATH_1_SHOOT_3_DURATION = 2;
-        public static final double HUMAN_PLAYER_WAIT_TIME = 2;
+        public static final double HUMAN_PLAYER_WAIT_TIME = 1.25;
+
+        public static final double PATH_2_SHOOT_1_DURATION = 2.0;
+        public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 
