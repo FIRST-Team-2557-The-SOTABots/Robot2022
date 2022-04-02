@@ -532,15 +532,18 @@ public class RobotContainer {
       sequence(
         new InstantCommand(
           () -> {
+            shooter.hoodUp();
             swerveDrive.shiftUp();
-            swerveDrive.setPose(path1A.getInitialState()); 
+            swerveDrive.setPose(path1A.getInitialState());
+            swerveDrive.setFieldCentricActive(false);
           }, 
           swerveDrive
         ),
         deadline(
           generatePPSwerveControllerCommand(path1A),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand()
+          generateRevFlywheelCommand(),
+          new DeliveryCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -549,7 +552,8 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1B),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand()
+          generateRevFlywheelCommand(),
+          new DeliveryCommand(delivery, intake)
         ),
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
@@ -562,7 +566,8 @@ public class RobotContainer {
         ),
         generateStopDrivetrainCommand(),
         deadline(
-          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME)
+          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+          new DeliveryCommand(delivery, intake)
         ),
         deadline(
           generatePPSwerveControllerCommand(path1D),
@@ -578,8 +583,12 @@ public class RobotContainer {
         generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         generateStopShooterDeliveryCommand()
       )
-      .withTimeout(Constants.Auto.DURATION)
-      .andThen(() -> swerveDrive.setFieldCentricActive(true))
+      .andThen(
+        () -> {
+          swerveDrive.setFieldCentricActive(true);
+          delivery.runMotor(0.0);
+        }
+      )
     );
 
     PathPlannerTrajectory path2A = PathPlanner.loadPath("Path_2_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
@@ -590,6 +599,7 @@ public class RobotContainer {
       sequence(
         new InstantCommand(
           () -> {
+            shooter.hoodUp();
             swerveDrive.shiftUp();
             swerveDrive.setPose(path2A.getInitialState());
           }, 
@@ -598,7 +608,8 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path2A),
           generateRunAppendageCommand(),
-          generateRevFlywheelCommand()
+          generateRevFlywheelCommand(),
+          new DeliveryCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -606,7 +617,8 @@ public class RobotContainer {
         generateStopShooterDeliveryCommand(),
         deadline(
           generatePPSwerveControllerCommand(path2B),
-          generateRunAppendageCommand()
+          generateRunAppendageCommand(),
+          new DeliveryCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -650,23 +662,27 @@ public class RobotContainer {
       }
     );
   }
-  /**
-   * runs and extends appendage for indefinite time
-   * replacement for old command to work in deadline groups
-   * 
-   * @return
-   */
-  private CommandBase generateRunAppendageCommand(){
-    return parallel(
-      new RunCommand(() -> intake.extend()),
-      new RunCommand(() -> intake.run(Constants.Intake.SPEED)),
-      new DeliveryCommand(delivery, intake)
-      
-    );
 
+  /**
+   * Creates an {@link UnendingProxyScheduleCommand} to repeatedly schedule the intake to extend and run.
+   * This allows the command itself to be interrupted by the delivery default command then become scheduled again,
+   * while still allowing the proxy command itself to be interrupted.
+   * 
+   * @return a command to run the intake during autonomous
+   */
+  private UnendingProxyScheduleCommand generateRunAppendageCommand() {
+    return new UnendingProxyScheduleCommand(
+        new RunCommand(
+        () -> {
+          intake.extend();
+          intake.run(Constants.Intake.SPEED);
+        }, 
+        intake
+      )
+    );
   }
 
-  private CommandBase generateRunOuttakeCommand() {
+  private RunCommand generateRunOuttakeCommand() {
     return new RunCommand(
       () -> {
         intake.extend();
@@ -674,7 +690,7 @@ public class RobotContainer {
         delivery.runMotor(-SHOOTING_SPEED);
       }, 
         delivery, intake
-    ).withName("Outtake");
+    );
   }
 
   private CommandBase generateAutoShootCommand() {
@@ -696,10 +712,16 @@ public class RobotContainer {
           shooter.hoodUp();
           shooter.setMotorRPM(shooter.calculateRPM(limelight.getY()));
 
-          if (shooter.readyToShoot())
+          if (shooter.readyToShoot()) {
             delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
+            SmartDashboard.putBoolean("readytoshoot", true);
+            System.out.println(true);
+          }
+          else {
             delivery.runMotor(0.0);
+            SmartDashboard.putBoolean("readytoshoot", false);
+            System.out.println(false);
+          }
         }, 
         shooter, delivery
       )

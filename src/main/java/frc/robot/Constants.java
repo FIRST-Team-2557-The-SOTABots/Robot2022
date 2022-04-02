@@ -245,7 +245,7 @@ public final class Constants {
         public static final int MOTOR_2_PORT = 7;
         public static final boolean MOTOR_1_INVERTED = isCompBot ? false : true;
         public static final boolean MOTOR_2_INVERTED = !MOTOR_1_INVERTED;
-        public static final double RAMP_RATE = 1.5; 
+        public static final double RAMP_RATE = 1; 
         public static final double GEAR_RATIO = 1.5; // 1.5 motor rotaion for every motor
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
@@ -294,30 +294,30 @@ public final class Constants {
         public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
         public static final int SENSOR_1_THRESHOLD = 30;
         public static final double INDEXING_SPEED = 0.5;
-        public static final double SHOOTING_SPEED = 0.5; // TODO: turn this back 
+        public static final double SHOOTING_SPEED = 0.7; // TODO: turn this back 
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 0.75; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
         public static final double RETRACTED_DURATION = 0.4; // in seconds
         public static final double SENSOR_1_FILTER_TIME_CONSTANT = 0.1; // in seconds
-        public static final double RAMP_RATE = 0.5;
+        public static final double RAMP_RATE = 0.3;
     }
 
     public static class Auto {
         public static final double TRANSLATE_PID_KP = 2;
-        public static final double MAX_WHEEL_SPEED = 3.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
-        public static final double MAX_WHEEL_ACCELERATION = 3.0; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
+        public static final double MAX_WHEEL_SPEED = 4.0; // Swerve.MAX_WHEEL_SPEED; // in meters per second 
+        public static final double MAX_WHEEL_ACCELERATION = 3.5; // Swerve.MAX_WHEEL_SPEED / 1.0; // in meters per second per second
 
         public static final double ANGLE_PID_KP = 3;
         public static final double MAX_ANGULAR_SPEED = Swerve.MAX_ANGULAR_SPEED + 3; // in radians per second 
         public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 0.1; // in radians per second per second
         
-        public static final double FLYWHEEL_IDLE_SPEED = 3500; // in seconds, time intake spends out
+        public static final double FLYWHEEL_IDLE_SPEED = 3600; // in seconds, time intake spends out
 
-        public static final double PATH_1_SHOOT_1_DURATION = 1.75;
-        public static final double PATH_1_SHOOT_2_DURATION = 1.5;
+        public static final double PATH_1_SHOOT_1_DURATION = 2;
+        public static final double PATH_1_SHOOT_2_DURATION = 1.25;
         public static final double PATH_1_SHOOT_3_DURATION = 2;
-        public static final double HUMAN_PLAYER_WAIT_TIME = 2;
+        public static final double HUMAN_PLAYER_WAIT_TIME = 1.25;
 
         public static final double PATH_2_SHOOT_1_DURATION = 2.0;
         public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
