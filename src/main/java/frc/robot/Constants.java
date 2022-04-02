@@ -65,10 +65,12 @@ public final class Constants {
         // MIN refers to the encoder value when the hooks are closest to the intake at the hard stop
         // MID refers to the encoder value when the hooks are even with the extending hooks
         // HIGH refers to the encoder value when the hooks are angled so that the extend hooks are on the next bar
+        // HAX refers to the encoder value when the hooks are in between MID and HIGH
         // MAX refers to the encoder value when the hooks are furthest from the intake at the hard stop
         public static final int MIN_ANGLE_ENCODER = 0;
         public static final int MID_ANGLE_ENCODER = isCompBot ? 600 : 300;
         public static final int HIGH_ANGLE_ENCODER = 700;
+        public static final int HAX_ANGLE_ENCODER = 1000;
         public static final int MAX_ANGLE_ENCODER = isCompBot ? 1873 : 1600;
 
         // soft limits for the angle hooks in encoder ticks

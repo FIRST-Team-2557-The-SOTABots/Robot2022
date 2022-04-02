@@ -45,7 +45,7 @@ public class SimpleClimbSequenceCommand extends SequentialCommandGroup {
         new AngleClimbToPosition(climber, MAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED),
         new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_BOTTOM)
       ),
-      new AngleClimbToPosition(climber, HIGH_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
+      new AngleClimbToPosition(climber, HAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
       new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_MID),
       new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
       new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_BOTTOM),
@@ -67,7 +67,7 @@ public class SimpleClimbSequenceCommand extends SequentialCommandGroup {
         new AngleClimbToPosition(climber, MAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED),
         new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_BOTTOM)
       ),
-      new AngleClimbToPosition(climber, HIGH_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
+      new AngleClimbToPosition(climber, HAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
       new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_MID),
       new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
       new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_BOTTOM),
