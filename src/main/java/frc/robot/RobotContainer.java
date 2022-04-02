@@ -39,9 +39,10 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
-import frc.robot.commands.ClimbSequenceCommand;
+import frc.robot.commands.ClimbSequenceCommand
 import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.RunDelivery;
+import frc.robot.commands.SimpleClimbSequenceCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import frc.robot.util.UnendingProxyScheduleCommand;
@@ -260,7 +261,7 @@ public class RobotContainer {
       )
     );
 
-    mBack.whileHeld(
+    mStart.whileHeld(
       new InstantCommand(
         () -> {
           climber.retractHooksNoEncoderLimit();
@@ -454,29 +455,13 @@ public class RobotContainer {
       )
     );
 
-    // mlb.whenPressed(
-    //   sequence(
-    //     new InstantCommand(() -> shooter.hoodDown()),
-    //     new ClimbSequenceCommand(climber, mrb::get)
-    //   )     
-    // );
+    mlb.whenPressed(
+      sequence(
+        new InstantCommand(() -> shooter.hoodDown()),
+        new SimpleClimbSequenceCommand(climber, mrb::get)
+      )     
+    );
 
-    
-
-    // new JoystickButton(mStick, BACK).whenHeld(
-    //   new RunCommand(
-    //     () -> shooter.setMotorRPM(SmartDashboard.getNumber("setpoint", 5000)), 
-    //     shooter
-    //   )
-    // ).whenReleased(() -> shooter.runFlywheel(0.0));
-
-    
-    // new JoystickButton(mStick, LEFT_STICK_BUTTON).whenHeld(
-    //   new RunCommand(
-    //     () -> shooter.runFlywheel(1), 
-    //     shooter
-    //   )
-    // ).whenReleased(() -> shooter.runFlywheel(0.0));
   }
 
   public void configureAutonomousCommands() {
@@ -529,7 +514,7 @@ public class RobotContainer {
     PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1D = PathPlanner.loadPath("Path_1_D", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
 
-    autoChooser.addOption("5 Ball",
+    autoChooser.addOption("5 ball",
       sequence(
         new InstantCommand(
           () -> {

@@ -219,7 +219,6 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("speed" + moduleNumber, speedMotor.getSelectedSensorVelocity());
     // SmartDashboard.putNumber("module angle no offset" + moduleNumber, angleEncoder.getAverageVoltage());
   }
 }
