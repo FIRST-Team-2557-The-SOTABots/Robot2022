@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -593,8 +594,7 @@ public class RobotContainer {
 
     PathPlannerTrajectory path2A = PathPlanner.loadPath("Path_2_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path2B = PathPlanner.loadPath("Path_2_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
-    PathPlannerTrajectory path2C = PathPlanner.loadPath("Path_2_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
-
+    PathPlannerTrajectory Path2C = PathPlanner.loadPath("Path_2_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     autoChooser.addOption("2 Ball Steal", 
       sequence(
         new InstantCommand(
@@ -621,13 +621,17 @@ public class RobotContainer {
           new DeliveryCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
-        generateResetAppendageCommand(),
         generateRunOuttakeCommand().withTimeout(Constants.Auto.PATH_2_OUTTAKE_2_DURATION),
-        generateResetAppendageCommand(),
-        generateStopShooterDeliveryCommand(), // Maybe make a seperate stop delivery command, but cant see a problem with this
-        generatePPSwerveControllerCommand(path2C),
+        new InstantCommand(
+          () -> {
+            intake.retract();
+            delivery.runMotor(0.0);
+          },
+          intake
+        ).asProxy(), // Maybe make a seperate stop delivery command, but cant see a problem with this
+        generatePPSwerveControllerCommand(Path2C),
         generateStopDrivetrainCommand()
-      )
+      )    
     );
   }
 
@@ -682,15 +686,15 @@ public class RobotContainer {
     );
   }
 
-  private RunCommand generateRunOuttakeCommand() {
+  private ProxyScheduleCommand generateRunOuttakeCommand() {
     return new RunCommand(
       () -> {
         intake.extend();
         intake.run(-SPEED);
         delivery.runMotor(-SHOOTING_SPEED);
-      }, 
-        delivery, intake
-    );
+      },
+      intake
+    ).asProxy();
   }
 
   private CommandBase generateAutoShootCommand() {
