@@ -55,11 +55,13 @@ public final class Constants {
         public static final double MID_EXTEND_ENCODER_LEFT = isCompBot ? 1.720 : 1.82;
         public static final double HIGH_EXTEND_ENCODER_LEFT = isCompBot ? 6.84 : 5.69;
         public static final double MAX_EXTEND_ENCODER_LEFT = isCompBot ? 8.60 : 7.0;
+        public static final double LIMIT_EXTEND_ENCODER_LEFT = isCompBot ? 12.0 : 12.0;
         public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; 
         public static final double EVEN_EXTEND_ENCODER_RIGHT = isCompBot ? 0.347 : 0.356; 
         public static final double MID_EXTEND_ENCODER_RIGHT = isCompBot ? 1.578 : 2.13;
         public static final double HIGH_EXTEND_ENCODER_RIGHT = isCompBot ? 6.96 : 6.94;
         public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.94 : 8.7;
+        public static final double LIMIT_EXTEND_ENCODER_RIGHT = isCompBot ? 12.0 : 12.0;
 
         // the following values are encoder positions for the angling hooks
         // MIN refers to the encoder value when the hooks are closest to the intake at the hard stop
