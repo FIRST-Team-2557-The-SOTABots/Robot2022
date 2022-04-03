@@ -175,6 +175,7 @@ public class RobotContainer {
         () -> {
           climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
           climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
+          climber.runAngle(mStick.getRawAxis(LEFT_STICK_X) * 0.3);
         }, 
         climber
       )
