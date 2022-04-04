@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 import static frc.robot.Constants.Climber.*;
 
@@ -64,18 +63,42 @@ public class Climber extends SubsystemBase {
     lock();
   }
 
+
+
+  /**
+   * Locks the angle motor. The motor cannot run when locked.
+   */
   public void lock(){
     angleLock.set(LOCK_VALUE);
   }
 
+
+
+  /**
+   * Unlocks the angle motor
+   */
   public void unlock(){
     angleLock.set(UNLOCK_VALUE);
   }
 
+
+
+  /**
+   * 
+   * @return whether the angle motor is locked
+   */
   public boolean getLocked() {
     return angleLock.get() == LOCK_VALUE;
   }
 
+
+
+  /**
+   * Extends the left extending hook. The hook will not extend up if the top mag limit is on, 
+   * or the encoder value is past some limit (in the event that the mag limit does not trigger).
+   * The hook will not retract if the bottom mag limit is on.
+   * @param spd the percent speed at which the hook should move. positive will extend, negative will retract.
+   */
   public void extendLeftHook(double spd) {
     if (getLeftTopMagLimit())
       spd = Math.min(0, spd);
@@ -89,6 +112,14 @@ public class Climber extends SubsystemBase {
     leftHook.set(spd);
   }
 
+
+
+  /**
+   * Extends the right extending hook. The hook will not extend up if the top mag limit is on, 
+   * or the encoder value is past some limit (in the event that the mag limit does not trigger).
+   * The hook will not retract if the bottom mag limit is on.
+   * @param spd the percent speed at which the hook should move. positive will extend, negative will retract.
+   */
   public void extendRightHook(double spd) {
     if (getRightTopMagLimit())
       spd = Math.min(0, spd);
@@ -102,6 +133,11 @@ public class Climber extends SubsystemBase {
     rightHook.set(spd);
   }
 
+
+
+  /**
+   * Retract both hooks at a slow preset speed.
+   */
   public void retractHooksNoEncoderLimit() {
     if (!getLeftBotMagLimit())
       leftHook.set(SLOW_RETRACT_SPEED);
@@ -114,6 +150,14 @@ public class Climber extends SubsystemBase {
       rightHook.set(0);
   }
 
+
+
+  /**
+   * Runs the angle hook. The hook cannot angle past either of the maximum or minimum limits.
+   * It also cannot angle if it is locked.
+   * @param spd the percent speed to angle at. positive angles towards the shooter, 
+   * negative angles towards the intake.
+   */
   public void runAngle(double spd) {
     if (getAngleEncoderPosition() >= ANGLE_ENCODER_HIGH_LIMIT)
       spd = Math.min(0, spd);
@@ -127,34 +171,82 @@ public class Climber extends SubsystemBase {
       angleMotor.set(spd);
   }
 
+
+
+  /**
+   * 
+   * @return the encoder value of the left hook, with positive values meaning more extended.
+   */
   public double getLeftEncoderPosition() {
     return leftEncoder.get();
   }
 
+
+
+  /**
+   * 
+   * @return the encoder value of the right hook, with positive values meaning more extended.
+   */
   public double getRightEncoderPosition() {
     return -rightEncoder.get();
   }
 
+
+
+  /**
+   * 
+   * @return whether the left bottom mag limit is activated and the left hook is completely retracted
+   */
   public boolean getLeftBotMagLimit() {
     return !leftBotMagSensor.get();
   }
 
+
+
+  /**
+   * 
+   * @return whether the right bottom mag limit is activated and the right hook is completely retracted
+   */
   public boolean getRightBotMagLimit() {
     return !rightBotMagSensor.get();
   }
 
+
+
+  /**
+   * 
+   * @return whether the left top mag limit is activated and the left hook is completely extended
+   */
   public boolean getLeftTopMagLimit() {
     return !leftTopMagSensor.get();
   }
 
+
+
+  /**
+   * 
+   * @return whether the right top mag limit is activated and the right hook is completely extended
+   */
   public boolean getRightTopMagLimit() {
     return !rightTopMagSensor.get();
   }
 
+
+
+  /**
+   * Gets the angle encoder's position, where the positive direction is towards the shooter and 0 is at the intake
+   * side hard limit.
+   * @return the angle encoder value
+   */
   public double getAngleEncoderPosition() {
     return ANGLE_HOOK_INVERTED ? -angleMotor.getSelectedSensorPosition() : angleMotor.getSelectedSensorPosition();
   }
 
+
+
+  /**
+   * Updates the climb system's encoder values and lock state to be as they should at the start of a match.
+   */
   public void reset() {
     lock();
     leftEncoder.reset();
@@ -162,15 +254,18 @@ public class Climber extends SubsystemBase {
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
   }
 
+
+
   @Override
   public void periodic() {
+    // if either the left or right bottom mag limit are tripped, reset the corresponding hook's encoder value
     if (getLeftBotMagLimit())
       leftEncoder.reset();
     
     if (getRightBotMagLimit())
       rightEncoder.reset();
 
-    // This method will be called once per scheduler run
+    // log sensor states
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
     SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
@@ -179,6 +274,8 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
     SmartDashboard.putBoolean("right top", getRightTopMagLimit());
     SmartDashboard.putBoolean("is locked", getLocked());
+
+    // log stall-related information about the angle motor 
     SmartDashboard.putNumber("Angle power", angleMotor.get());
     System.out.println("Stator Current" + angleMotor.getStatorCurrent());
     System.out.println("Input Current" + angleMotor.getSupplyCurrent());
