@@ -6,9 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
@@ -58,9 +56,15 @@ public class AutoAim extends CommandBase {
     swerveDrive.drive(
       -Math.signum(fwd) * fwd * fwd * MAX_WHEEL_SPEED,
       -Math.signum(str) * str * str * MAX_WHEEL_SPEED,
-      limelight.targetDetected() ? // Me when the nested ternerary operater
-      Math.abs(LIMELIGHT_CENTER - limelight.getX()) < AUTOAIM_TOLERANCE ? 
-      0 : output : -Math.signum(rot) * rot * rot * MAX_ANGULAR_SPEED
+      limelight.targetDetected() ? 
+        // If target is detected
+        Math.abs(LIMELIGHT_CENTER - limelight.getX()) < AUTOAIM_TOLERANCE ? 
+          // If in tolerance
+          0 :
+          // If not within tolerance 
+          output : 
+        // If target is not detected
+        -Math.signum(rot) * rot * rot * MAX_ANGULAR_SPEED
     );
               
     shooter.hoodUp();
@@ -69,13 +73,9 @@ public class AutoAim extends CommandBase {
       RPM_EQUATION.apply(limelight.getY())
     );
 
-    if (shooter.readyToShoot() && limelight.targetDetected()) {
-      delivery.runMotor(
-        SHOOTING_SPEED
-      );
-    } else {
-      delivery.runMotor(0.0);
-    }
+    delivery.runMotor(
+      shooter.readyToShoot() && limelight.targetDetected() ? SHOOTING_SPEED : 0.0
+    );
 
     if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
       swerveDrive.shiftDown();

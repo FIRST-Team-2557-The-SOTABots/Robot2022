@@ -35,6 +35,7 @@ public class ExtendClimbCommand extends CommandBase {
   @Override
   public void execute() {
     SmartDashboard.putString("Extend Command", "Executing");
+    //sets the speeds based on movement type
     if (movement == SimpleExtendMovement.BOTTOM_TO_TOP || movement == SimpleExtendMovement.MID_TO_TOP) {
       climber.extendLeftHook(movement.speed);
       climber.extendRightHook(movement.speed);
@@ -84,7 +85,6 @@ public class ExtendClimbCommand extends CommandBase {
           Math.abs(movement.leftSetpoint - climber.getLeftEncoderPosition()) < movement.tolerance &&
           Math.abs(movement.rightSetpoint - climber.getRightEncoderPosition()) < movement.tolerance;
     }
-
     
   }
 }
