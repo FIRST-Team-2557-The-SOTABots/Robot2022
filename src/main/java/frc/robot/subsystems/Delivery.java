@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.Delivery.*;
@@ -17,7 +16,9 @@ public class Delivery extends SubsystemBase {
   
   private WPI_TalonSRX deliveryMotor;
 
+  // Top distance sensor
   private DigitalInput sensor1;
+  // Bottom IR (??) sensor
   private DigitalInput sensor2;
 
   public Delivery() {
@@ -37,12 +38,16 @@ public class Delivery extends SubsystemBase {
 
   /**
    * Returns true when the state of sensor 1 has changed
-   * @return whether the sensor state changed this loop
+   * @return Whether the sensor state changed this loop
    */
   public boolean getSensor1() {
     return !sensor1.get();
   }
   
+  /**
+   * Returns the state of the bottom sensor
+   * @return The state of the bottom sensor
+   */
   public boolean getSensor2() {
     return sensor2.get();
   }
