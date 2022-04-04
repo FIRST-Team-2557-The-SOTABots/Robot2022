@@ -39,8 +39,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
+import frc.robot.commands.IndexCommand;
 import frc.robot.commands.DeliveryCommand;
-import frc.robot.commands.RunDelivery;
 import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
@@ -148,7 +148,7 @@ public class RobotContainer {
     );
 
     delivery.setDefaultCommand(
-      new DeliveryCommand(delivery, intake)
+      new IndexCommand(delivery, intake)
       // sequence(
       //   new InstantCommand(() -> SmartDashboard.putString("Delivery Waiting", "")),
       //   new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted())
@@ -529,7 +529,7 @@ public class RobotContainer {
           generatePPSwerveControllerCommand(path1A),
           generateRunAppendageCommand(),
           generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -539,7 +539,7 @@ public class RobotContainer {
           generatePPSwerveControllerCommand(path1B),
           generateRunAppendageCommand(),
           generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
@@ -548,12 +548,12 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1C),
           generateRunAppendageCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         deadline(
           generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         deadline(
           generatePPSwerveControllerCommand(path1D),
@@ -594,7 +594,7 @@ public class RobotContainer {
           generatePPSwerveControllerCommand(path2A),
           generateRunAppendageCommand(),
           generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -603,7 +603,7 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path2B),
           generateRunAppendageCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateRunOuttakeCommand().withTimeout(Constants.Auto.PATH_2_OUTTAKE_2_DURATION),
