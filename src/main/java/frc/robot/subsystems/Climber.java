@@ -82,6 +82,9 @@ public class Climber extends SubsystemBase {
 
     if (getLeftBotMagLimit())
       spd = Math.max(0, spd);
+    
+    if (getLeftEncoderPosition() >= LIMIT_EXTEND_ENCODER_LEFT)
+      spd = Math.min(0, spd);
 
     leftHook.set(spd);
   }
@@ -92,6 +95,9 @@ public class Climber extends SubsystemBase {
 
     if (getRightBotMagLimit())
       spd = Math.max(0, spd);
+
+    if (getRightEncoderPosition() >= LIMIT_EXTEND_ENCODER_RIGHT)
+      spd = Math.min(0, spd);
     
     rightHook.set(spd);
   }
@@ -172,5 +178,10 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
     SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
     SmartDashboard.putBoolean("right top", getRightTopMagLimit());
+    SmartDashboard.putBoolean("is locked", getLocked());
+    SmartDashboard.putNumber("Angle power", angleMotor.get());
+    System.out.println("Stator Current" + angleMotor.getStatorCurrent());
+    System.out.println("Input Current" + angleMotor.getSupplyCurrent());
+    System.out.println("Angle Temperature" + angleMotor.getTemperature());
   }
 }
