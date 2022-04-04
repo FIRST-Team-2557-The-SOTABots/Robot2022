@@ -25,9 +25,9 @@ public class DeliveryCommand extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new InstantCommand(() -> SmartDashboard.putString("delivery", "waiting")),
-      new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted()),
+      new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted()), //waits till the sensor & fully extended
       parallel(
-        new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
+        new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),//runs delivery & retracts intakes
         new UninterruptibleProxyScheduleCommand(
           new RunCommand(
             () -> {
