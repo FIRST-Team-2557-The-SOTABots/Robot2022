@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.Shooter.*;
 
@@ -52,33 +51,30 @@ public class Shooter extends SubsystemBase {
     hoodDown();
   }
 
+  /**
+   * Sets the speed of the motor as opposed to {@link #setMotorRPM(double)}
+   * @param spd Speed of the motor from -1 to 1
+   */
   public void runFlywheel(double spd) {
     motor1.set(spd);
     motor2.set(spd);
   }
 
+  /**
+   * Sets the RPM of the motor with PID and FF
+   * @param rpm Setpoint for the motor's RPM
+   */
   public void setMotorRPM(double rpm) {
-    
-    speedPID.setP(SmartDashboard.getNumber("kp", SPEED_PID_KP));
-    speedPID.setI(SmartDashboard.getNumber("ki", SPEED_PID_KI));
-    speedPID.setD(SmartDashboard.getNumber("kd", SPEED_PID_KD));
-
-    boolean withinIzone = true;
-    // reset accumulated error of PID if not within i zone so integral only active within i zone
-    if (Math.abs(speedPID.getSetpoint() - getMotorRPM()) > SmartDashboard.getNumber("izone", SPEED_PID_I_ZONE)) {
-      speedPID.reset();
-      withinIzone = false;
-    }
-    SmartDashboard.putBoolean("withinIZone", withinIzone);
-
-    SmartDashboard.putNumber("Setpoint", rpm);
-
     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
     speedPID.setSetpoint(rpm);
   }
 
+  /**
+   * Checks if it is ready to shoot with the average speed of the flywheel
+   * @return Whether or not it is ready to shoot
+   */
   public boolean readyToShoot() {
     double averageSpeed = 0.0;
     for (int i = 0; i < speedSample.size(); i++) {
@@ -101,6 +97,9 @@ public class Shooter extends SubsystemBase {
     hoodSolenoid.set(LOWERED_VALUE);
   }
 
+  /**
+   * Updates the speed sample for the flywheel speed to be used in {@link #readyToShoot()}
+   */
   private void updateSpeedSample() {
     speedSample.add(getMotorRPM());
     if (speedSample.size() > SPEED_SAMPLE_SIZE_LIMIT) {
@@ -108,10 +107,14 @@ public class Shooter extends SubsystemBase {
     }
   }
 
+  /**
+   * Calculates the RPM of the flywheel from distance from the limelight
+   * @param distance Distance in limelight ty
+   * @return the RPM of the flywheel from distance
+   */
   public double calculateRPM(double distance) {
-    // distance in ty, from limelight
-    
     return RPM_EQUATION.apply(distance);
+
   }
 
   @Override
