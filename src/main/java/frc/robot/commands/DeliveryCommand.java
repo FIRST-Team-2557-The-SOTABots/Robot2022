@@ -4,42 +4,52 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Delivery;
-import frc.robot.subsystems.Intake;
-import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class DeliveryCommand extends SequentialCommandGroup {
-  /** Creates a new DeliveryCommand. */
-  public DeliveryCommand(Delivery delivery, Intake intake) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-      new InstantCommand(() -> SmartDashboard.putString("delivery", "waiting")),
-      new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted()),
-      parallel(
-        new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
-        new UninterruptibleProxyScheduleCommand(
-          new RunCommand(
-            () -> {
-              intake.retract();
-              intake.run(0.0);
-            }, 
-            intake
-          ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
-          .andThen(() -> SmartDashboard.putString("delivery", "retracted"))
-        )
-      ),
-      new WaitCommand(Constants.Delivery.COOLDOWN)
-    );
+public class DeliveryCommand extends CommandBase {
+  private boolean photoTurnedOn;
+  private Delivery delivery;
+
+  /**
+   * runs the delivery
+   * @param delivery
+   */
+  public DeliveryCommand(Delivery delivery) {
+    addRequirements(delivery);
+    photoTurnedOn = false;
+    this.delivery = delivery;
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    photoTurnedOn = false;
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    delivery.runMotor(Constants.Delivery.INDEXING_SPEED);
+    
+    if(delivery.getSensor2()){
+      photoTurnedOn = true;
+    }
+  }
+
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    delivery.runMotor(0.0);
+  }
+
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    // if(photoTurnedOn && !delivery.getSensor2()){
+    //   return true;
+    // }
+    return false;
   }
 }
