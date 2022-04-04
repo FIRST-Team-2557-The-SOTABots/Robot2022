@@ -43,7 +43,7 @@ public final class Constants {
         public static final Value UNLOCK_VALUE = Value.kForward;
         public static final boolean LEFT_HOOK_INVERTED = false; 
         public static final boolean RIGHT_HOOK_INVERTED = true; 
-        public static final boolean ANGLE_HOOK_INVERTED = isCompBot ? false : true;
+        public static final boolean ANGLE_HOOK_INVERTED = isCompBot ? true : true;
 
         // the following values are encoder positions for the left and right extending hooks
         // MIN refers to the hooks being completely lowered

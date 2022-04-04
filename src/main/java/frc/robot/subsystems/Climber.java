@@ -180,5 +180,8 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putBoolean("right top", getRightTopMagLimit());
     SmartDashboard.putBoolean("is locked", getLocked());
     SmartDashboard.putNumber("Angle power", angleMotor.get());
+    System.out.println("Stator Current" + angleMotor.getStatorCurrent());
+    System.out.println("Input Current" + angleMotor.getSupplyCurrent());
+    System.out.println("Angle Temperature" + angleMotor.getTemperature());
   }
 }
