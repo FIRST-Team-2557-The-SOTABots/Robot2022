@@ -105,14 +105,24 @@ public class Shooter extends SubsystemBase {
 
   }
  
+  /**
+   * Returns the motor RPM
+   * @return the motors RPM, not the flywheels
+   */
   public double getMotorRPM(){
     return Math.abs(motor1.getEncoder().getVelocity());
   }
 
+  /**
+   * Raises the hood up
+   */
   public void hoodUp() {
     hoodSolenoid.set(RAISED_VALUE);
   }
 
+  /**
+   * Lowers the hood
+   */
   public void hoodDown() {
     hoodSolenoid.set(LOWERED_VALUE);
   }
