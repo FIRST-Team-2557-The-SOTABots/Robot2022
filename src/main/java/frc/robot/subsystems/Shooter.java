@@ -85,18 +85,6 @@ public class Shooter extends SubsystemBase {
     return Math.abs(averageSpeed - speedPID.getSetpoint()) < RPM_TOLERANCE;
   }
 
-  public double getMotorRPM(){
-    return Math.abs(motor1.getEncoder().getVelocity());
-  }
-
-  public void hoodUp() {
-    hoodSolenoid.set(RAISED_VALUE);
-  }
-
-  public void hoodDown() {
-    hoodSolenoid.set(LOWERED_VALUE);
-  }
-
   /**
    * Updates the speed sample for the flywheel speed to be used in {@link #readyToShoot()}
    */
@@ -115,6 +103,18 @@ public class Shooter extends SubsystemBase {
   public double calculateRPM(double distance) {
     return RPM_EQUATION.apply(distance);
 
+  }
+ 
+  public double getMotorRPM(){
+    return Math.abs(motor1.getEncoder().getVelocity());
+  }
+
+  public void hoodUp() {
+    hoodSolenoid.set(RAISED_VALUE);
+  }
+
+  public void hoodDown() {
+    hoodSolenoid.set(LOWERED_VALUE);
   }
 
   @Override
