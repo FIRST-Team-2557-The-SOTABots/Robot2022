@@ -7,7 +7,6 @@ package frc.robot.commands.Auto;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
 import frc.robot.commands.IndexCommand;
 import frc.robot.subsystems.Delivery;
 import frc.robot.subsystems.Intake;
@@ -36,7 +35,7 @@ public class FiveBall extends SequentialCommandGroup {
           swerveDrive.setPose(path1A.getInitialState());
           swerveDrive.setFieldCentricActive(false);
         }, 
-        swerveDrive
+        shooter, swerveDrive
       ),
       deadline(
         new SwerveControllerCommand(swerveDrive, path1A),
@@ -46,7 +45,7 @@ public class FiveBall extends SequentialCommandGroup {
       ),
       new EndSwerveCommand(swerveDrive),
       new EndIntakeCommand(intake),
-      new AutoShootCommand(shooter, swerveDrive, delivery, limelight).withTimeout(Constants.Auto.PATH_1_SHOOT_1_DURATION),
+      new AutoShootCommand(shooter, swerveDrive, delivery, limelight).withTimeout(PATH_1_SHOOT_1_DURATION),
       new EndShooterCommand(shooter),
       new EndDeliveryCommand(delivery),
       deadline(
@@ -57,7 +56,7 @@ public class FiveBall extends SequentialCommandGroup {
       ),
       new EndSwerveCommand(swerveDrive),
       new EndIntakeCommand(intake),
-      new AutoShootCommand(shooter, swerveDrive, delivery, limelight).withTimeout(Constants.Auto.PATH_1_SHOOT_2_DURATION),
+      new AutoShootCommand(shooter, swerveDrive, delivery, limelight).withTimeout(PATH_1_SHOOT_2_DURATION),
       new EndShooterCommand(shooter),
       new EndDeliveryCommand(delivery),
       deadline(
@@ -67,7 +66,7 @@ public class FiveBall extends SequentialCommandGroup {
       ),
       new EndSwerveCommand(swerveDrive),
       deadline(
-        new RunIntakeCommand(intake).withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+        new RunIntakeCommand(intake).withTimeout(HUMAN_PLAYER_WAIT_TIME),
         new IndexCommand(delivery, intake)
       ),
       deadline(
@@ -81,7 +80,7 @@ public class FiveBall extends SequentialCommandGroup {
         )
       ),
       new EndSwerveCommand(swerveDrive),
-      new AutoShootCommand(shooter, swerveDrive, delivery, limelight).withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
+      new AutoShootCommand(shooter, swerveDrive, delivery, limelight).withTimeout(PATH_1_SHOOT_3_DURATION),
       new EndShooterCommand(shooter),
       new EndDeliveryCommand(delivery)
     );

@@ -52,7 +52,6 @@ public class AngleProfiledPIDCommand extends CommandBase {
         controller.setP(angleMovement.kp);
       }
 
-      // TODO: make run angle for all movements
       climber.runAngle(controller.calculate(climber.getAngleEncoderPosition()));
     }
   } 

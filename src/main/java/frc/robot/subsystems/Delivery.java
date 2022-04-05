@@ -18,8 +18,6 @@ public class Delivery extends SubsystemBase {
 
   // Top distance sensor
   private DigitalInput sensor1;
-  // Bottom IR (??) sensor
-  private DigitalInput sensor2;
 
   public Delivery() {
     deliveryMotor = new WPI_TalonSRX(MOTOR_PORT);
@@ -29,7 +27,6 @@ public class Delivery extends SubsystemBase {
     deliveryMotor.configOpenloopRamp(RAMP_RATE);
 
     sensor1 = new DigitalInput(SENSOR_1_PORT);
-    sensor2 = new DigitalInput(SENSOR_2_PORT);
   }
   
   public void runMotor(double speed) {
@@ -42,14 +39,6 @@ public class Delivery extends SubsystemBase {
    */
   public boolean getSensor1() {
     return !sensor1.get();
-  }
-  
-  /**
-   * Returns the state of the bottom sensor
-   * @return The state of the bottom sensor
-   */
-  public boolean getSensor2() {
-    return sensor2.get();
   }
 
   @Override

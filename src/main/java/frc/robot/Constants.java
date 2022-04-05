@@ -192,7 +192,7 @@ public final class Constants {
         
         // in meters
         public static final double WHEEL_BASE = 23.111 * METERS_PER_INCH;
-        public static final double TRACK_WIDTH = 23.111 * METERS_PER_INCH; // TODO: good?
+        public static final double TRACK_WIDTH = 23.111 * METERS_PER_INCH;
         public static final double WHEEL_DIAMETER = 4.0 * METERS_PER_INCH;
         public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
@@ -207,7 +207,7 @@ public final class Constants {
         public static final double MAX_WHEEL_SPEED = 5.2;
 
         // in radians per second
-        public static final double MAX_ANGULAR_SPEED = 6.28; // TODO: unoffical number
+        public static final double MAX_ANGULAR_SPEED = 6.28;
         
         public static final double COAST_DOWN_MAX_SPEED = 0.5; // speed in m/s below which shift down with low demand occurs
         public static final double COAST_DOWN_MAX_INPUT = 0.5; // input below which shift down with low demand occurs
@@ -247,7 +247,7 @@ public final class Constants {
         public static final double UPPER_HUB_RPM = 3900; // in motor rpm
         public static final double LOWER_HUB_RPM = 1600; // in motor rpm
         public static final double RPM_TOLERANCE = 100; // in motor rpm
-        public static final double FEEDFORWARD_KS = isCompBot ?  -0.1085 : 0.0; // in volts //TODO: REDO THIS
+        public static final double FEEDFORWARD_KS = isCompBot ?  -0.1085 : 0.0; // in volts
         public static final double FEEDFORWARD_KV = isCompBot ? 0.00217 : 0.002126; // in volts
         public static final double SPEED_PID_KP = 0.0015;
         public static final double SPEED_PID_KI = 0.0; 
@@ -284,14 +284,13 @@ public final class Constants {
     }
 
     public static class Delivery {
-        public static final int SENSOR_1_PORT = 7; // TODO fix
-        public static final int SENSOR_2_PORT = 0;
+        public static final int SENSOR_1_PORT = 7;
         public static final int MOTOR_PORT = 4;
         public static final int SENSOR_1_LEFT_THRESHOLD = 120;
         public static final int SENSOR_1_RIGHT_THRESHOLD = 85;
         public static final int SENSOR_1_THRESHOLD = 30;
         public static final double INDEXING_SPEED = 0.5;
-        public static final double SHOOTING_SPEED = 0.7; // TODO: turn this back 
+        public static final double SHOOTING_SPEED = 0.7; 
         public static final boolean MOTOR_INVERTED = true;
         public static final double COOLDOWN = 0.75; // in seconds
         public static final double MAX_DELIVERY_DURATION = 0.4; // in seconds
@@ -314,7 +313,7 @@ public final class Constants {
         public static final double PATH_1_SHOOT_1_DURATION = 2;
         public static final double PATH_1_SHOOT_2_DURATION = 1.25;
         public static final double PATH_1_SHOOT_3_DURATION = 2;
-        public static final double HUMAN_PLAYER_WAIT_TIME = 1.25;
+        public static final double HUMAN_PLAYER_WAIT_TIME = 1.25; // Big Jon wait time
 
         public static final double PATH_2_SHOOT_1_DURATION = 2.0;
         public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
@@ -330,6 +329,10 @@ public final class Constants {
         public static final PathPlannerTrajectory path1B = PathPlanner.loadPath("Path_1_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
         public static final PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
         public static final PathPlannerTrajectory path1D = PathPlanner.loadPath("Path_1_D", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+
+        public static final PathPlannerTrajectory path2A = PathPlanner.loadPath("Path_2_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+        public static final PathPlannerTrajectory path2B = PathPlanner.loadPath("Path_2_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+        public static final PathPlannerTrajectory Path2C = PathPlanner.loadPath("Path_2_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     }
 
     public static class Control {

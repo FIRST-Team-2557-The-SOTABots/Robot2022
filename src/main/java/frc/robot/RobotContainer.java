@@ -6,8 +6,6 @@ package frc.robot;
 
 import static frc.robot.util.Logitech.Ports.*;
 
-import java.nio.file.Path;
-
 import static frc.robot.Constants.Swerve.*;
 import static frc.robot.Constants.LimeLight.*;
 import static frc.robot.Constants.Shooter.*;
@@ -27,21 +25,14 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.IndexCommand;
-import frc.robot.commands.Auto.FiveBall;
-import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
@@ -56,7 +47,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -80,7 +70,6 @@ public class RobotContainer {
   private JoystickButton db = new JoystickButton(dStick, B);
   private JoystickButton dx = new JoystickButton(dStick, X);
   private JoystickButton dy = new JoystickButton(dStick, Y);
-  private JoystickButton dlb = new JoystickButton(dStick, LEFT_BUMPER);
   private JoystickButton dstart = new JoystickButton(dStick, START);
 
   // Manipulator controller and associated buttons
@@ -105,70 +94,33 @@ public class RobotContainer {
     configureAutonomousCommands();
   }
 
-
-
   private void configureDefaultCommands() {
     swerveDrive.setDefaultCommand(
-      // new ParallelRaceGroup(
-      //   new SequentialCommandGroup(
-      //     new WaitUntilCommand(
-      //       () -> {
-      //         if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-      //           swerveDrive.shiftDown();
-      //         } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-      //           swerveDrive.shiftUp();
-      //         }
+      new RunCommand(
+        () -> {
+          // get inputs then square them, preserving sign
+          double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+          double str = dStick.getRawAxis(LEFT_STICK_X);
+          double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
-      //         return swerveDrive.autoShift(dStick.getRawAxis(LEFT_STICK_Y), dStick.getRawAxis(LEFT_STICK_X));
-      //       }
-      //     ),
-      //     new WaitCommand(Constants.Swerve.SHIFT_COOLDOWN)
-      //   ),
-        new RunCommand(
-          () -> {
-            // get inputs then square them, preserving sign
-            double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-            double str = dStick.getRawAxis(LEFT_STICK_X);
-            double rot = dStick.getRawAxis(RIGHT_STICK_X);
-
-            // pass inputs into drivetrain
-            swerveDrive.drive(
-              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-            );
-            if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-              swerveDrive.shiftDown();
-            } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-              swerveDrive.shiftUp();
-            }
-          },
-          swerveDrive
-        )
-      // )
+          // pass inputs into drivetrain
+          swerveDrive.drive(
+            -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
+            -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
+            -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
+          );
+          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+            swerveDrive.shiftDown();
+          } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+            swerveDrive.shiftUp();
+          }
+        },
+        swerveDrive
+      )
     );
 
     delivery.setDefaultCommand(
       new IndexCommand(delivery, intake)
-      // sequence(
-      //   new InstantCommand(() -> SmartDashboard.putString("Delivery Waiting", "")),
-      //   new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted())
-      //   .andThen(() -> SmartDashboard.putString("Delivery Start", "")),
-      //   parallel(
-      //     new RunDelivery(delivery).withTimeout(Constants.Delivery.MAX_DELIVERY_DURATION),
-      //     new UninterruptibleProxyScheduleCommand(
-      //       new RunCommand(
-      //         () -> {
-      //           intake.retract();
-      //           intake.run(0.0);
-      //         }, 
-      //         intake
-      //       ).withTimeout(Constants.Delivery.RETRACTED_DURATION)
-      //       .andThen(() -> SmartDashboard.putString("Intake Retracted", ""))
-      //     )
-      //   ),
-      //   new WaitCommand(Constants.Delivery.COOLDOWN)
-      // )
     );
 
     climber.setDefaultCommand(
@@ -185,14 +137,13 @@ public class RobotContainer {
     shooter.setDefaultCommand(
       new RunCommand(
         () -> {
-          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0.5)
+          if (mStick.getRawAxis(RIGHT_TRIGGER) > 0)
             shooter.setMotorRPM(SPOOL_RPM);
-          else {
+          else 
             shooter.setMotorRPM(0.0);
-          }
         }, 
         shooter
-        )
+      )
     );
 
     intake.setDefaultCommand(
@@ -262,6 +213,25 @@ public class RobotContainer {
       )
     );
 
+    mStart.whileHeld(
+      new RunCommand(
+        () -> {
+          shooter.hoodDown();
+          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
+          delivery.runMotor(shooter.readyToShoot()? SHOOTING_SPEED : 0.0);
+        }, 
+        shooter, delivery 
+      )
+    ).whenReleased(
+      new InstantCommand(
+        () -> {
+          shooter.setMotorRPM(0.0);
+          delivery.runMotor(0.0);
+        },
+        shooter, delivery
+      )
+    );
+
     mBack.whileHeld(
       new InstantCommand(
         () -> {
@@ -279,67 +249,15 @@ public class RobotContainer {
       )
     );
 
-    mStart.whileHeld(
+    ma.whenHeld(
       new RunCommand(
         () -> {
-          shooter.hoodDown();
-          shooter.setMotorRPM(Constants.Shooter.UPPER_HUB_RPM);
-
-          if (shooter.readyToShoot())
-            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
-            delivery.runMotor(0.0);
-
+          intake.extend();
+          intake.run(-SPEED);
+          delivery.runMotor(-SHOOTING_SPEED);
         }, 
-        
-          shooter, delivery
-        
-        )
-    ).whenReleased(
-      new InstantCommand(
-        () -> {
-          shooter.setMotorRPM(0.0);
-          delivery.runMotor(0.0);
-        }
+        delivery, intake
       )
-    );
-
-    ma.whenHeld(
-      parallel(
-        new RunCommand(
-          () -> {
-
-            intake.extend();
-            intake.run(-SPEED);
-
-          }, 
-          
-            intake
-
-        ),
-
-        sequence(
-          new RunCommand(
-            () -> {
-              delivery.runMotor(-SHOOTING_SPEED);
-            }, 
-            
-            delivery
-            
-          ).withTimeout(MAX_DELIVERY_DURATION),
-
-          new WaitCommand(COOLDOWN)
-        )
-
-      )
-      // new RunCommand(
-      //   () -> {
-      //     intake.extend();
-      //     intake.run(-SPEED);
-      //     delivery.runMotor(-SHOOTING_SPEED);
-      //   }, 
-      //     delivery, intake
-      //   )
     ).whenReleased(
       new InstantCommand(
         () -> {
@@ -347,9 +265,7 @@ public class RobotContainer {
           intake.run(0.0);
           delivery.runMotor(0.0);
         },
-
         delivery, intake
-
       )
     );
 
@@ -358,19 +274,14 @@ public class RobotContainer {
         ()-> {
           delivery.runMotor(-INDEXING_SPEED);
         },
-
         delivery
-
       )
-
     ).whenReleased(
       new InstantCommand(
         () -> {
           delivery.runMotor(0.0);
         },
-
         delivery
-
       )
     );
 
@@ -381,7 +292,8 @@ public class RobotContainer {
         () -> {
           shooter.runFlywheel(0.0);
           delivery.runMotor(0.0);
-        }
+        },
+        shooter, delivery
       )
     );
 
@@ -389,11 +301,8 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           shooter.hoodUp();
-          shooter.setMotorRPM(Constants.Shooter.LOWER_HUB_RPM);
-          if (shooter.readyToShoot())
-            delivery.runMotor(Constants.Delivery.SHOOTING_SPEED);
-          else
-            delivery.runMotor(0.0);
+          shooter.setMotorRPM(LOWER_HUB_RPM);
+          delivery.runMotor(shooter.readyToShoot()? SHOOTING_SPEED : 0.0);
         },
         shooter, delivery
       )
@@ -461,6 +370,10 @@ public class RobotContainer {
       )
     );
 
+    // autoChooser.addOption("5 ball", new FiveBall(swerveDrive, delivery, intake, shooter, limelight)); TODO: needs testing
+    // autoChooser.addOption("2 ball steal", new TwoBallSteal(swerveDrive, delivery, intake, shooter, limelight)); TODO: needs testing
+
+
     PathPlannerTrajectory path1A = PathPlanner.loadPath("Path_1_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1B = PathPlanner.loadPath("Path_1_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
@@ -475,7 +388,7 @@ public class RobotContainer {
             swerveDrive.setPose(path1A.getInitialState());
             swerveDrive.setFieldCentricActive(false);
           }, 
-          swerveDrive
+          shooter, swerveDrive
         ),
         deadline(
           generatePPSwerveControllerCommand(path1A),
@@ -528,7 +441,6 @@ public class RobotContainer {
         }
       )
     );
-    // autoChooser.addOption("5 ball", new FiveBall(swerveDrive, delivery, intake, shooter, limelight)); TODO: needs testing
 
     PathPlannerTrajectory path2A = PathPlanner.loadPath("Path_2_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path2B = PathPlanner.loadPath("Path_2_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
