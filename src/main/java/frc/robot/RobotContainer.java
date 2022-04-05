@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.IndexCommand;
+import frc.robot.commands.Auto.FiveBall;
 import frc.robot.commands.DeliveryCommand;
 import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.subsystems.Climber;
@@ -373,57 +374,8 @@ public class RobotContainer {
       )
     );
 
-    // Jonas, the conditional command only selects the command on its initialization.
-    // I switched this to while held so that it is repeatedly scheduled.
-    // But since the command is already scheduled, the initialize method is not called, 4
-    // and the conditional command does not select the proper command
-
-    // Note: did some cleanup
-
     mx.whileHeld(
       new AutoAim(limelight, shooter, delivery, swerveDrive, dStick)
-      // new PIDCommand(
-      //   new PIDController(TARGET_SEARCH_KP, TARGET_SEARCH_KI, TARGET_SEARCH_KD), 
-      //   () -> limelight.getX(), 
-      //   LIMELIGHT_CENTER, 
-      //   (double output) -> {
-      //     double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-      //     double str = dStick.getRawAxis(LEFT_STICK_X);
-      //     double rot = dStick.getRawAxis(RIGHT_STICK_X);
-
-      //     swerveDrive.drive(
-      //       -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-      //       -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-      //       limelight.targetDetected() ? // Me when the nested ternerary operater
-      //       Math.abs(LIMELIGHT_CENTER - limelight.getX()) < Constants.LimeLight.AUTOAIM_TOLERANCE ? 
-      //       0 : output : -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-      //     );
-                    
-      //     shooter.hoodUp();
-      //     shooter.setMotorRPM(
-      //       // MAX_TY > limelight.getY() && limelight.getY() > MIN_TY ?  // if not in ty tolerance then no rev
-      //       // Constants.Shooter.RPM_EQUATION.apply(
-      //       //   limelight.getY()
-      //       // ) 
-      //       // : 0.0
-      //       rpm
-      //     );
-          
-      //     if (shooter.readyToShoot() && limelight.targetDetected()) {
-      //       delivery.runMotor(
-      //         Constants.Delivery.SHOOTING_SPEED
-      //       );
-      //     }
-          
-
-      //     if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) 
-      //       swerveDrive.shiftDown();
-      //     else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) 
-      //       swerveDrive.shiftUp();
-          
-      //   },
-      //   swerveDrive, delivery, shooter
-      // )
     ).whenReleased(
       new InstantCommand(
         () -> {
@@ -576,6 +528,7 @@ public class RobotContainer {
         }
       )
     );
+    // autoChooser.addOption("5 ball", new FiveBall(swerveDrive, delivery, intake, shooter, limelight)); TODO: needs testing
 
     PathPlannerTrajectory path2A = PathPlanner.loadPath("Path_2_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     PathPlannerTrajectory path2B = PathPlanner.loadPath("Path_2_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
@@ -678,7 +631,7 @@ public class RobotContainer {
         intake.run(-SPEED);
         delivery.runMotor(-SHOOTING_SPEED);
       },
-      intake
+      intake, delivery
     ).asProxy();
   }
 

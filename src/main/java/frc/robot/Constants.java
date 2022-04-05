@@ -6,6 +6,9 @@ package frc.robot;
 
 import java.util.function.DoubleFunction;
 
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
@@ -322,6 +325,11 @@ public final class Constants {
         public static final double SHOOT_HIGH_BACK_DRIVE_DURATION = 3.0; // seconds
 
         public static final double DURATION = 15.0; // seconds
+
+        public static final PathPlannerTrajectory path1A = PathPlanner.loadPath("Path_1_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+        public static final PathPlannerTrajectory path1B = PathPlanner.loadPath("Path_1_B", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+        public static final PathPlannerTrajectory path1C = PathPlanner.loadPath("Path_1_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+        public static final PathPlannerTrajectory path1D = PathPlanner.loadPath("Path_1_D", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
     }
 
     public static class Control {
