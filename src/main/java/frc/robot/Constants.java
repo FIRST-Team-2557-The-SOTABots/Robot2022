@@ -25,6 +25,9 @@ public final class Constants {
     public static final double METERS_PER_INCH = 0.0254;
 
     public static final class Climber {
+        public static final double STALL_PROTECTION_CURRENT = 50.0; // in amperes
+        public static final double STALL_PROTECTION_DURATION = 2; // in seconds
+
         // the frame of reference for left and right is looking in the direction the robot shoots
         public static final int LEFT_HOOK_MOTOR_PORT = 5;
         public static final int LEFT_HOOK_ENCODER_PORT = 4;
@@ -78,7 +81,7 @@ public final class Constants {
         public static final double ANGLE_ENCODER_HIGH_LIMIT = MAX_ANGLE_ENCODER;
         public static final double ANGLE_ENCODER_LOW_LIMIT = MIN_ANGLE_ENCODER;
 
-        public static final double ANGLE_PID_MAX_VELOCITY = 300; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
+        public static final double ANGLE_PID_MAX_VELOCITY = 350; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
         public static final double ANGLE_PID_MAX_ACCELERATION = 900; // in encoder ticks per second per second, acceleration motion profile constraint for profiled angle movement
         public static final double ANGLE_PID_CHANGE_KP_RANGE = 200; // in encoder ticks, error within which kp will change to the value below
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002; // the reduced kp value for when error is within range, since less torque is needed as the robot gets closer when doing MAX_TO_HIGH
@@ -86,6 +89,7 @@ public final class Constants {
         public static final double ANGLE_HOOKS_TO_BAR_TIMEOUT = 0.9; // time in seconds before command that moves angle hooks onto bar gives up
         public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
         public static final double RUN_TO_ANGLE_TOLERANCE = 10; // in angle encoder counts, tolerance of AngleClimbToPosition
+        public static final double RUN_TO_ANGLE_TOLERANCE_FAST = 150; // in angle encoder counts, tolerance of AngleClimbToPosition when going fast
         public static final double RUN_TO_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition
         public static final double RUN_TO_ANGLE_SPEED_FAST = 0.4; // duty cycle angle hooks run at for AngleClimbToPosition
 
@@ -114,13 +118,9 @@ public final class Constants {
         }
 
         public enum AngleMovement {
-            MIN_TO_MID(0.001, 0.0005, 0, MID_ANGLE_ENCODER, 0.0),
             MID_TO_MAX(0.00008, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
             MAX_TO_HIGH(0.004, 0.005, 0, HIGH_ANGLE_ENCODER, 50.0),
-            HOLD_HIGH(0.002, 0.005, 0, HIGH_ANGLE_ENCODER, 0.0),
-            HIGH_TO_MAX(0, 0, 0, MAX_ANGLE_ENCODER, 0.0),
-            MAX_TO_HIGH_NO_LOAD(0.00007, 0.0005, 0, HIGH_ANGLE_ENCODER, 250.0),
-            HIGH_TO_MIN(0.00003, 0.0005, 0, MIN_ANGLE_ENCODER, 50.0);
+            HOLD_HIGH(0.002, 0.005, 0, HIGH_ANGLE_ENCODER, 0.0);
 
             public final double kp;
             public final double ki;
