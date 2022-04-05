@@ -130,12 +130,28 @@ public class RobotContainer {
             double str = dStick.getRawAxis(LEFT_STICK_X);
             double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
+            
+            fwd = -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED;
+            str = -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED;
+            rot = -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED;
+
+            // if x is pressed proportional control to face forwards
+            if (dx.get()) {
+              double error = -swerveDrive.getGyroAngle();
+              if (Math.abs(error) < Constants.Swerve.CLIMB_LINE_UP_TOLERANCE)
+                rot = 0.0;
+              else
+                rot = error * Constants.Swerve.CLIMB_LINE_UP_KP;
+            }
+
+            if (dy.get()) {
+              fwd = Constants.Swerve.CLIMB_LINE_UP_SPEED;
+            }
+
             // pass inputs into drivetrain
-            swerveDrive.drive(
-              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-            );
+            swerveDrive.drive(fwd, str, rot);
+
+
             if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
               swerveDrive.shiftDown();
             } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {

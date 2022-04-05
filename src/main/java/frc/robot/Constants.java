@@ -217,6 +217,10 @@ public final class Constants {
         public static final double TARGET_SEARCH_KP = 0.075;
         public static final double TARGET_SEARCH_KI = 0.0;
         public static final double TARGET_SEARCH_KD = 0.0;
+
+        public static final double CLIMB_LINE_UP_TOLERANCE = 0.1;
+        public static final double CLIMB_LINE_UP_KP = 2.0;
+        public static final double CLIMB_LINE_UP_SPEED = 0.50;
     }
 
     public static class Intake {
