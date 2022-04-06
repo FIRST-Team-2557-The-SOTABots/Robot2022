@@ -122,7 +122,7 @@ public class RobotContainer {
 
           // if x is pressed, proportionally control the orientation for climb
           if (dx.get()) {
-            double error = -swerveDrive.getGyroAngle();
+            double error = -swerveDrive.getGyroAngle() % (2 * Math.PI);
             if (Math.abs(error) < Constants.Swerve.CLIMB_LINE_UP_TOLERANCE)
               rot = 0.0;
             else
