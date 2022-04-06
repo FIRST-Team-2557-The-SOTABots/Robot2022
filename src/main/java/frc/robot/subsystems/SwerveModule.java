@@ -213,6 +213,24 @@ public class SwerveModule extends SubsystemBase {
 
 
 
+  /**
+   * Set speed motor to coast mode.
+   */
+  public void speedMotorCoast() {
+    speedMotor.setNeutralMode(NeutralMode.Coast);
+  }
+
+
+
+  /**
+   * Set speed motor to brake mode.
+   */
+  public void speedMotorBrake() {
+    speedMotor.setNeutralMode(NeutralMode.Brake);
+  }
+
+
+
   @Override
   public void periodic() {
     // NOTE: this comment retained for easy callibration

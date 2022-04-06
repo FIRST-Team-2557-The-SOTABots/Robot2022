@@ -108,43 +108,44 @@ public class RobotContainer {
 
   private void configureDefaultCommands() {
     swerveDrive.setDefaultCommand(
-      // new ParallelRaceGroup(
-      //   new SequentialCommandGroup(
-      //     new WaitUntilCommand(
-      //       () -> {
-      //         if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-      //           swerveDrive.shiftDown();
-      //         } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-      //           swerveDrive.shiftUp();
-      //         }
+      new RunCommand(
+        () -> {
+          // get inputs then square them, preserving sign
+          double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+          double str = dStick.getRawAxis(LEFT_STICK_X);
+          double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
-      //         return swerveDrive.autoShift(dStick.getRawAxis(LEFT_STICK_Y), dStick.getRawAxis(LEFT_STICK_X));
-      //       }
-      //     ),
-      //     new WaitCommand(Constants.Swerve.SHIFT_COOLDOWN)
-      //   ),
-        new RunCommand(
-          () -> {
-            // get inputs then square them, preserving sign
-            double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-            double str = dStick.getRawAxis(LEFT_STICK_X);
-            double rot = dStick.getRawAxis(RIGHT_STICK_X);
+          
+          fwd = -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED;
+          str = -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED;
+          rot = -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED;
 
-            // pass inputs into drivetrain
-            swerveDrive.drive(
-              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-            );
-            if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-              swerveDrive.shiftDown();
-            } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-              swerveDrive.shiftUp();
-            }
-          },
-          swerveDrive
-        )
-      // )
+          // if x is pressed, proportionally control the orientation for climb
+          if (dx.get()) {
+            double error = -swerveDrive.getGyroAngle() % (2 * Math.PI);
+            if (Math.abs(error) < Constants.Swerve.CLIMB_LINE_UP_TOLERANCE)
+              rot = 0.0;
+            else
+              rot = error * Constants.Swerve.CLIMB_LINE_UP_KP;
+          }
+
+          // if y is pressed drive down field slowly
+          if (dy.get()) {
+            fwd = Constants.Swerve.CLIMB_LINE_UP_SPEED;
+          }
+
+          // pass inputs into drivetrain
+          swerveDrive.drive(fwd, str, rot);
+
+
+          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+            swerveDrive.shiftDown();
+          } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+            swerveDrive.shiftUp();
+          }
+        },
+        swerveDrive
+      )
     );
 
     delivery.setDefaultCommand(
@@ -212,7 +213,14 @@ public class RobotContainer {
   }
 
   public void resetRobot() {
-    climber.reset();
+    climber.resetEncoders();
+    climber.lock();
+    swerveDrive.speedMotorsBrake();
+  }
+
+  public void disabledInit() {
+    climber.setAngleMotorCoast();
+    swerveDrive.speedMotorsCoast();
   }
 
   /**

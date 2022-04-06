@@ -41,8 +41,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       // then extend the hooks completely
       // angle the robot forward slightly, then hold there as the extend hooks retract slightly onto the bar
       new ExtendClimbCommand(climber, SimpleExtendMovement.EVEN_TO_MID),
-      new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP),
+      parallel(
+        new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
+        new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
+      ),
       new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
       race(
         new AnglePIDCommand(climber, AngleMovement.HOLD_HIGH),
@@ -56,12 +58,13 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       // finally wait for a button press
       parallel(
         new AngleClimbToPosition(climber, MAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED),
-        new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_BOTTOM)
+        new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_RELEASE)
       ),
-      new AngleClimbToPosition(climber, HAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_MID),
-      new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_BOTTOM),
+      deadline(
+        new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST, RUN_TO_ANGLE_TOLERANCE_FAST), 
+        new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
+      ),
+      new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),
       new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
       new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN),
       new WaitUntilCommand(() -> {
@@ -73,8 +76,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       // then extend the hooks completely
       // angle the robot forward slightly, then hold there as the extend hooks retract slightly onto the bar
       new ExtendClimbCommand(climber, SimpleExtendMovement.EVEN_TO_MID),
-      new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP),
+      parallel(
+        new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
+        new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
+      ),
       new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
       race(
         new AnglePIDCommand(climber, AngleMovement.HOLD_HIGH),
@@ -87,12 +92,13 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       // retract the hooks to raise the robot and angle the hooks onto the bar, then lower the angle hooks onto the bar
       parallel(
         new AngleClimbToPosition(climber, MAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED),
-        new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_BOTTOM)
+        new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_RELEASE)
       ),
-      new AngleClimbToPosition(climber, HAX_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_MID),
-      new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_BOTTOM),
+      deadline(
+        new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST, RUN_TO_ANGLE_TOLERANCE_FAST), 
+        new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
+      ),
+      new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),
       new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
       new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN)
     );

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -32,6 +33,9 @@ public class Climber extends SubsystemBase {
 
   private DutyCycleEncoder leftEncoder;
   private DutyCycleEncoder rightEncoder;
+
+  private boolean stallProtectionOn;
+  private Timer stallTimer;
 
   /** Creates a new Climber. */
   public Climber() {
@@ -59,6 +63,10 @@ public class Climber extends SubsystemBase {
     leftEncoder.reset();
     rightEncoder = new DutyCycleEncoder(RIGHT_HOOK_ENCODER_PORT);
     rightEncoder.reset();
+
+    stallProtectionOn = false;
+    stallTimer = new Timer();
+    stallTimer.reset();
 
     lock();
   }
@@ -165,7 +173,8 @@ public class Climber extends SubsystemBase {
     if (getAngleEncoderPosition() <= ANGLE_ENCODER_LOW_LIMIT)
       spd = Math.max(0, spd);
 
-    if (getLocked())
+    // don't allow angle motor to move if it is locked or in stall protection
+    if (getLocked() || stallProtectionOn)
       angleMotor.set(0.0);
     else
       angleMotor.set(spd);
@@ -245,13 +254,51 @@ public class Climber extends SubsystemBase {
 
 
   /**
-   * Updates the climb system's encoder values and lock state to be as they should at the start of a match.
+   * Resets the climb system's encoder values to 0.
    */
-  public void reset() {
-    lock();
+  public void resetEncoders() {
     leftEncoder.reset();
     rightEncoder.reset();
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
+  }
+
+
+
+  /**
+   * Sets the angle motor to coast
+   */
+  public void setAngleMotorCoast() {
+    angleMotor.setNeutralMode(NeutralMode.Coast);
+  }
+
+
+
+  /**
+   * Sets the angle motor to brake
+   */
+  public void setAngleMotorBrake() {
+    angleMotor.setNeutralMode(NeutralMode.Brake);
+  }
+
+
+
+  /**
+   * Update whether the angle motor is in stall protection. This checks whether the current being drawn is too
+   * close to stall and prevents motor smoke.
+   */
+  private void updateStallProtection() {
+    // if stall protection has been on for long enough, turn it off and reset and stop the timer
+    if (stallProtectionOn && stallTimer.get() >= STALL_PROTECTION_DURATION) {
+      stallProtectionOn = false;
+      stallTimer.reset();
+      stallTimer.stop();
+    } 
+    // if stall protection is 
+    else if (Math.abs(angleMotor.getSupplyCurrent()) > STALL_PROTECTION_CURRENT) {
+      stallProtectionOn = true;
+      stallTimer.start();
+      angleMotor.set(0.0);
+    }
   }
 
 
@@ -265,6 +312,9 @@ public class Climber extends SubsystemBase {
     if (getRightBotMagLimit())
       rightEncoder.reset();
 
+    // update whether stall protection is active
+    updateStallProtection();
+
     // log sensor states
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
@@ -277,8 +327,9 @@ public class Climber extends SubsystemBase {
 
     // log stall-related information about the angle motor 
     SmartDashboard.putNumber("Angle power", angleMotor.get());
-    System.out.println("Stator Current" + angleMotor.getStatorCurrent());
-    System.out.println("Input Current" + angleMotor.getSupplyCurrent());
-    System.out.println("Angle Temperature" + angleMotor.getTemperature());
+    // System.out.println("Stator Current" + angleMotor.getStatorCurrent());
+    System.out.println("Input Current " + angleMotor.getSupplyCurrent());
+    SmartDashboard.putNumber("Angle Temperature", angleMotor.getTemperature());
+    SmartDashboard.putBoolean("Stall Protection", stallProtectionOn);
   }
 }

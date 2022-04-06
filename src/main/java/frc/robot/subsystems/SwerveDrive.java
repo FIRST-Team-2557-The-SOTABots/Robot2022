@@ -233,6 +233,27 @@ public class SwerveDrive extends SubsystemBase {
   }
 
 
+  /**
+   * Sets the speed motors of all modules to coast mode.
+   */
+  public void speedMotorsCoast() {
+    for (int i = 0; i < NUM_MODULES; i++) {
+      swerveModules[i].speedMotorCoast();
+    }
+  }
+
+
+
+  /**
+   * Sets the speed motors of all modules to brake mode.
+   */
+  public void speedMotorsBrake() {
+    for (int i = 0; i < NUM_MODULES; i++) {
+      swerveModules[i].speedMotorBrake();
+    }
+  }
+
+
 
   @Override
   public void periodic() {
