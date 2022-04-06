@@ -25,8 +25,8 @@ public final class Constants {
     public static final double METERS_PER_INCH = 0.0254;
 
     public static final class Climber {
-        public static final double STALL_PROTECTION_CURRENT = 50.0; // in amperes
-        public static final double STALL_PROTECTION_DURATION = 2; // in seconds
+        public static final double STALL_PROTECTION_CURRENT = 70.0; // in amperes, current at which motor will stop to protect against stall
+        public static final double STALL_PROTECTION_DURATION = 2; // in seconds, time motor will stop for to protect against stall
 
         // the frame of reference for left and right is looking in the direction the robot shoots
         public static final int LEFT_HOOK_MOTOR_PORT = 5;
@@ -54,12 +54,14 @@ public final class Constants {
         // MAX refers to the position where the hooks are extended fully 
         public static final double MIN_EXTEND_ENCODER_LEFT = 0.0; 
         public static final double EVEN_EXTEND_ENCODER_LEFT = isCompBot ? 0.333 : 0.356; 
+        public static final double RELEASE_ENCODER_LEFT = 1.297; // 1.168;
         public static final double MID_EXTEND_ENCODER_LEFT = isCompBot ? 1.720 : 1.82;
         public static final double HIGH_EXTEND_ENCODER_LEFT = isCompBot ? 6.84 : 5.69;
         public static final double MAX_EXTEND_ENCODER_LEFT = isCompBot ? 8.60 : 7.0;
         public static final double LIMIT_EXTEND_ENCODER_LEFT = isCompBot ? 12.0 : 12.0;
         public static final double MIN_EXTEND_ENCODER_RIGHT = 0.0; 
         public static final double EVEN_EXTEND_ENCODER_RIGHT = isCompBot ? 0.347 : 0.356; 
+        public static final double RELEASE_ENCODER_RIGHT = 1.319; // 1.145;
         public static final double MID_EXTEND_ENCODER_RIGHT = isCompBot ? 1.578 : 2.13;
         public static final double HIGH_EXTEND_ENCODER_RIGHT = isCompBot ? 6.96 : 6.94;
         public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.94 : 8.7;
@@ -73,7 +75,7 @@ public final class Constants {
         // MAX refers to the encoder value when the hooks are furthest from the intake at the hard stop
         public static final int MIN_ANGLE_ENCODER = 0;
         public static final int MID_ANGLE_ENCODER = isCompBot ? 600 : 300;
-        public static final int HIGH_ANGLE_ENCODER = 700;
+        public static final int HIGH_ANGLE_ENCODER = 800; // 700;
         public static final int HAX_ANGLE_ENCODER = 1000;
         public static final int MAX_ANGLE_ENCODER = isCompBot ? 1873 : 1600;
 
@@ -81,7 +83,7 @@ public final class Constants {
         public static final double ANGLE_ENCODER_HIGH_LIMIT = MAX_ANGLE_ENCODER;
         public static final double ANGLE_ENCODER_LOW_LIMIT = MIN_ANGLE_ENCODER;
 
-        public static final double ANGLE_PID_MAX_VELOCITY = 350; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
+        public static final double ANGLE_PID_MAX_VELOCITY = 500; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
         public static final double ANGLE_PID_MAX_ACCELERATION = 900; // in encoder ticks per second per second, acceleration motion profile constraint for profiled angle movement
         public static final double ANGLE_PID_CHANGE_KP_RANGE = 200; // in encoder ticks, error within which kp will change to the value below
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002; // the reduced kp value for when error is within range, since less torque is needed as the robot gets closer when doing MAX_TO_HIGH
@@ -101,6 +103,9 @@ public final class Constants {
             MID_TO_TOP(MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT, 1.0, 0.0),
             TOP_TO_HIGH(HIGH_EXTEND_ENCODER_LEFT, HIGH_EXTEND_ENCODER_RIGHT, 0.8, 0.1),
             HIGH_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0),
+            HIGH_TO_RELEASE(RELEASE_ENCODER_LEFT, RELEASE_ENCODER_RIGHT, 1.0, 0.1),
+            HOLD_RELEASE(RELEASE_ENCODER_LEFT, RELEASE_ENCODER_RIGHT, 0.4, 0.0),
+            RELEASE_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0),
             BOTTOM_TO_MID(MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT, 0.9, 0.1),
             MID_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0);
 
@@ -119,7 +124,7 @@ public final class Constants {
 
         public enum AngleMovement {
             MID_TO_MAX(0.00008, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
-            MAX_TO_HIGH(0.004, 0.005, 0, HIGH_ANGLE_ENCODER, 50.0),
+            MAX_TO_HIGH(0.003, 0.005, 0, HIGH_ANGLE_ENCODER, 50.0),
             HOLD_HIGH(0.002, 0.005, 0, HIGH_ANGLE_ENCODER, 0.0);
 
             public final double kp;
@@ -149,7 +154,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {2.781, 0.933, 2.135, 3.359}; // in encoder counts, changed offset 3 and 2
+        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.720, 1.027, 2.120, 3.372}; // in encoder counts, changed offset 3 and 2
         public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
 
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
@@ -218,8 +223,8 @@ public final class Constants {
         public static final double TARGET_SEARCH_KI = 0.0;
         public static final double TARGET_SEARCH_KD = 0.0;
 
-        public static final double CLIMB_LINE_UP_TOLERANCE = 0.1;
-        public static final double CLIMB_LINE_UP_KP = 2.0;
+        public static final double CLIMB_LINE_UP_TOLERANCE = 0.0;
+        public static final double CLIMB_LINE_UP_KP = 4.0;
         public static final double CLIMB_LINE_UP_SPEED = 0.50;
     }
 

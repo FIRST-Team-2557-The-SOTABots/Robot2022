@@ -254,13 +254,30 @@ public class Climber extends SubsystemBase {
 
 
   /**
-   * Updates the climb system's encoder values and lock state to be as they should at the start of a match.
+   * Resets the climb system's encoder values to 0.
    */
-  public void reset() {
-    lock();
+  public void resetEncoders() {
     leftEncoder.reset();
     rightEncoder.reset();
     angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
+  }
+
+
+
+  /**
+   * Sets the angle motor to coast
+   */
+  public void setAngleMotorCoast() {
+    angleMotor.setNeutralMode(NeutralMode.Coast);
+  }
+
+
+
+  /**
+   * Sets the angle motor to brake
+   */
+  public void setAngleMotorBrake() {
+    angleMotor.setNeutralMode(NeutralMode.Brake);
   }
 
 
@@ -312,7 +329,7 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("Angle power", angleMotor.get());
     // System.out.println("Stator Current" + angleMotor.getStatorCurrent());
     System.out.println("Input Current " + angleMotor.getSupplyCurrent());
-    // System.out.println("Angle Temperature" + angleMotor.getTemperature());
+    SmartDashboard.putNumber("Angle Temperature", angleMotor.getTemperature());
     SmartDashboard.putBoolean("Stall Protection", stallProtectionOn);
   }
 }

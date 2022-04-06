@@ -35,29 +35,43 @@ public class ExtendClimbCommand extends CommandBase {
   @Override
   public void execute() {
     SmartDashboard.putString("Extend Command", "Executing");
+
     //sets the speeds based on movement type
-    if (movement == SimpleExtendMovement.BOTTOM_TO_TOP || movement == SimpleExtendMovement.MID_TO_TOP) {
-      climber.extendLeftHook(movement.speed);
-      climber.extendRightHook(movement.speed);
-    } else if (
-      movement == SimpleExtendMovement.TOP_TO_BOTTOM || 
-      movement == SimpleExtendMovement.HIGH_TO_BOTTOM ||
-      movement == SimpleExtendMovement.MID_TO_BOTTOM
-    ) {
-      climber.extendLeftHook(-movement.speed);
-      climber.extendRightHook(-movement.speed);
-    } else {
-      if (movement.leftSetpoint - climber.getLeftEncoderPosition() > 0) {
+    switch(movement) {
+      case BOTTOM_TO_TOP:
+      case MID_TO_TOP:
         climber.extendLeftHook(movement.speed);
-      } else {
-        climber.extendLeftHook(-movement.speed);
-      }
-      
-      if (movement.rightSetpoint - climber.getRightEncoderPosition() > 0) {
         climber.extendRightHook(movement.speed);
-      } else {
+        break;
+      case TOP_TO_BOTTOM:
+      case HIGH_TO_BOTTOM:
+      case MID_TO_BOTTOM:
+      case RELEASE_TO_BOTTOM:
+        climber.extendLeftHook(-movement.speed);
         climber.extendRightHook(-movement.speed);
-      }
+        break;
+      default:
+        double leftError = movement.leftSetpoint - climber.getLeftEncoderPosition();
+        double leftSpeed = movement.speed;
+
+        // check if we need to go down instead
+        if (leftError < 0) {
+          leftSpeed *= -1;
+        }
+        
+        climber.extendLeftHook(leftSpeed);
+        
+        double rightError = movement.rightSetpoint - climber.getRightEncoderPosition();
+        double rightSpeed = movement.speed;
+
+        // check if we need to go down instead
+        if (rightError < 0) {
+          rightSpeed *= -1;
+        }
+        
+        climber.extendRightHook(rightSpeed);
+
+        break;
     }
   }
 
@@ -79,7 +93,10 @@ public class ExtendClimbCommand extends CommandBase {
       case TOP_TO_BOTTOM:
       case HIGH_TO_BOTTOM:
       case MID_TO_BOTTOM:
+      case RELEASE_TO_BOTTOM:
         return climber.getLeftBotMagLimit() && climber.getRightBotMagLimit();
+      case HOLD_RELEASE:
+        return false;
       default:
         return 
           Math.abs(movement.leftSetpoint - climber.getLeftEncoderPosition()) < movement.tolerance &&

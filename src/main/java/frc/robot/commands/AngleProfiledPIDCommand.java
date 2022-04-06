@@ -52,8 +52,9 @@ public class AngleProfiledPIDCommand extends CommandBase {
         controller.setP(angleMovement.kp);
       }
 
-      // TODO: make run angle for all movements
-      climber.runAngle(controller.calculate(climber.getAngleEncoderPosition()));
+      double output = controller.calculate(climber.getAngleEncoderPosition());
+      SmartDashboard.putNumber("prof angle pid output", output);
+      climber.runAngle(output);
     }
   } 
   // Called once the command ends or is interrupted.
