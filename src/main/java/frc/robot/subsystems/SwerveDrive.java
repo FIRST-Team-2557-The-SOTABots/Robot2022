@@ -4,28 +4,22 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 import static frc.robot.Constants.Swerve.*;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 public class SwerveDrive extends SubsystemBase {
 
@@ -62,35 +56,6 @@ public class SwerveDrive extends SubsystemBase {
     shiftDown();
 
     odometry = new SwerveDriveOdometry(swerveDriveKinematics, new Rotation2d(getGyroAngle()), new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
-  }
-
-
-
-  /**
-   * Shifts the drivetrain automatically based on configured parameters, returning whether a shift occured.
-   * @param xThrottle the input for the robot's forward velocity
-   * @param yThrottle the input for the robot's left velocity
-   * @return whether a shift occured
-   */
-  public boolean autoShift(double xThrottle, double yThrottle) {
-    ChassisSpeeds chassisSpeeds = getMeasuredChassisSpeeds();
-    double drivetrainSpeed = Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
-    double inputMagnitude = Math.hypot(xThrottle, yThrottle);
-    double accelerationMagnitude = Math.hypot((double) gyro.getWorldLinearAccelX(), (double) gyro.getWorldLinearAccelY());
-
-    if (drivetrainSpeed < COAST_DOWN_MAX_SPEED && inputMagnitude < COAST_DOWN_MAX_INPUT) {
-      shiftDown();
-      return true;
-    }
-    if (drivetrainSpeed < KICK_DOWN_MAX_SPEED && inputMagnitude > KICK_DOWN_MIN_INPUT) {
-      shiftDown();
-      return true;
-    }
-    if (drivetrainSpeed > SHIFT_UP_MIN_SPEED && inputMagnitude > SHIFT_UP_MIN_INPUT) {
-      shiftUp();
-      return true;
-    }
-    return false;
   }
 
 
@@ -225,6 +190,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
 
+
   /**
    * 
    * @return the current gear. 0 is low, 1 is high
@@ -260,23 +226,41 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * 
-   * @return whether field 
+   * @return whether field centric is active
    */
   public boolean getFieldCentricActive() {
     return this.fieldCentricActive;
   }
 
 
+  /**
+   * Sets the speed motors of all modules to coast mode.
+   */
+  public void speedMotorsCoast() {
+    for (int i = 0; i < NUM_MODULES; i++) {
+      swerveModules[i].speedMotorCoast();
+    }
+  }
+
+
+
+  /**
+   * Sets the speed motors of all modules to brake mode.
+   */
+  public void speedMotorsBrake() {
+    for (int i = 0; i < NUM_MODULES; i++) {
+      swerveModules[i].speedMotorBrake();
+    }
+  }
+
+
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // periodically update the pose of the robot
     updatePose();
+
     SmartDashboard.putBoolean("Field Centric Active", fieldCentricActive);
     SmartDashboard.putNumber("gyro angle", getGyroAngle());
-
-    Pose2d pose = getPose();
-    SmartDashboard.putNumber("pose x", pose.getX());
-    SmartDashboard.putNumber("pose y", pose.getY());
   }
 }

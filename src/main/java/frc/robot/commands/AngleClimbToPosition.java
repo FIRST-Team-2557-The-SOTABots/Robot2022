@@ -17,12 +17,18 @@ public class AngleClimbToPosition extends CommandBase {
   private Climber climber;
   private int setpoint;
   private double speed;
+  private double tolerance;
   
   /** Creates a new AngleClimbToPosition. */
   public AngleClimbToPosition(Climber climber, int setpoint, double speed) {
+    this(climber, setpoint, speed, RUN_TO_ANGLE_TOLERANCE);
+  }
+
+  public AngleClimbToPosition(Climber climber, int setpoint, double speed, double tolerance) {
     this.climber = climber;
     this.setpoint = setpoint;
     this.speed = speed;
+    this.tolerance = tolerance;
   }
 
   // Called when the command is initially scheduled.
@@ -54,6 +60,6 @@ public class AngleClimbToPosition extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(setpoint - climber.getAngleEncoderPosition()) < RUN_TO_ANGLE_TOLERANCE;
+    return Math.abs(setpoint - climber.getAngleEncoderPosition()) < tolerance;
   }
 }

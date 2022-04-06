@@ -39,10 +39,9 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
-import frc.robot.commands.ClimbSequenceCommand
+import frc.robot.commands.IndexCommand;
 import frc.robot.commands.DeliveryCommand;
-import frc.robot.commands.RunDelivery;
-import frc.robot.commands.SimpleClimbSequenceCommand;
+import frc.robot.commands.ClimbSequenceCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.Logitech;
 import frc.robot.util.UnendingProxyScheduleCommand;
@@ -109,47 +108,48 @@ public class RobotContainer {
 
   private void configureDefaultCommands() {
     swerveDrive.setDefaultCommand(
-      // new ParallelRaceGroup(
-      //   new SequentialCommandGroup(
-      //     new WaitUntilCommand(
-      //       () -> {
-      //         if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-      //           swerveDrive.shiftDown();
-      //         } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-      //           swerveDrive.shiftUp();
-      //         }
+      new RunCommand(
+        () -> {
+          // get inputs then square them, preserving sign
+          double fwd = dStick.getRawAxis(LEFT_STICK_Y);
+          double str = dStick.getRawAxis(LEFT_STICK_X);
+          double rot = dStick.getRawAxis(RIGHT_STICK_X);
 
-      //         return swerveDrive.autoShift(dStick.getRawAxis(LEFT_STICK_Y), dStick.getRawAxis(LEFT_STICK_X));
-      //       }
-      //     ),
-      //     new WaitCommand(Constants.Swerve.SHIFT_COOLDOWN)
-      //   ),
-        new RunCommand(
-          () -> {
-            // get inputs then square them, preserving sign
-            double fwd = dStick.getRawAxis(LEFT_STICK_Y);
-            double str = dStick.getRawAxis(LEFT_STICK_X);
-            double rot = dStick.getRawAxis(RIGHT_STICK_X);
+          
+          fwd = -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED;
+          str = -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED;
+          rot = -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED;
 
-            // pass inputs into drivetrain
-            swerveDrive.drive(
-              -Math.signum(fwd) * fwd * fwd * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(str) * str * str * Constants.Swerve.MAX_WHEEL_SPEED,
-              -Math.signum(rot) * rot * rot * Constants.Swerve.MAX_ANGULAR_SPEED
-            );
-            if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
-              swerveDrive.shiftDown();
-            } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
-              swerveDrive.shiftUp();
-            }
-          },
-          swerveDrive
-        )
-      // )
+          // if x is pressed, proportionally control the orientation for climb
+          if (dx.get()) {
+            double error = -swerveDrive.getGyroAngle() % (2 * Math.PI);
+            if (Math.abs(error) < Constants.Swerve.CLIMB_LINE_UP_TOLERANCE)
+              rot = 0.0;
+            else
+              rot = error * Constants.Swerve.CLIMB_LINE_UP_KP;
+          }
+
+          // if y is pressed drive down field slowly
+          if (dy.get()) {
+            fwd = Constants.Swerve.CLIMB_LINE_UP_SPEED;
+          }
+
+          // pass inputs into drivetrain
+          swerveDrive.drive(fwd, str, rot);
+
+
+          if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
+            swerveDrive.shiftDown();
+          } else if (dStick.getRawAxis(RIGHT_TRIGGER) != 0.0) {
+            swerveDrive.shiftUp();
+          }
+        },
+        swerveDrive
+      )
     );
 
     delivery.setDefaultCommand(
-      new DeliveryCommand(delivery, intake)
+      new IndexCommand(delivery, intake)
       // sequence(
       //   new InstantCommand(() -> SmartDashboard.putString("Delivery Waiting", "")),
       //   new WaitUntilCommand(() -> delivery.getSensor1() && !intake.isRetracted())
@@ -176,6 +176,7 @@ public class RobotContainer {
         () -> {
           climber.extendLeftHook(-mStick.getRawAxis(LEFT_STICK_Y));
           climber.extendRightHook(-mStick.getRawAxis(RIGHT_STICK_Y));
+          climber.runAngle(mStick.getRawAxis(LEFT_STICK_X) * 0.3);
         }, 
         climber
       )
@@ -212,7 +213,14 @@ public class RobotContainer {
   }
 
   public void resetRobot() {
-    climber.reset();
+    climber.resetEncoders();
+    climber.lock();
+    swerveDrive.speedMotorsBrake();
+  }
+
+  public void disabledInit() {
+    climber.setAngleMotorCoast();
+    swerveDrive.speedMotorsCoast();
   }
 
   /**
@@ -261,7 +269,7 @@ public class RobotContainer {
       )
     );
 
-    mStart.whileHeld(
+    mBack.whileHeld(
       new InstantCommand(
         () -> {
           climber.retractHooksNoEncoderLimit();
@@ -294,7 +302,7 @@ public class RobotContainer {
           shooter, delivery
         
         )
-    ).whenPressed(
+    ).whenReleased(
       new InstantCommand(
         () -> {
           shooter.setMotorRPM(0.0);
@@ -458,7 +466,7 @@ public class RobotContainer {
     mlb.whenPressed(
       sequence(
         new InstantCommand(() -> shooter.hoodDown()),
-        new SimpleClimbSequenceCommand(climber, mrb::get)
+        new ClimbSequenceCommand(climber, mrb::get)
       )     
     );
 
@@ -529,7 +537,7 @@ public class RobotContainer {
           generatePPSwerveControllerCommand(path1A),
           generateRunAppendageCommand(),
           generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -539,7 +547,7 @@ public class RobotContainer {
           generatePPSwerveControllerCommand(path1B),
           generateRunAppendageCommand(),
           generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
@@ -548,12 +556,12 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path1C),
           generateRunAppendageCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         deadline(
           generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         deadline(
           generatePPSwerveControllerCommand(path1D),
@@ -594,7 +602,7 @@ public class RobotContainer {
           generatePPSwerveControllerCommand(path2A),
           generateRunAppendageCommand(),
           generateRevFlywheelCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateResetAppendageCommand(),
@@ -603,7 +611,7 @@ public class RobotContainer {
         deadline(
           generatePPSwerveControllerCommand(path2B),
           generateRunAppendageCommand(),
-          new DeliveryCommand(delivery, intake)
+          new IndexCommand(delivery, intake)
         ),
         generateStopDrivetrainCommand(),
         generateRunOuttakeCommand().withTimeout(Constants.Auto.PATH_2_OUTTAKE_2_DURATION),

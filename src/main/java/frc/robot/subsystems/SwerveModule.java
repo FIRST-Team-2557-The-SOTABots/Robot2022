@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
@@ -19,7 +18,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -97,7 +95,6 @@ public class SwerveModule extends SubsystemBase {
     double speedFFOutput = speedFF.calculate(speedSetpointNative);
 
     speedMotor.setVoltage(speedFFOutput + speedPIDOutput);
-    // speedMotor.set(ControlMode.PercentOutput, speedSetpointNative / MAX_WHEEL_SPEED);
   }
 
 
@@ -170,7 +167,6 @@ public class SwerveModule extends SubsystemBase {
    * @return the angle of the module in native units
    */
   public double getAngle() {
-    // Return the process variable measurement here
     // angle encoder increases with cw movement, this conversion makes it increase with ccw movement
     // for compatibility with the radian based setpoint from kinematics class
     if (Constants.isCompBot)
@@ -217,8 +213,27 @@ public class SwerveModule extends SubsystemBase {
 
 
 
+  /**
+   * Set speed motor to coast mode.
+   */
+  public void speedMotorCoast() {
+    speedMotor.setNeutralMode(NeutralMode.Coast);
+  }
+
+
+
+  /**
+   * Set speed motor to brake mode.
+   */
+  public void speedMotorBrake() {
+    speedMotor.setNeutralMode(NeutralMode.Brake);
+  }
+
+
+
   @Override
   public void periodic() {
+    // NOTE: this comment retained for easy callibration
     // SmartDashboard.putNumber("module angle no offset" + moduleNumber, angleEncoder.getAverageVoltage());
   }
 }
