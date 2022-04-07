@@ -303,6 +303,16 @@ public class Climber extends SubsystemBase {
 
 
 
+  /**
+   * Checks whether stall protection is active.
+   * @return whether stall protection is on.
+   */
+  public boolean getStallProtectionOn() {
+    return stallProtectionOn;
+  }
+
+
+  
   @Override
   public void periodic() {
     // if either the left or right bottom mag limit are tripped, reset the corresponding hook's encoder value

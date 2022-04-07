@@ -45,7 +45,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
         new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
       ),
-      new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+      race(
+        new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+        new WaitUntilCommand(climber::getStallProtectionOn)
+      ),
       race(
         new AnglePIDCommand(climber, AngleMovement.HOLD_HIGH),
         new ExtendClimbCommand(climber, SimpleExtendMovement.TOP_TO_HIGH)
@@ -61,7 +64,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_RELEASE)
       ),
       deadline(
-        new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST, RUN_TO_ANGLE_TOLERANCE_FAST), 
+        new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST), 
         new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
       ),
       new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),
@@ -80,7 +83,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
         new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
       ),
-      new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+      race(
+        new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+        new WaitUntilCommand(climber::getStallProtectionOn)
+      ),
       race(
         new AnglePIDCommand(climber, AngleMovement.HOLD_HIGH),
         new ExtendClimbCommand(climber, SimpleExtendMovement.TOP_TO_HIGH)
@@ -95,7 +101,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new ExtendClimbCommand(climber, SimpleExtendMovement.HIGH_TO_RELEASE)
       ),
       deadline(
-        new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST, RUN_TO_ANGLE_TOLERANCE_FAST), 
+        new AngleClimbToPosition(climber, MIN_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST), 
         new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
       ),
       new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),

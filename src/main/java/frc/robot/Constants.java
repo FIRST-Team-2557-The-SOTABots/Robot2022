@@ -91,7 +91,6 @@ public final class Constants {
         public static final double ANGLE_HOOKS_TO_BAR_TIMEOUT = 0.9; // time in seconds before command that moves angle hooks onto bar gives up
         public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
         public static final double RUN_TO_ANGLE_TOLERANCE = 10; // in angle encoder counts, tolerance of AngleClimbToPosition
-        public static final double RUN_TO_ANGLE_TOLERANCE_FAST = 150; // in angle encoder counts, tolerance of AngleClimbToPosition when going fast
         public static final double RUN_TO_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition
         public static final double RUN_TO_ANGLE_SPEED_FAST = 0.4; // duty cycle angle hooks run at for AngleClimbToPosition
 
@@ -123,7 +122,7 @@ public final class Constants {
         }
 
         public enum AngleMovement {
-            MID_TO_MAX(0.00008, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
+            MID_TO_MAX(0.000095, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
             MAX_TO_HIGH(0.003, 0.005, 0, HIGH_ANGLE_ENCODER, 50.0),
             HOLD_HIGH(0.002, 0.005, 0, HIGH_ANGLE_ENCODER, 0.0);
 
@@ -322,7 +321,7 @@ public final class Constants {
         public static final double PATH_1_SHOOT_3_DURATION = 2;
         public static final double HUMAN_PLAYER_WAIT_TIME = 1.25;
 
-        public static final double PATH_2_SHOOT_1_DURATION = 2.0;
+        public static final double PATH_2_SHOOT_1_DURATION = 2.5;
         public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
