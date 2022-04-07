@@ -30,8 +30,11 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       // finally wait for a button press
       new InstantCommand(() -> climber.unlock()),
       new ExtendClimbCommand(climber, SimpleExtendMovement.TOP_TO_BOTTOM),
-      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN),
+      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
+      deadline(
+        new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN), 
+        new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED, RUN_TO_BAR_TOLERANCE)
+      ),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("Climb Sequence", "waiting");
         return button.getAsBoolean();}).andThen(
@@ -68,8 +71,11 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
       ),
       new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),
-      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN),
+      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
+      deadline(
+        new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN), 
+        new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED, RUN_TO_BAR_TOLERANCE)
+      ),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("Climb Sequence", "waiting");
         return button.getAsBoolean();}).andThen(
@@ -105,7 +111,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
       ),
       new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),
-      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
+      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
       new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN)
     );
   }
