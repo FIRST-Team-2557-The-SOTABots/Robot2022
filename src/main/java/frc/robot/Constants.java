@@ -45,7 +45,7 @@ public final class Constants {
         public static final Value UNLOCK_VALUE = Value.kForward;
         public static final boolean LEFT_HOOK_INVERTED = false; 
         public static final boolean RIGHT_HOOK_INVERTED = true; 
-        public static final boolean ANGLE_HOOK_INVERTED = isCompBot ? true : true;
+        public static final boolean ANGLE_HOOK_INVERTED = isCompBot ? false : true;
 
         // the following values are encoder positions for the left and right extending hooks
         // MIN refers to the hooks being completely lowered
@@ -92,9 +92,12 @@ public final class Constants {
         public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
         public static final double RUN_TO_ANGLE_TOLERANCE = 10; // in angle encoder counts, tolerance of AngleClimbToPosition
         public static final double RUN_TO_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition
-        public static final double RUN_TO_BAR_SPEED = 0.3; // duty cycle angle hooks run at for AngleClimbToPosition when going onto the bar
+        public static final double RUN_TO_BAR_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition when going onto the bar
         public static final double RUN_TO_BAR_TOLERANCE = 5.0; // encoder counts tolerance for angling to bar
+        public static final double LOWER_TO_BAR_DELAY = 0.5; // seconds, how long to wait until lowering angle hooks to bar
         public static final double RUN_TO_ANGLE_SPEED_FAST = 0.4; // duty cycle angle hooks run at for AngleClimbToPosition
+        public static final double RUN_TO_ANGLE_TOLERANCE_FAST = 50; // encoder counts tolerance for when angle hooks come back to minimum position
+        public static final boolean RUN_TO_ANGLE_BAR_END = false; // don't end the angle command once the hook is within tolerance
 
         public enum SimpleExtendMovement {
             BOTTOM_TO_TOP(MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT, 1.0, 0.0), 
@@ -155,7 +158,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.720, 1.027, 2.120, 3.372}; // in encoder counts, changed offset 3 and 2
+        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.689452952, 1.016845599, 2.109374784, 3.376464498}; // in encoder counts, changed offset 3 and 2
         public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
 
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
