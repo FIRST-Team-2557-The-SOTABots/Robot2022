@@ -18,17 +18,23 @@ public class AngleClimbToPosition extends CommandBase {
   private int setpoint;
   private double speed;
   private double tolerance;
+  private boolean end;
   
   /** Creates a new AngleClimbToPosition. */
   public AngleClimbToPosition(Climber climber, int setpoint, double speed) {
-    this(climber, setpoint, speed, RUN_TO_ANGLE_TOLERANCE);
+    this(climber, setpoint, speed, RUN_TO_ANGLE_TOLERANCE, true);
   }
 
   public AngleClimbToPosition(Climber climber, int setpoint, double speed, double tolerance) {
+    this(climber, setpoint, speed, tolerance, true);
+  }
+
+  public AngleClimbToPosition(Climber climber, int setpoint, double speed, double tolerance, boolean end) {
     this.climber = climber;
     this.setpoint = setpoint;
     this.speed = speed;
     this.tolerance = tolerance;
+    this.end = end;
   }
 
   // Called when the command is initially scheduled.
@@ -42,10 +48,15 @@ public class AngleClimbToPosition extends CommandBase {
   public void execute() {
     SmartDashboard.putString("Angle Command", "Executing");
     // run forward if below setpoint, backwards otherwise
-    if (setpoint - climber.getAngleEncoderPosition() > 0) {
-      climber.runAngle(speed);
+    if (Math.abs(setpoint - climber.getAngleEncoderPosition()) < tolerance) {
+      climber.runAngle(0.0);
     } else {
-      climber.runAngle(-speed);
+      if (setpoint - climber.getAngleEncoderPosition() > 0) {
+        climber.runAngle(speed);
+      } else {
+        if (end) // don't run backwards if angling to the bar
+          climber.runAngle(-speed);
+      }
     }
   }
 
@@ -60,6 +71,6 @@ public class AngleClimbToPosition extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(setpoint - climber.getAngleEncoderPosition()) < tolerance;
+    return end ? Math.abs(setpoint - climber.getAngleEncoderPosition()) < tolerance : false;
   }
 }

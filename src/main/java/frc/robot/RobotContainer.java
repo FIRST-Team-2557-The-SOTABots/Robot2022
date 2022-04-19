@@ -561,18 +561,17 @@ public class RobotContainer {
         generateStopDrivetrainCommand(),
         deadline(
           generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-          new IndexCommand(delivery, intake)
+          sequence(
+            new IndexCommand(delivery, intake),
+            new IndexCommand(delivery, intake)
+          )
         ),
         deadline(
           generatePPSwerveControllerCommand(path1D),
           generateRevFlywheelCommand(),
-          new RunCommand(
-            () -> {
-              intake.run(0.0);
-              intake.extend();
-            }
-          )
+          generateRunAppendageCommand()
         ),
+        generateResetAppendageCommand(),
         generateStopDrivetrainCommand(),
         generateAutoShootCommand().withTimeout(Constants.Auto.PATH_1_SHOOT_3_DURATION),
         generateStopShooterDeliveryCommand()
