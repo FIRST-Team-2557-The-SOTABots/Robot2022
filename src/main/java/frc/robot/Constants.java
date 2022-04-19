@@ -45,7 +45,7 @@ public final class Constants {
         public static final Value UNLOCK_VALUE = Value.kForward;
         public static final boolean LEFT_HOOK_INVERTED = false; 
         public static final boolean RIGHT_HOOK_INVERTED = true; 
-        public static final boolean ANGLE_HOOK_INVERTED = isCompBot ? true : true;
+        public static final boolean ANGLE_HOOK_INVERTED = isCompBot ? false : true;
 
         // the following values are encoder positions for the left and right extending hooks
         // MIN refers to the hooks being completely lowered
@@ -83,7 +83,7 @@ public final class Constants {
         public static final double ANGLE_ENCODER_HIGH_LIMIT = MAX_ANGLE_ENCODER;
         public static final double ANGLE_ENCODER_LOW_LIMIT = MIN_ANGLE_ENCODER;
 
-        public static final double ANGLE_PID_MAX_VELOCITY = 500; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
+        public static final double ANGLE_PID_MAX_VELOCITY = 450; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
         public static final double ANGLE_PID_MAX_ACCELERATION = 900; // in encoder ticks per second per second, acceleration motion profile constraint for profiled angle movement
         public static final double ANGLE_PID_CHANGE_KP_RANGE = 200; // in encoder ticks, error within which kp will change to the value below
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002; // the reduced kp value for when error is within range, since less torque is needed as the robot gets closer when doing MAX_TO_HIGH
@@ -91,16 +91,20 @@ public final class Constants {
         public static final double ANGLE_HOOKS_TO_BAR_TIMEOUT = 0.9; // time in seconds before command that moves angle hooks onto bar gives up
         public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
         public static final double RUN_TO_ANGLE_TOLERANCE = 10; // in angle encoder counts, tolerance of AngleClimbToPosition
-        public static final double RUN_TO_ANGLE_TOLERANCE_FAST = 150; // in angle encoder counts, tolerance of AngleClimbToPosition when going fast
         public static final double RUN_TO_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition
+        public static final double RUN_TO_BAR_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition when going onto the bar
+        public static final double RUN_TO_BAR_TOLERANCE = 5.0; // encoder counts tolerance for angling to bar
+        public static final double LOWER_TO_BAR_DELAY = 0.5; // seconds, how long to wait until lowering angle hooks to bar
         public static final double RUN_TO_ANGLE_SPEED_FAST = 0.4; // duty cycle angle hooks run at for AngleClimbToPosition
+        public static final double RUN_TO_ANGLE_TOLERANCE_FAST = 50; // encoder counts tolerance for when angle hooks come back to minimum position
+        public static final boolean RUN_TO_ANGLE_BAR_END = false; // don't end the angle command once the hook is within tolerance
 
         public enum SimpleExtendMovement {
             BOTTOM_TO_TOP(MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT, 1.0, 0.0), 
             TOP_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0),
             BOTTOM_TO_EVEN(EVEN_EXTEND_ENCODER_LEFT, EVEN_EXTEND_ENCODER_RIGHT, 0.5, 0.1),
             EVEN_TO_MID(MID_EXTEND_ENCODER_LEFT, MID_EXTEND_ENCODER_RIGHT, 1.0, 0.1),
-            MID_TO_TOP(MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT, 1.0, 0.0),
+            MID_TO_TOP(MAX_EXTEND_ENCODER_LEFT, MAX_EXTEND_ENCODER_RIGHT, 0.9, 0.0),
             TOP_TO_HIGH(HIGH_EXTEND_ENCODER_LEFT, HIGH_EXTEND_ENCODER_RIGHT, 0.8, 0.1),
             HIGH_TO_BOTTOM(MIN_EXTEND_ENCODER_LEFT, MIN_EXTEND_ENCODER_RIGHT, 0.9, 0.0),
             HIGH_TO_RELEASE(RELEASE_ENCODER_LEFT, RELEASE_ENCODER_RIGHT, 1.0, 0.1),
@@ -123,7 +127,7 @@ public final class Constants {
         }
 
         public enum AngleMovement {
-            MID_TO_MAX(0.00008, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
+            MID_TO_MAX(0.000095, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
             MAX_TO_HIGH(0.003, 0.005, 0, HIGH_ANGLE_ENCODER, 50.0),
             HOLD_HIGH(0.002, 0.005, 0, HIGH_ANGLE_ENCODER, 0.0);
 
@@ -154,7 +158,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.720, 1.027, 2.120, 3.372}; // in encoder counts, changed offset 3 and 2
+        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.101074106, 1.960449018, 2.097167754, 3.372802389}; // in encoder counts, changed offset 3 and 2
         public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
 
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
@@ -322,7 +326,7 @@ public final class Constants {
         public static final double PATH_1_SHOOT_3_DURATION = 2;
         public static final double HUMAN_PLAYER_WAIT_TIME = 1.25;
 
-        public static final double PATH_2_SHOOT_1_DURATION = 2.0;
+        public static final double PATH_2_SHOOT_1_DURATION = 3.5;
         public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds

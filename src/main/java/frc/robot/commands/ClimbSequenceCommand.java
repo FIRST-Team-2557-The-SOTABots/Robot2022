@@ -9,6 +9,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import static frc.robot.Constants.Climber.*;
 import frc.robot.subsystems.Climber;
@@ -30,8 +31,14 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       // finally wait for a button press
       new InstantCommand(() -> climber.unlock()),
       new ExtendClimbCommand(climber, SimpleExtendMovement.TOP_TO_BOTTOM),
-      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN),
+      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
+      deadline(
+        sequence(
+          new WaitCommand(LOWER_TO_BAR_DELAY),
+          new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN)
+        ),
+        new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED, RUN_TO_BAR_TOLERANCE, RUN_TO_ANGLE_BAR_END)
+      ),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("Climb Sequence", "waiting");
         return button.getAsBoolean();}).andThen(
@@ -45,7 +52,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
         new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
       ),
-      new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+      race(
+        new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+        new WaitUntilCommand(climber::getStallProtectionOn)
+      ),
       race(
         new AnglePIDCommand(climber, AngleMovement.HOLD_HIGH),
         new ExtendClimbCommand(climber, SimpleExtendMovement.TOP_TO_HIGH)
@@ -65,8 +75,14 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
       ),
       new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),
-      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN),
+      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
+      deadline(
+        sequence(
+          new WaitCommand(LOWER_TO_BAR_DELAY),
+          new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN)
+        ),
+        new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED, RUN_TO_BAR_TOLERANCE, RUN_TO_ANGLE_BAR_END)
+      ),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("Climb Sequence", "waiting");
         return button.getAsBoolean();}).andThen(
@@ -80,7 +96,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
         new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
       ),
-      new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+      race(
+        new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
+        new WaitUntilCommand(climber::getStallProtectionOn)
+      ),
       race(
         new AnglePIDCommand(climber, AngleMovement.HOLD_HIGH),
         new ExtendClimbCommand(climber, SimpleExtendMovement.TOP_TO_HIGH)
@@ -99,8 +118,14 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
         new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
       ),
       new ExtendClimbCommand(climber, SimpleExtendMovement.RELEASE_TO_BOTTOM),
-      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
-      new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN)
+      new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
+      deadline(
+        sequence(
+          new WaitCommand(LOWER_TO_BAR_DELAY),
+          new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_EVEN)
+        ),
+        new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED, RUN_TO_BAR_TOLERANCE, RUN_TO_ANGLE_BAR_END)
+      )    
     );
   }
 }

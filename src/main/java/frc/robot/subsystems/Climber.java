@@ -303,6 +303,16 @@ public class Climber extends SubsystemBase {
 
 
 
+  /**
+   * Checks whether stall protection is active.
+   * @return whether stall protection is on.
+   */
+  public boolean getStallProtectionOn() {
+    return stallProtectionOn;
+  }
+
+
+
   @Override
   public void periodic() {
     // if either the left or right bottom mag limit are tripped, reset the corresponding hook's encoder value
@@ -329,7 +339,7 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("Angle power", angleMotor.get());
     // System.out.println("Stator Current" + angleMotor.getStatorCurrent());
     System.out.println("Input Current " + angleMotor.getSupplyCurrent());
-    SmartDashboard.putNumber("Angle Temperature", angleMotor.getTemperature());
+    System.out.println("Angle Temperature " + angleMotor.getTemperature());
     SmartDashboard.putBoolean("Stall Protection", stallProtectionOn);
   }
 }
