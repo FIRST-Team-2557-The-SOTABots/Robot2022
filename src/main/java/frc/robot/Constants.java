@@ -158,7 +158,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.689452952, 1.016845599, 2.109374784, 3.376464498}; // in encoder counts, changed offset 3 and 2
+        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.101074106, 1.960449018, 2.097167754, 3.372802389}; // in encoder counts, changed offset 3 and 2
         public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
 
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
