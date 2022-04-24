@@ -50,7 +50,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       new ExtendClimbCommand(climber, SimpleExtendMovement.EVEN_TO_MID),
       parallel(
         new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
-        new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
+        new SequentialCommandGroup(
+          new WaitCommand(EXTEND_UP_DELAY),
+          new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
+        )
       ),
       race(
         new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
@@ -94,7 +97,10 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       new ExtendClimbCommand(climber, SimpleExtendMovement.EVEN_TO_MID),
       parallel(
         new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
-        new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
+        new SequentialCommandGroup(
+          new WaitCommand(EXTEND_UP_DELAY),
+          new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
+        )
       ),
       race(
         new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),
@@ -129,3 +135,9 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
     );
   }
 }
+
+
+// deadline(
+//   new AngleClimbToPosition(climber, HIGH_ANGLE_ENCODER, RUN_TO_ANGLE_SPEED_FAST, RUN_TO_ANGLE_TOLERANCE_FAST), 
+//   new ExtendClimbCommand(climber, SimpleExtendMovement.HOLD_RELEASE)
+// ),

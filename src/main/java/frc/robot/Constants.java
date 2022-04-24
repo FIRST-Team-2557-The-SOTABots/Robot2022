@@ -66,7 +66,7 @@ public final class Constants {
         public static final double HIGH_EXTEND_ENCODER_RIGHT = isCompBot ? 6.96 : 6.94;
         public static final double MAX_EXTEND_ENCODER_RIGHT = isCompBot ? 7.94 : 8.7;
         public static final double LIMIT_EXTEND_ENCODER_RIGHT = isCompBot ? 12.0 : 12.0;
-
+        public static final double MANUAL_ANGLE_SEED = 0.3;
         // the following values are encoder positions for the angling hooks
         // MIN refers to the encoder value when the hooks are closest to the intake at the hard stop
         // MID refers to the encoder value when the hooks are even with the extending hooks
@@ -88,8 +88,9 @@ public final class Constants {
         public static final double ANGLE_PID_CHANGE_KP_RANGE = 200; // in encoder ticks, error within which kp will change to the value below
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002; // the reduced kp value for when error is within range, since less torque is needed as the robot gets closer when doing MAX_TO_HIGH
 
+        public static final double EXTEND_UP_DELAY = 0.5; // seconds
         public static final double ANGLE_HOOKS_TO_BAR_TIMEOUT = 0.9; // time in seconds before command that moves angle hooks onto bar gives up
-        public static final double SLOW_RETRACT_SPEED = -0.4; // duty cycle extend hooks retract at for reset
+        public static final double SLOW_RETRACT_SPEED = -1.0; // duty cycle extend hooks retract at for reset
         public static final double RUN_TO_ANGLE_TOLERANCE = 10; // in angle encoder counts, tolerance of AngleClimbToPosition
         public static final double RUN_TO_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition
         public static final double RUN_TO_BAR_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition when going onto the bar
@@ -158,7 +159,7 @@ public final class Constants {
         public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.101074106, 1.960449018, 2.097167754, 3.372802389}; // in encoder counts, changed offset 3 and 2
+        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.146240117, 1.445312352, 2.126464626, 3.387450825}; // in encoder counts, changed offset 3 and 2
         public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
 
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts
@@ -289,7 +290,7 @@ public final class Constants {
     public static final class LimeLight {
         public static final double LIMELIGHT_CENTER = 0.0; 
         public static final double AUTOAIM_TOLERANCE = 2.0;
-        public static final double MIN_TY = -8;
+        public static final double MIN_TY = -8; // 6.7 is angle of limelight at edge of tarmac
         public static final double MAX_TY = 11;
     }
 
