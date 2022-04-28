@@ -328,18 +328,18 @@ public class Climber extends SubsystemBase {
     // log sensor states
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
-    SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
-    SmartDashboard.putBoolean("left bot", getLeftBotMagLimit());
-    SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
-    SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
-    SmartDashboard.putBoolean("right top", getRightTopMagLimit());
-    SmartDashboard.putBoolean("is locked", getLocked());
+    // SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
+    // SmartDashboard.putBoolean("left bot", getLeftBotMagLimit());
+    // SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
+    // SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
+    // SmartDashboard.putBoolean("right top", getRightTopMagLimit());
+    // SmartDashboard.putBoolean("is locked", getLocked());
 
     // log stall-related information about the angle motor 
-    SmartDashboard.putNumber("Angle power", angleMotor.get());
     // System.out.println("Stator Current" + angleMotor.getStatorCurrent());
-    System.out.println("Input Current " + angleMotor.getSupplyCurrent());
-    System.out.println("Angle Temperature " + angleMotor.getTemperature());
+    // if (angleMotor.getSupplyCurrent() > )
+    // System.out.println("Input Current " + angleMotor.getSupplyCurrent());
+    // System.out.println("Angle Temperature " + angleMotor.getTemperature());
     SmartDashboard.putBoolean("Stall Protection", stallProtectionOn);
   }
 }

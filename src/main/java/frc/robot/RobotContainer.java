@@ -273,6 +273,7 @@ public class RobotContainer {
       new InstantCommand(
         () -> {
           climber.retractHooksNoEncoderLimit();
+          climber.runAngle(mStick.getRawAxis(LEFT_STICK_X) * Constants.Climber.MANUAL_ANGLE_SEED);
         },
         climber
       )
@@ -317,8 +318,8 @@ public class RobotContainer {
           () -> {
 
             intake.extend();
-            intake.run(-SPEED);
-
+            intake.run(-Constants.Intake.SPEED) ;
+            
           }, 
           
             intake
@@ -682,7 +683,7 @@ public class RobotContainer {
     return new RunCommand(
       () -> {
         intake.extend();
-        intake.run(-SPEED);
+        intake.run(-Constants.Intake.SPEED);
         delivery.runMotor(-SHOOTING_SPEED);
       },
       intake

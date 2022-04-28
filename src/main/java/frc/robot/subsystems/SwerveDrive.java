@@ -12,7 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -48,8 +48,7 @@ public class SwerveDrive extends SubsystemBase {
     for (int i = 0; i < NUM_MODULES; i++) {
       moduleStates[i] = new SwerveModuleState(0.0, new Rotation2d(0.0));
     }
-
-    gyro = new AHRS(Port.kMXP);
+    gyro = new AHRS(SerialPort.Port.kMXP);
     gyro.reset();
     gyro.setAngleAdjustment(0.0);
     shifter = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
