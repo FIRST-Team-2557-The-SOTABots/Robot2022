@@ -23,8 +23,8 @@ import static frc.robot.Constants.Climber.*;
 public class Climber extends SubsystemBase {
   private CANSparkMax leftHook;
   private CANSparkMax rightHook;
-  private WPI_TalonSRX angleMotor;
-  private DoubleSolenoid angleLock;
+  private CANSparkMax angleMotor;
+  // private DoubleSolenoid angleLock;
 
   private DigitalInput leftBotMagSensor;
   private DigitalInput rightBotMagSensor; 
@@ -47,12 +47,13 @@ public class Climber extends SubsystemBase {
     rightHook.restoreFactoryDefaults();
     rightHook.setInverted(RIGHT_HOOK_INVERTED);
     rightHook.setIdleMode(IdleMode.kBrake);
-    angleMotor = new WPI_TalonSRX(ANGLE_MOTOR_PORT);
-    angleMotor.configFactoryDefault();
-    angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
-    angleMotor.setInverted(ANGLE_HOOK_INVERTED);
-    angleMotor.setNeutralMode(NeutralMode.Brake);
-    angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
+    angleMotor = new CANSparkMax(ANGLE_MOTOR_PORT, MotorType.kBrushless);
+    angleMotor.restoreFactoryDefaults();
+    angleMotor.setIdleMode(IdleMode.kCoast);
+    // angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
+    // angleMotor.setInverted(ANGLE_HOOK_INVERTED);
+    // angleMotor.setNeutralMode(NeutralMode.Brake);
+    // angleLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, SOLENOID_CHANNEL_A, SOLENOID_CHANNEL_B);
     
     leftBotMagSensor = new DigitalInput(LEFT_BOT_MAG_SENSOR_PORT);
     rightBotMagSensor = new DigitalInput(RIGHT_BOT_MAG_SENSOR_PORT);
@@ -68,7 +69,7 @@ public class Climber extends SubsystemBase {
     stallTimer = new Timer();
     stallTimer.reset();
 
-    lock();
+    // lock();
   }
 
 
@@ -76,18 +77,18 @@ public class Climber extends SubsystemBase {
   /**
    * Locks the angle motor. The motor cannot run when locked.
    */
-  public void lock(){
-    angleLock.set(LOCK_VALUE);
-  }
+  // public void lock(){
+  //   angleLock.set(LOCK_VALUE);
+  // }
 
 
 
-  /**
-   * Unlocks the angle motor
-   */
-  public void unlock(){
-    angleLock.set(UNLOCK_VALUE);
-  }
+  // /**
+  //  * Unlocks the angle motor
+  //  */
+  // public void unlock(){
+  //   angleLock.set(UNLOCK_VALUE);
+  // }
 
 
 
@@ -96,7 +97,7 @@ public class Climber extends SubsystemBase {
    * @return whether the angle motor is locked
    */
   public boolean getLocked() {
-    return angleLock.get() == LOCK_VALUE;
+    return false;//angleLock.get() == LOCK_VALUE;
   }
 
 
@@ -167,11 +168,11 @@ public class Climber extends SubsystemBase {
    * negative angles towards the intake.
    */
   public void runAngle(double spd) {
-    if (getAngleEncoderPosition() >= ANGLE_ENCODER_HIGH_LIMIT)
-      spd = Math.min(0, spd);
+    // if (getAngleEncoderPosition() >= ANGLE_ENCODER_HIGH_LIMIT)
+    //   spd = Math.min(0, spd);
 
-    if (getAngleEncoderPosition() <= ANGLE_ENCODER_LOW_LIMIT)
-      spd = Math.max(0, spd);
+    // if (getAngleEncoderPosition() <= ANGLE_ENCODER_LOW_LIMIT)
+    //   spd = Math.max(0, spd);
 
     // don't allow angle motor to move if it is locked or in stall protection
     if (getLocked() || stallProtectionOn)
@@ -210,7 +211,7 @@ public class Climber extends SubsystemBase {
     return !leftBotMagSensor.get();
   }
 
-
+  
 
   /**
    * 
@@ -248,7 +249,7 @@ public class Climber extends SubsystemBase {
    * @return the angle encoder value
    */
   public double getAngleEncoderPosition() {
-    return ANGLE_HOOK_INVERTED ? -angleMotor.getSelectedSensorPosition() : angleMotor.getSelectedSensorPosition();
+    return ANGLE_HOOK_INVERTED ? -angleMotor.getEncoder().getPosition() : angleMotor.getEncoder().getPosition();
   }
 
 
@@ -259,7 +260,7 @@ public class Climber extends SubsystemBase {
   public void resetEncoders() {
     leftEncoder.reset();
     rightEncoder.reset();
-    angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
+    // angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
   }
 
 
@@ -268,7 +269,7 @@ public class Climber extends SubsystemBase {
    * Sets the angle motor to coast
    */
   public void setAngleMotorCoast() {
-    angleMotor.setNeutralMode(NeutralMode.Coast);
+    angleMotor.setIdleMode(IdleMode.kCoast);
   }
 
 
@@ -277,7 +278,7 @@ public class Climber extends SubsystemBase {
    * Sets the angle motor to brake
    */
   public void setAngleMotorBrake() {
-    angleMotor.setNeutralMode(NeutralMode.Brake);
+    angleMotor.setIdleMode(IdleMode.kBrake);
   }
 
 
@@ -294,11 +295,11 @@ public class Climber extends SubsystemBase {
       stallTimer.stop();
     } 
     // if stall protection is 
-    else if (Math.abs(angleMotor.getSupplyCurrent()) > STALL_PROTECTION_CURRENT) {
-      stallProtectionOn = true;
-      stallTimer.start();
-      angleMotor.set(0.0);
-    }
+    // else if (Math.abs(angleMotor.getSupplyCurrent()) > STALL_PROTECTION_CURRENT) {
+    //   stallProtectionOn = true;
+    //   stallTimer.start();
+    //   angleMotor.set(0.0);
+    // }
   }
 
 
@@ -324,17 +325,17 @@ public class Climber extends SubsystemBase {
 
     // update whether stall protection is active
     updateStallProtection();
-
+    SmartDashboard.putNumber("angle Encoder", angleMotor.getEncoder().getPosition());
     // log sensor states
     SmartDashboard.putNumber("left encoder", getLeftEncoderPosition());
     SmartDashboard.putNumber("right encoder", getRightEncoderPosition());
-    // SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
+    SmartDashboard.putString("idle mode", angleMotor.getIdleMode().toString());
+    SmartDashboard.putNumber("angle encoder", getAngleEncoderPosition());
     // SmartDashboard.putBoolean("left bot", getLeftBotMagLimit());
     // SmartDashboard.putBoolean("left top", getLeftTopMagLimit());
     // SmartDashboard.putBoolean("right bot", getRightBotMagLimit());
     // SmartDashboard.putBoolean("right top", getRightTopMagLimit());
     // SmartDashboard.putBoolean("is locked", getLocked());
-
     // log stall-related information about the angle motor 
     // System.out.println("Stator Current" + angleMotor.getStatorCurrent());
     // if (angleMotor.getSupplyCurrent() > )

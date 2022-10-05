@@ -37,7 +37,7 @@ public final class Constants {
         public static final int RIGHT_BOT_MAG_SENSOR_PORT = 2; 
         public static final int LEFT_TOP_MAG_SENSOR_PORT = 5;
         public static final int RIGHT_TOP_MAG_SENSOR_PORT = 6;
-        public static final int ANGLE_MOTOR_PORT = 5;
+        public static final int ANGLE_MOTOR_PORT = 35;
         public static final int ANGLE_ENCODER_PORT = 0;
         public static final int SOLENOID_CHANNEL_A = 2;
         public static final int SOLENOID_CHANNEL_B = 3;
@@ -156,10 +156,10 @@ public final class Constants {
 
         public static final int[] SPEED_MOTOR_PORTS = {3, 2, 1, 0};
         public static final boolean[] SPEED_MOTOR_INVERTS_PRACTICE_BOT = {true, false, false, true};
-        public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {true, false, true, false};
+        public static final boolean[] SPEED_MOTOR_INVERTS_COMP_BOT = {false, false, true, false};
 
         // the number that must be added to the setpoint of the module's rotation (one per module), i.e. the value of the absolute encoder when the module is straight
-        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {1.146240117, 1.445312352, 2.126464626, 3.387450825}; // in encoder counts, changed offset 3 and 2
+        public static final double[] ANGLE_ENCODER_OFFSETS_COMP_BOT = {3.645, 3.521728155, 2.0751951, 3.389892231}; // in encoder counts, changed offset 3 and 2
         public static final double[] ANGLE_ENCODER_OFFSETS_PRACTICE_BOT = {0.468, 4.633, 4.360, 3.919}; // in encoder counts
 
         public static final double ANGLE_ENCODER_CPR = 5.0; // in encoder counts

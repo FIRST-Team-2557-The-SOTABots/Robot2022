@@ -39,6 +39,7 @@ public class SwerveModule extends SubsystemBase {
   private SimpleMotorFeedforward speedFF;
   private PIDController speedPID;
 
+  private AnalogInput test;
   /** Creates a new SwerveModule. */
   public SwerveModule(int moduleNumber, SwerveDrive swerveDrive) {
 
@@ -56,6 +57,8 @@ public class SwerveModule extends SubsystemBase {
     angleMotor.setIdleMode(IdleMode.kBrake);
     angleMotor.setInverted(ANGLE_MOTOR_INVERTS[moduleNumber]);
     angleEncoder = new AnalogInput(ANGLE_ENCODER_PORTS[moduleNumber]);
+
+    
 
     this.swerveDrive = swerveDrive;
 

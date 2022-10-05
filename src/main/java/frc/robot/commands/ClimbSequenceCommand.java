@@ -29,7 +29,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       // angle the climb to even with the bar, giving up if the command has not completed in a certain amount of time
       // then lower the angle hooks onto the bar by extending the hooks slightly
       // finally wait for a button press
-      new InstantCommand(() -> climber.unlock()),
+      // new InstantCommand(() -> /*climber.unlock()*/),
       new ExtendClimbCommand(climber, SimpleExtendMovement.TOP_TO_BOTTOM),
       new AngleClimbToPosition(climber, MID_ANGLE_ENCODER, RUN_TO_BAR_SPEED).withTimeout(ANGLE_HOOKS_TO_BAR_TIMEOUT),
       deadline(

@@ -4,10 +4,13 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 import static frc.robot.Constants.Climber.*;
+
+import java.text.FieldPosition;
 
 /**
  * A command to run the angle hooks to a specified position
@@ -64,7 +67,6 @@ public class AngleClimbToPosition extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     SmartDashboard.putString("Angle Command", "End");
-
     climber.runAngle(0.0);
   }
 

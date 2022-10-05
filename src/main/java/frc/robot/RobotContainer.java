@@ -25,6 +25,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -102,6 +103,7 @@ public class RobotContainer {
     configureButtonBindings();
 
     configureAutonomousCommands();
+
   }
 
 
@@ -214,7 +216,7 @@ public class RobotContainer {
 
   public void resetRobot() {
     climber.resetEncoders();
-    climber.lock();
+    // climber.lock();
     swerveDrive.speedMotorsBrake();
   }
 
@@ -312,7 +314,7 @@ public class RobotContainer {
       )
     );
 
-    ma.whenHeld(
+    ma.whenHeld(//I wont this to stay in the code forever - Jon
       parallel(
         new RunCommand(
           () -> {
@@ -388,7 +390,7 @@ public class RobotContainer {
     // and the conditional command does not select the proper command
 
     // Note: did some cleanup
-
+        
     mx.whileHeld(
       new AutoAim(limelight, shooter, delivery, swerveDrive, dStick)
       // new PIDCommand(
@@ -626,7 +628,61 @@ public class RobotContainer {
         generateStopDrivetrainCommand()
       )    
     );
+  //   PathPlannerTrajectory path3A = PathPlanner.loadPath("Path_3_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  // PathPlannerTrajectory path3B = PathPlanner.loadPath("Path_3_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  // PathPlannerTrajectory path3C = PathPlanner.loadPath("Path_3_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  // PathPlannerTrajectory path3D = PathPlanner.loadPath("Path_3_d", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  //   autoChooser.addOption("5 ball steal test",
+  // sequence(
+  //   new InstantCommand(
+  //     () ->{
+  //       swerveDrive.setPose(path3A.getInitialState());
+  //       shooter.hoodDown();
+  //       swerveDrive.shiftUp();
+  //     }
+  //   ),
+  //   deadline(
+  //     generatePPSwerveControllerCommand(path3A),
+  //     new InstantCommand(
+  //       () -> {
+  //       new IndexCommand(delivery,intake);
+  //       intake.extend();
+  //       intake.run(Constants.Intake.SPEED);
+  //       generateRevFlywheelCommand();
+  //     }
+  //     )
+  //   ),
+  //   generateStopDrivetrainCommand(),
+  //   generateAutoShootCommand(),
+  //   deadline(
+  //     generatePPSwerveControllerCommand(path3B),
+  //     generateRunAppendageCommand(),
+  //     generateStopShooterDeliveryCommand(),
+  //     new IndexCommand(delivery, intake)
+  //     ),
+  //     generateStopDrivetrainCommand(),
+  //     deadline(
+  //         generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+  //         sequence(
+  //           new IndexCommand(delivery, intake),
+  //           new IndexCommand(delivery, intake)
+  //         )
+  //       ),
+  //     deadline(
+  //       generatePPSwerveControllerCommand(path3C),
+  //       generateResetAppendageCommand(),
+  //       generateRevFlywheelCommand()
+  //       ),
+  //     generateAutoShootCommand().withTimeout(Constants.Auto.PATH_3_SHOOT_2_DURATION),
+  //     deadline(
+  //       generatePPSwerveControllerCommand(path3D),
+  //       generateRunAppendageCommand()
+  //     ),
+  //     generateRunOuttakeCommand()
+  // ).withTimeout(15.0)
+  // );
   }
+  
 
   private RunCommand generateRevFlywheelCommand() {
     return new RunCommand(
