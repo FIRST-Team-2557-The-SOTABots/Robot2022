@@ -18,21 +18,21 @@ import java.text.FieldPosition;
 public class AngleClimbToPosition extends CommandBase {
 
   private Climber climber;
-  private int setpoint;
+  private double setpoint;
   private double speed;
   private double tolerance;
   private boolean end;
   
   /** Creates a new AngleClimbToPosition. */
-  public AngleClimbToPosition(Climber climber, int setpoint, double speed) {
+  public AngleClimbToPosition(Climber climber, double setpoint, double speed) {
     this(climber, setpoint, speed, RUN_TO_ANGLE_TOLERANCE, true);
   }
 
-  public AngleClimbToPosition(Climber climber, int setpoint, double speed, double tolerance) {
+  public AngleClimbToPosition(Climber climber, double setpoint, double speed, double tolerance) {
     this(climber, setpoint, speed, tolerance, true);
   }
 
-  public AngleClimbToPosition(Climber climber, int setpoint, double speed, double tolerance, boolean end) {
+  public AngleClimbToPosition(Climber climber, double setpoint, double speed, double tolerance, boolean end) {
     this.climber = climber;
     this.setpoint = setpoint;
     this.speed = speed;

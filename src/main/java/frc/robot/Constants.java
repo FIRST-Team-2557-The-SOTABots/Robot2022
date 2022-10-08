@@ -73,28 +73,28 @@ public final class Constants {
         // HIGH refers to the encoder value when the hooks are angled so that the extend hooks are on the next bar
         // HAX refers to the encoder value when the hooks are in between MID and HIGH
         // MAX refers to the encoder value when the hooks are furthest from the intake at the hard stop
-        public static final int MIN_ANGLE_ENCODER = 0;
-        public static final int MID_ANGLE_ENCODER = isCompBot ? 600 : 300;
-        public static final int HIGH_ANGLE_ENCODER = 800; // 700;
-        public static final int HAX_ANGLE_ENCODER = 1000;
-        public static final int MAX_ANGLE_ENCODER = isCompBot ? 1873 : 1600;
+        public static final double MIN_ANGLE_ENCODER = 0;
+        public static final double MID_ANGLE_ENCODER = isCompBot ? 11.5 : 300;
+        public static final double HIGH_ANGLE_ENCODER = 9.524; // 700;
+        public static final double HAX_ANGLE_ENCODER = 11.5;
+        public static final double MAX_ANGLE_ENCODER = isCompBot ? 22.74 : 1600;
 
         // soft limits for the angle hooks in encoder ticks
         public static final double ANGLE_ENCODER_HIGH_LIMIT = MAX_ANGLE_ENCODER;
         public static final double ANGLE_ENCODER_LOW_LIMIT = MIN_ANGLE_ENCODER;
 
-        public static final double ANGLE_PID_MAX_VELOCITY = 450; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
-        public static final double ANGLE_PID_MAX_ACCELERATION = 900; // in encoder ticks per second per second, acceleration motion profile constraint for profiled angle movement
+        public static final double ANGLE_PID_MAX_VELOCITY = 50.36; // in encoder ticks per second, velocity motion profile constraint for profiled angle movement
+        public static final double ANGLE_PID_MAX_ACCELERATION = 100.715; // in encoder ticks per second per second, acceleration motion profile constraint for profiled angle movement
         public static final double ANGLE_PID_CHANGE_KP_RANGE = 200; // in encoder ticks, error within which kp will change to the value below
         public static final double ANGLE_PID_CHANGE_KP_VALUE = 0.002; // the reduced kp value for when error is within range, since less torque is needed as the robot gets closer when doing MAX_TO_HIGH
 
         public static final double EXTEND_UP_DELAY = 0.5; // seconds
         public static final double ANGLE_HOOKS_TO_BAR_TIMEOUT = 0.9; // time in seconds before command that moves angle hooks onto bar gives up
         public static final double SLOW_RETRACT_SPEED = -1.0; // duty cycle extend hooks retract at for reset
-        public static final double RUN_TO_ANGLE_TOLERANCE = 10; // in angle encoder counts, tolerance of AngleClimbToPosition
+        public static final double RUN_TO_ANGLE_TOLERANCE = 1; // in angle encoder counts, tolerance of AngleClimbToPosition
         public static final double RUN_TO_ANGLE_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition
         public static final double RUN_TO_BAR_SPEED = 0.2; // duty cycle angle hooks run at for AngleClimbToPosition when going onto the bar
-        public static final double RUN_TO_BAR_TOLERANCE = 5.0; // encoder counts tolerance for angling to bar
+        public static final double RUN_TO_BAR_TOLERANCE = 1.0; // encoder counts tolerance for angling to bar
         public static final double LOWER_TO_BAR_DELAY = 0.5; // seconds, how long to wait until lowering angle hooks to bar
         public static final double RUN_TO_ANGLE_SPEED_FAST = 0.4; // duty cycle angle hooks run at for AngleClimbToPosition
         public static final double RUN_TO_ANGLE_TOLERANCE_FAST = 50; // encoder counts tolerance for when angle hooks come back to minimum position
@@ -128,8 +128,8 @@ public final class Constants {
         }
 
         public enum AngleMovement {
-            MID_TO_MAX(0.000095, 0.0005, 0, MAX_ANGLE_ENCODER, 50.0),
-            MAX_TO_HIGH(0.003, 0.005, 0, HIGH_ANGLE_ENCODER, 50.0),
+            MID_TO_MAX(0.000095, 0.0005, 0, MAX_ANGLE_ENCODER, 1.0),
+            MAX_TO_HIGH(0.003, 0.005, 0, HIGH_ANGLE_ENCODER, 1.0),
             HOLD_HIGH(0.002, 0.005, 0, HIGH_ANGLE_ENCODER, 0.0);
 
             public final double kp;
@@ -329,6 +329,9 @@ public final class Constants {
 
         public static final double PATH_2_SHOOT_1_DURATION = 3.5;
         public static final double PATH_2_OUTTAKE_2_DURATION = 1.0;
+
+        public static final double PATH_3_SHOOT_1_DURATION = 3.5;     //for new auto
+        public static final double PATH_3_SHOOT_2_DURATION = 2;
 
         public static final double BACK_UP_AUTO_DURATION = 2.0; // seconds
 

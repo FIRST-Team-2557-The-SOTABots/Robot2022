@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -20,6 +22,7 @@ public class AnglePIDCommand extends ParallelRaceGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
+      new InstantCommand(() -> SmartDashboard.putNumber("setpoint", angleMovement.setpoint)),
       new PIDCommand(
         new PIDController(angleMovement.kp, angleMovement.ki, angleMovement.kd),
         () -> climber.getAngleEncoderPosition(), 

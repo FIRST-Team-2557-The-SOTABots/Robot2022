@@ -20,6 +20,7 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
     addCommands(
       // Step 1: extend the climb hooks to the top, then wait for a button press
       new ExtendClimbCommand(climber, SimpleExtendMovement.BOTTOM_TO_TOP),
+      new InstantCommand(() -> climber.setAngleMotorBrake()),
       new WaitUntilCommand(() -> {
         SmartDashboard.putString("Climb Sequence", "waiting");
         return button.getAsBoolean();}).andThen(
@@ -51,9 +52,9 @@ public class ClimbSequenceCommand extends SequentialCommandGroup {
       parallel(
         new AnglePIDCommand(climber, AngleMovement.MID_TO_MAX),
         new SequentialCommandGroup(
-          new WaitCommand(EXTEND_UP_DELAY),
+          new WaitUntilCommand(() -> climber.getAngleEncoderPosition() > 15),
           new ExtendClimbCommand(climber, SimpleExtendMovement.MID_TO_TOP)
-        )
+        ) 
       ),
       race(
         new AngleProfiledPIDCommand(AngleMovement.MAX_TO_HIGH, climber),

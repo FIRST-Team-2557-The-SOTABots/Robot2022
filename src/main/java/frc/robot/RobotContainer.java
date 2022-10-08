@@ -19,6 +19,8 @@ import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -103,7 +105,8 @@ public class RobotContainer {
     configureButtonBindings();
 
     configureAutonomousCommands();
-
+    
+    climber.setAngleMotorBrake();
   }
 
 
@@ -628,59 +631,57 @@ public class RobotContainer {
         generateStopDrivetrainCommand()
       )    
     );
-  //   PathPlannerTrajectory path3A = PathPlanner.loadPath("Path_3_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
-  // PathPlannerTrajectory path3B = PathPlanner.loadPath("Path_3_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
-  // PathPlannerTrajectory path3C = PathPlanner.loadPath("Path_3_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
-  // PathPlannerTrajectory path3D = PathPlanner.loadPath("Path_3_d", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
-  //   autoChooser.addOption("5 ball steal test",
-  // sequence(
-  //   new InstantCommand(
-  //     () ->{
-  //       swerveDrive.setPose(path3A.getInitialState());
-  //       shooter.hoodDown();
-  //       swerveDrive.shiftUp();
-  //     }
-  //   ),
-  //   deadline(
-  //     generatePPSwerveControllerCommand(path3A),
-  //     new InstantCommand(
-  //       () -> {
-  //       new IndexCommand(delivery,intake);
-  //       intake.extend();
-  //       intake.run(Constants.Intake.SPEED);
-  //       generateRevFlywheelCommand();
-  //     }
-  //     )
-  //   ),
-  //   generateStopDrivetrainCommand(),
-  //   generateAutoShootCommand(),
-  //   deadline(
-  //     generatePPSwerveControllerCommand(path3B),
-  //     generateRunAppendageCommand(),
-  //     generateStopShooterDeliveryCommand(),
-  //     new IndexCommand(delivery, intake)
-  //     ),
-  //     generateStopDrivetrainCommand(),
-  //     deadline(
-  //         generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
-  //         sequence(
-  //           new IndexCommand(delivery, intake),
-  //           new IndexCommand(delivery, intake)
-  //         )
-  //       ),
-  //     deadline(
-  //       generatePPSwerveControllerCommand(path3C),
-  //       generateResetAppendageCommand(),
-  //       generateRevFlywheelCommand()
-  //       ),
-  //     generateAutoShootCommand().withTimeout(Constants.Auto.PATH_3_SHOOT_2_DURATION),
-  //     deadline(
-  //       generatePPSwerveControllerCommand(path3D),
-  //       generateRunAppendageCommand()
-  //     ),
-  //     generateRunOuttakeCommand()
-  // ).withTimeout(15.0)
-  // );
+    PathPlannerTrajectory path3A = PathPlanner.loadPath("Path_3_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  PathPlannerTrajectory path3B = PathPlanner.loadPath("Path_3_A", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  PathPlannerTrajectory path3C = PathPlanner.loadPath("Path_3_C", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  PathPlannerTrajectory path3D = PathPlanner.loadPath("Path_3_d", Constants.Auto.MAX_WHEEL_SPEED, Constants.Auto.MAX_WHEEL_ACCELERATION);
+  //TODO try to make it so the robot hits the other ball in a smooth motion in path C. This could allow for a faster transition
+    autoChooser.addOption("5 ball steal test",
+  sequence(
+    new InstantCommand(
+      () ->{
+        swerveDrive.setPose(path3A.getInitialState());
+        shooter.hoodDown();
+        swerveDrive.shiftUp();
+      },swerveDrive
+    ),
+    deadline(
+      generatePPSwerveControllerCommand(path3A),
+      generateRunAppendageCommand(),
+      generateRevFlywheelCommand(),
+      new IndexCommand(delivery, intake)
+      
+      ),
+    
+    generateStopDrivetrainCommand(),
+    generateAutoShootCommand(),
+    deadline(
+      generatePPSwerveControllerCommand(path3B),
+      generateRunAppendageCommand(),
+      generateStopShooterDeliveryCommand(),
+      new IndexCommand(delivery, intake)
+      ),
+      generateStopDrivetrainCommand(),
+      deadline(
+          generateRunAppendageCommand().withTimeout(Constants.Auto.HUMAN_PLAYER_WAIT_TIME),
+          sequence(
+            new IndexCommand(delivery, intake),
+            new IndexCommand(delivery, intake)
+          )
+        ),
+      deadline(
+        generatePPSwerveControllerCommand(path3C),
+        generateResetAppendageCommand(),
+        generateRevFlywheelCommand()
+        ),
+      generateAutoShootCommand().withTimeout(Constants.Auto.PATH_3_SHOOT_2_DURATION),
+      deadline(
+        generatePPSwerveControllerCommand(path3D),
+        generateRunAppendageCommand()
+      ),
+      generateRunOuttakeCommand()
+  ).withTimeout(15.0)
+  );
   }
   
 

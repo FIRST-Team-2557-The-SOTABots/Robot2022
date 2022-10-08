@@ -49,7 +49,7 @@ public class Climber extends SubsystemBase {
     rightHook.setIdleMode(IdleMode.kBrake);
     angleMotor = new CANSparkMax(ANGLE_MOTOR_PORT, MotorType.kBrushless);
     angleMotor.restoreFactoryDefaults();
-    angleMotor.setIdleMode(IdleMode.kCoast);
+    angleMotor.setIdleMode(IdleMode.kBrake);
     // angleMotor.setSelectedSensorPosition(MIN_ANGLE_ENCODER);
     // angleMotor.setInverted(ANGLE_HOOK_INVERTED);
     // angleMotor.setNeutralMode(NeutralMode.Brake);
@@ -168,11 +168,11 @@ public class Climber extends SubsystemBase {
    * negative angles towards the intake.
    */
   public void runAngle(double spd) {
-    // if (getAngleEncoderPosition() >= ANGLE_ENCODER_HIGH_LIMIT)
-    //   spd = Math.min(0, spd);
+    if (getAngleEncoderPosition() >= ANGLE_ENCODER_HIGH_LIMIT)
+      spd = Math.min(0, spd);
 
-    // if (getAngleEncoderPosition() <= ANGLE_ENCODER_LOW_LIMIT)
-    //   spd = Math.max(0, spd);
+    if (getAngleEncoderPosition() <= ANGLE_ENCODER_LOW_LIMIT)
+      spd = Math.max(0, spd);
 
     // don't allow angle motor to move if it is locked or in stall protection
     if (getLocked() || stallProtectionOn)
