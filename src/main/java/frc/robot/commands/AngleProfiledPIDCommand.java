@@ -51,9 +51,8 @@ public class AngleProfiledPIDCommand extends CommandBase {
       } else {
         controller.setP(angleMovement.kp);
       }
-
+      
       double output = controller.calculate(climber.getAngleEncoderPosition());
-      SmartDashboard.putNumber("prof angle pid output", output);
       climber.runAngle(output);
     }
   } 

@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -30,28 +31,23 @@ public class SwerveDrive extends SubsystemBase {
   private boolean fieldCentricActive = true;
 
   private AHRS gyro;
-  private DoubleSolenoid shifter;
+  private SwerveShifter shifter;
   
   private SwerveDriveOdometry odometry;
   
   /** Creates a new SwerveDrive. */
-  public SwerveDrive() {
-    swerveDriveKinematics = new SwerveDriveKinematics(
-      FRONT_LEFT_MODULE_POSITION,
-      FRONT_RIGHT_MODULE_POSITION,
-      BACK_LEFT_MODULE_POSITION,
-      BACK_RIGHT_MODULE_POSITION
-    );
+  public SwerveDrive(AHRS gyro, SwerveDriveKinematics swerveDriveKinematics, SwerveShifter shifter) {
+    this.swerveDriveKinematics = swerveDriveKinematics;
     for (int i = 0; i < NUM_MODULES; i++) {
-      swerveModules[i] = new SwerveModule(i, this);
+      swerveModules[i] = new SwerveModule(i, shifter);
     }
     for (int i = 0; i < NUM_MODULES; i++) {
       moduleStates[i] = new SwerveModuleState(0.0, new Rotation2d(0.0));
     }
-    gyro = new AHRS(SerialPort.Port.kMXP);
+    this.gyro = gyro;
     gyro.reset();
     gyro.setAngleAdjustment(0.0);
-    shifter = new DoubleSolenoid(PneumaticsModuleType.REVPH, FORWARD_CHANNEL_PORT, REVERSE_CHANNEL_PORT);
+    this.shifter = shifter;
     shiftDown();
 
     odometry = new SwerveDriveOdometry(swerveDriveKinematics, new Rotation2d(getGyroAngle()), new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
@@ -96,7 +92,7 @@ public class SwerveDrive extends SubsystemBase {
    * Shifts to high gear
    */
   public void shiftUp() {
-    shifter.set(HIGH_GEAR_VALUE);
+    shifter.shift(shifter.getGear() + 1);
   }
 
 
@@ -105,7 +101,7 @@ public class SwerveDrive extends SubsystemBase {
    * Shifts to low gear
    */
   public void shiftDown() {
-    shifter.set(LOW_GEAR_VALUE);
+    shifter.shift(shifter.getGear() - 1);
   }
 
 
@@ -195,7 +191,7 @@ public class SwerveDrive extends SubsystemBase {
    * @return the current gear. 0 is low, 1 is high
    */
   public int getCurrentGear() {
-      return shifter.get() == HIGH_GEAR_VALUE ? 1 : 0;
+      return shifter.getGear();
   }
 
 

@@ -32,16 +32,15 @@ public class SwerveModule extends SubsystemBase {
   private CANSparkMax angleMotor;
   private AnalogInput angleEncoder;
   
-  private SwerveDrive swerveDrive;
+  private SwerveShifter shifter;
 
   private SimpleMotorFeedforward angleFF;
   private ProfiledPIDController anglePID;
   private SimpleMotorFeedforward speedFF;
   private PIDController speedPID;
 
-  private AnalogInput test;
   /** Creates a new SwerveModule. */
-  public SwerveModule(int moduleNumber, SwerveDrive swerveDrive) {
+  public SwerveModule(int moduleNumber, SwerveShifter shifter) {
 
     this.moduleNumber = moduleNumber;
 
@@ -60,7 +59,7 @@ public class SwerveModule extends SubsystemBase {
 
     
 
-    this.swerveDrive = swerveDrive;
+    this.shifter = shifter;
 
     // NOTE: angle PID deals in native absolute encoder units, where counterclockwise module rotation (from above) is positive
     // speed PID deals in native integrated quadrature encoder units
@@ -161,7 +160,7 @@ public class SwerveModule extends SubsystemBase {
    * @return the current gear of the module
    */
   public int getCurrentGear() {
-      return swerveDrive.getCurrentGear();
+      return shifter.getGear();
   }
 
 

@@ -16,6 +16,7 @@ import static frc.robot.Constants.Delivery.*;
 
 import static edu.wpi.first.wpilibj2.command.CommandGroupBase.*;
 
+import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
@@ -23,10 +24,14 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -54,10 +59,13 @@ import frc.robot.Constants.Climber.AngleMovement;
 import frc.robot.Constants.Control.Driver;
 import frc.robot.Constants.Control.Manipulator;
 import frc.robot.subsystems.Delivery;
+import frc.robot.subsystems.DoubleSolenoidSwerveShifter;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.SwerveShifter;
 import frc.robot.util.UninterruptibleProxyScheduleCommand;
 
 /**
@@ -70,7 +78,14 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private Climber climber = new Climber();
-  private SwerveDrive swerveDrive = new SwerveDrive();
+  private SwerveDriveKinematics swerveDriveKinematics;
+  private AHRS gyro = new AHRS(Port.kMXP);
+  
+  private SwerveModule[] swerveModules;
+  private DoubleSolenoid doubleSolenoid 
+   = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.Swerve.FORWARD_CHANNEL_PORT, Constants.Swerve.REVERSE_CHANNEL_PORT);
+   private SwerveShifter shifter = new DoubleSolenoidSwerveShifter(doubleSolenoid);
+  private SwerveDrive swerveDrive;// = new SwerveDrive();
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
   private Delivery delivery = new Delivery();
@@ -100,6 +115,18 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    
+    this.swerveDriveKinematics = new SwerveDriveKinematics(
+      FRONT_LEFT_MODULE_POSITION,
+      FRONT_RIGHT_MODULE_POSITION,
+      BACK_LEFT_MODULE_POSITION,
+      BACK_RIGHT_MODULE_POSITION
+    );
+    for (int i = 0; i < NUM_MODULES; i++) {
+      swerveModules[i] = new SwerveModule(i, shifter);
+    }
+    swerveDrive = new SwerveDrive(gyro, swerveDriveKinematics, shifter);
+
     configureDefaultCommands();
 
     configureButtonBindings();
@@ -141,7 +168,6 @@ public class RobotContainer {
 
           // pass inputs into drivetrain
           swerveDrive.drive(fwd, str, rot);
-
 
           if (dStick.getRawAxis(LEFT_TRIGGER) != 0.0) {
             swerveDrive.shiftDown();
